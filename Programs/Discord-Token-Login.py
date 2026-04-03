@@ -1,10 +1,11 @@
-# Copyright (c) 2025 v4lkyr0/v4lkyr_
+# Copyright (c) 2025 v4lkyr0
 # See LICENSE file for details
 
 from Plugins.Utils import *
 from Plugins.Config import *
 
 try:
+    import time
     from selenium import webdriver
 except Exception as e:
     MissingModule(e)
@@ -14,6 +15,7 @@ Connection()
 
 try:
     token = ChoiceToken()
+
     Scroll(f"""
  {PREFIX}01{SUFFIX} Google Chrome
  {PREFIX}02{SUFFIX} Microsoft Edge
@@ -22,12 +24,12 @@ try:
     browser_choice = input(f"{INPUT} Browser {red}->{reset} ").strip().lstrip("0")
 
     BROWSERS = {
-        "1": ("Google Chrome", webdriver.Chrome),
-        "2": ("Microsoft Edge", webdriver.Edge),
+        "1": ("Google Chrome",   webdriver.Chrome),
+        "2": ("Microsoft Edge",  webdriver.Edge),
         "3": ("Mozilla Firefox", webdriver.Firefox)
     }
 
-    if browser_choice not in BROWSERS or not browser_choice:
+    if browser_choice not in BROWSERS:
         ErrorNumber()
 
     browser_name, driver_class = BROWSERS[browser_choice]

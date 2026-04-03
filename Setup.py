@@ -1,4 +1,4 @@
-# Copyright (c) 2025 v4lkyr0/v4lkyr_
+# Copyright (c) 2025 v4lkyr0
 # See LICENSE file for details
 
 from Programs.Plugins.Config import *

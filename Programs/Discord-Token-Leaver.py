@@ -1,4 +1,4 @@
-# Copyright (c) 2025 v4lkyr0/v4lkyr_
+# Copyright (c) 2025 v4lkyr0
 # See LICENSE file for details
 
 from Plugins.Utils import *
@@ -13,33 +13,35 @@ Title("Discord Token Leaver")
 Connection()
 
 try:
-    token = ChoiceToken()
+    token     = ChoiceToken()
     guilds_id = requests.get("https://discord.com/api/v9/users/@me/guilds", headers={'Authorization': token}).json()
+
     if not guilds_id:
-        print(f"{INFO} No Server found.", reset)
+        print(f"{ERROR} No Server found!", reset)
         Continue()
         Reset()
 
-    print(f"{INFO} Leaving all Servers..")
-        
+    print(f"{LOADING} Leaving all Servers..", reset)
+
     for i in range(0, len(guilds_id), 3):
-        guild_group = guilds_id[i:i+3]
-            
-        for guilds in guild_group:
+        for guild in guilds_id[i:i+3]:
             try:
-                response = requests.delete(f'https://discord.com/api/v9/users/@me/guilds/'+guilds['id'], headers={'Authorization': token})
-                if response.status_code == 204 or response.status_code == 200:
-                    print(f"{SUCCESS} Status:{red} Left   {white}| Server:{red} {guilds['name']}", reset)
+                response = requests.delete(f"https://discord.com/api/v9/users/@me/guilds/{guild['id']}", headers={'Authorization': token})
+                if response.status_code in [200, 204]:
+                    print(f"{SUCCESS} Status:{red} Left   {white}| Server:{red} {guild['name']}", reset)
                 elif response.status_code == 400:
-                    response = requests.delete(f'https://discord.com/api/v9/guilds/'+guilds['id'], headers={'Authorization': token})
-                    if response.status_code == 204 or response.status_code == 200:
-                        print(f"{SUCCESS} Status:{red} Left   {white}| Server:{red} {guilds['name']}", reset)
+                    response = requests.delete(f"https://discord.com/api/v9/guilds/{guild['id']}", headers={'Authorization': token})
+                    if response.status_code in [200, 204]:
+                        print(f"{SUCCESS} Status:{red} Left   {white}| Server:{red} {guild['name']}", reset)
                     else:
-                        print(f"{ERROR} Status:{red} Failed {white}| Server:{red} {guilds['name']}", reset)
+                        print(f"{ERROR} Status:{red} Failed {white}| Server:{red} {guild['name']}", reset)
+                else:
+                    print(f"{ERROR} Status:{red} Failed {white}| Server:{red} {guild['name']}", reset)
             except:
-                print(f"{ERROR} Status:{red} Error  {white}| Server:{red} {guilds['name']}", reset)
-        Continue()
-        Reset()
+                print(f"{ERROR} Status:{red} Error  {white}| Server:{red} {guild['name']}", reset)
+
+    Continue()
+    Reset()
 
 except Exception as e:
     Error(e)

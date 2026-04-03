@@ -1,8 +1,8 @@
-# Copyright (c) 2025 v4lkyr0/v4lkyr_
+# Copyright (c) 2025 v4lkyr0
 # See LICENSE file for details
 
 name_tool    = "Buildware"
-version_tool = "1.0"
+version_tool = "1.1"
 author_tool  = "v4lkyr0/v4lkyr_"
 type_tool    = "Discord API Tool"
 license      = "Proprietary License"
