@@ -1,4 +1,4 @@
-# Copyright (c) 2025 v4lkyr0
+# Copyright (c) 2026 v4lkyr0
 # See LICENSE file for details
 
 from Plugins.Utils import *
@@ -19,8 +19,8 @@ try:
     print(f"{LOADING} Retrieving Information..", reset)
 
     headers  = {'Authorization': token, 'Content-Type': 'application/json'}
-    api      = requests.get('https://discord.com/api/v8/users/@me', headers={'Authorization': token}).json()
-    response = requests.get('https://discord.com/api/v8/users/@me', headers=headers)
+    api      = requests.get('https://discord.com/api/v9/users/@me', headers={'Authorization': token}).json()
+    response = requests.get('https://discord.com/api/v9/users/@me', headers=headers)
 
     status = "Valid" if response.status_code == 200 else "Invalid"
 
@@ -73,7 +73,7 @@ try:
         avatar_url = "No Avatar"
 
     try:
-        billing = requests.get('https://discord.com/api/v6/users/@me/billing/payment-sources', headers={'Authorization': token}).json()
+        billing = requests.get('https://discord.com/api/v9/users/@me/billing/payment-sources', headers={'Authorization': token}).json()
         if billing:
             payment_map     = {1: 'Credit Card', 2: 'PayPal'}
             payment_methods = ', '.join([payment_map.get(m['type'], 'Other') for m in billing])
@@ -96,7 +96,7 @@ try:
             owner_guilds = [g for g in guilds if g.get('owner')]
             owner_guilds_count = len(owner_guilds)
             if owner_guilds:
-                owner_guilds_names = '\n' + ', '.join([f"{g.get('name')} {red}({white}{g.get('id')}{red})" for g in owner_guilds])
+                owner_guilds_names = '\n' + ', '.join(f"{g.get('name')} {red}({white}{g.get('id')}{red})" for g in owner_guilds)
             else:
                 owner_guilds_names = ''
         else:
@@ -109,7 +109,7 @@ try:
         owner_guilds_names = ''
 
     try:
-        relationships = requests.get('https://discord.com/api/v8/users/@me/relationships', headers={'Authorization': token}).json()
+        relationships = requests.get('https://discord.com/api/v9/users/@me/relationships', headers={'Authorization': token}).json()
         friends_list  = []
         for friend in relationships:
             if friend.get('type') != 1:
@@ -119,7 +119,7 @@ try:
             if len('\n'.join(friends_list)) + len(friend_str) >= 1024:
                 continue
             friends_list.append(friend_str)
-        friends = f"{len(friends_list)}\n" + ', '.join(friends_list) if friends_list else 'None'
+        friends = f"{len(friends_list)}\n{', '.join(friends_list)}" if friends_list else 'None'
     except:
         friends = 'None'
 

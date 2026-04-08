@@ -1,14 +1,14 @@
-# Copyright (c) 2025 v4lkyr0
+# Copyright (c) 2026 v4lkyr0
 # See LICENSE file for details
 
 from Plugins.Utils import *
 from Plugins.Config import *
 
 try:
-    import websocket
     import json
     import threading
     import time
+    import websocket
 except Exception as e:
     MissingModule(e)
 
@@ -17,7 +17,28 @@ Connection()
 
 try:
     token = ChoiceToken()
-    ws    = websocket.WebSocket()
+    
+    print(f"\n{INFO} Status Options:")
+    print(f"{PREFIX}01{SUFFIX} Online")
+    print(f"{PREFIX}02{SUFFIX} Idle")
+    print(f"{PREFIX}03{SUFFIX} Do Not Disturb")
+    print(f"{PREFIX}04{SUFFIX} Invisible\n")
+    
+    status_choice = input(f"{INPUT} Status {red}->{reset} ").strip().lstrip("0")
+    
+    status_map = {
+        "1": "online",
+        "2": "idle",
+        "3": "dnd",
+        "4": "invisible"
+    }
+    
+    if status_choice in status_map:
+        status = status_map[status_choice]
+    else:
+        status = "online"
+    
+    ws = websocket.WebSocket()
     ws.settimeout(30)
     ws.connect('wss://gateway.discord.gg/?v=9&encoding=json')
     
@@ -57,7 +78,7 @@ try:
                                              '$browser': 'RTB',
                                              '$device': f'{platform_pc.lower()} Device'},
                               'presence': {'activities': [],
-                                           'status': 'online',
+                                           'status': status,
                                            'since': 0,
                                            'afk': False}}}
                 ws.send(json.dumps(auth))

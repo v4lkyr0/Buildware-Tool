@@ -1,3 +1,6 @@
+# Copyright (c) 2026 v4lkyr0
+# See LICENSE file for details
+
 from Plugins.Utils import *
 from Plugins.Config import *
 
@@ -11,24 +14,33 @@ Title("Discord Token Ghost Pinger")
 Connection()
 
 try:
-    token   = ChoiceToken()
-    message = input(f"{INPUT} Message {red}->{reset} ")
-    if not message:
-        ErrorInput()
+    token = ChoiceToken()
+    
+    message = input(f"{INPUT} Message {red}({white}optional{red}) ->{reset} ").strip()
 
-    delay = input(f"{INPUT} Delay Pings {red}->{reset} ").strip()
+    delay_delete = input(f"{INPUT} Delay Before Delete {red}({white}seconds{red}) ->{reset} ").strip()
     try:
-        delay = float(delay)
+        delay_delete = float(delay_delete)
+        if delay_delete < 0:
+            delay_delete = 0.1
     except:
-        delay = 0.5
+        delay_delete = 0.1
 
-    print(f"{LOADING} Fetching Friends..", reset)
+    delay_between = input(f"{INPUT} Delay Between Pings {red}({white}seconds{red}) ->{reset} ").strip()
+    try:
+        delay_between = float(delay_between)
+        if delay_between < 0:
+            delay_between = 0.5
+    except:
+        delay_between = 0.5
 
     headers = {
         "Authorization": token,
         "Content-Type": "application/json",
         "User-Agent": RandomUserAgents()
     }
+
+    print(f"{LOADING} Fetching Friends..", reset)
 
     relationships = requests.get(
         "https://discord.com/api/v9/users/@me/relationships",
@@ -58,30 +70,34 @@ try:
 
             if dm_response.status_code != 200:
                 print(f"{ERROR} Status:{red} Failed  {white}| Username:{red} {username}", reset)
+                time.sleep(delay_between)
                 continue
 
             channel_id = dm_response.json()["id"]
 
+            ping_content = f"<@{user_id}> {message}" if message else f"<@{user_id}>"
+
             ping_response = requests.post(
                 f"https://discord.com/api/v9/channels/{channel_id}/messages",
                 headers=headers,
-                json={"content": f"<@{user_id}>"}
+                json={"content": ping_content}
             )
 
             if ping_response.status_code not in [200, 201]:
                 print(f"{ERROR} Status:{red} Failed  {white}| Username:{red} {username}", reset)
+                time.sleep(delay_between)
                 continue
 
-            ping_message_id = ping_response.json()["id"]
-            time.sleep(0.3)
+            message_id = ping_response.json()["id"]
+            
+            time.sleep(delay_delete)
 
-            edit_response = requests.patch(
-                f"https://discord.com/api/v9/channels/{channel_id}/messages/{ping_message_id}",
-                headers=headers,
-                json={"content": message}
+            delete_response = requests.delete(
+                f"https://discord.com/api/v9/channels/{channel_id}/messages/{message_id}",
+                headers=headers
             )
 
-            if edit_response.status_code == 200:
+            if delete_response.status_code == 204:
                 print(f"{SUCCESS} Status:{red} Pinged  {white}| Username:{red} {username}", reset)
             else:
                 print(f"{ERROR} Status:{red} Failed  {white}| Username:{red} {username}", reset)
@@ -89,7 +105,7 @@ try:
         except:
             print(f"{ERROR} Status:{red} Error   {white}| Username:{red} {username}", reset)
 
-        time.sleep(delay)
+        time.sleep(delay_between)
 
     Continue()
     Reset()

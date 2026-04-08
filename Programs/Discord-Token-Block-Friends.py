@@ -1,4 +1,4 @@
-# Copyright (c) 2025 v4lkyr0
+# Copyright (c) 2026 v4lkyr0
 # See LICENSE file for details
 
 from Plugins.Utils import *
@@ -32,6 +32,8 @@ try:
             except:
                 print(f"{ERROR} Status:{red} Error   {white}| Username:{red} Unknown", reset)
 
+    CHUNK_SIZE = 3
+    
     processes = []
     friend_id = requests.get("https://discord.com/api/v9/users/@me/relationships", headers={'Authorization': token, 'Content-Type': 'application/json'}).json()
 
@@ -40,7 +42,7 @@ try:
         Continue()
         Reset()
 
-    for friends in [friend_id[i:i+3] for i in range(0, len(friend_id), 3)]:
+    for friends in [friend_id[i:i+CHUNK_SIZE] for i in range(0, len(friend_id), CHUNK_SIZE)]:
         t = threading.Thread(target=BlockFriends, args=(token, friends))
         t.start()
         processes.append(t)

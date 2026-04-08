@@ -1,4 +1,4 @@
-# Copyright (c) 2025 v4lkyr0
+# Copyright (c) 2026 v4lkyr0
 # See LICENSE file for details
 
 from Plugins.Utils import *
@@ -14,7 +14,7 @@ try:
  {INFO} Author    :{red} {author_tool}
  {INFO} GitHub    :{red} {github_url}
  {INFO} Guns.lol  :{red} {gunslol_url}
- {INFO} License   :{red} {license}
+ {INFO} License   :{red} {license} ({license_url})
     """)
     Continue()
     Reset()

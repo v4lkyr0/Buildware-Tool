@@ -1,15 +1,15 @@
-# Copyright (c) 2025 v4lkyr0
+# Copyright (c) 2026 v4lkyr0
 # See LICENSE file for details
 
 from Plugins.Utils import *
 from Plugins.Config import *
 
 try:
+    import json
+    import random
     import requests
     import string
-    import random
     import threading
-    import json
 except Exception as e:
     MissingModule(e)
 
@@ -35,9 +35,10 @@ try:
         requests.post(webhook, data=json.dumps(payload), headers={'Content-Type': 'application/json'})
 
     def TokenCheck():
-        first_part  = ''.join(random.choice(string.ascii_letters + string.digits + '-_') for _ in range(random.choice([24, 26])))
-        second_part = ''.join(random.choice(string.ascii_letters + string.digits + '-_') for _ in range(6))
-        third_part  = ''.join(random.choice(string.ascii_letters + string.digits + '-_') for _ in range(38))
+        TOKEN_CHARS = string.ascii_letters + string.digits + '-_'
+        first_part  = ''.join(random.choice(TOKEN_CHARS) for _ in range(random.choice([24, 26])))
+        second_part = ''.join(random.choice(TOKEN_CHARS) for _ in range(6))
+        third_part  = ''.join(random.choice(TOKEN_CHARS) for _ in range(38))
         token       = f"{first_part}.{second_part}.{third_part}"
 
         try:

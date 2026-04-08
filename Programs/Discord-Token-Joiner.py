@@ -1,4 +1,4 @@
-# Copyright (c) 2025 v4lkyr0
+# Copyright (c) 2026 v4lkyr0
 # See LICENSE file for details
 
 from Plugins.Utils import *
@@ -16,17 +16,15 @@ try:
     token = ChoiceToken()
     invite_code = input(f"{INPUT} Server Invitation {red}->{reset} ").split("/")[-1]
 
-    print(f"{LOADING} Joining the Server..", reset)
+    print(f"{LOADING} Joining Server..", reset)
 
-    try:
-        response = requests.post(f"https://discord.com/api/v9/invites/{invite_code}", headers={'Authorization': token})
+    headers = {"Authorization": token}
+    response = requests.post(f"https://discord.com/api/v9/invites/{invite_code}", headers=headers)
 
-        if response.status_code == 200:
-            print(f"{SUCCESS} Token joined the Server!", reset)
-        else:
-            print(f"{ERROR} Failed to join the Server!", reset)
-    except:
-        print(f"{ERROR} Error while trying to join the Server!", reset)
+    if response.status_code == 200:
+        print(f"{SUCCESS} Token joined Server!", reset)
+    else:
+        print(f"{ERROR} Failed to join Server!", reset)
 
     Continue()
     Reset()

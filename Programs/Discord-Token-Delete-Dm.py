@@ -1,4 +1,4 @@
-# Copyright (c) 2025 v4lkyr0
+# Copyright (c) 2026 v4lkyr0
 # See LICENSE file for details
 
 from Plugins.Utils import *
@@ -29,6 +29,8 @@ try:
             except:
                 print(f"{ERROR} Status:{red} Error   {white}| Channel Id:{red} {channel['id']}", reset)
 
+    CHUNK_SIZE = 3
+    
     processes  = []
     channel_id = requests.get("https://discord.com/api/v9/users/@me/channels", headers={'Authorization': token}).json()
 
@@ -37,7 +39,7 @@ try:
         Continue()
         Reset()
 
-    for channel in [channel_id[i:i+3] for i in range(0, len(channel_id), 3)]:
+    for channel in [channel_id[i:i+CHUNK_SIZE] for i in range(0, len(channel_id), CHUNK_SIZE)]:
         t = threading.Thread(target=DeleteDm, args=(token, channel))
         t.start()
         processes.append(t)

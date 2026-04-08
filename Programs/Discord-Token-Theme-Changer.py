@@ -1,4 +1,4 @@
-# Copyright (c) 2025 v4lkyr0
+# Copyright (c) 2026 v4lkyr0
 # See LICENSE file for details
 
 from Plugins.Utils import *
@@ -17,28 +17,28 @@ try:
 
     Scroll(f"""
  {PREFIX}01{SUFFIX} Light Theme
- {PREFIX}02{SUFFIX} Ash Theme
- {PREFIX}03{SUFFIX} Dark Theme
- {PREFIX}04{SUFFIX} Onyx Theme
+ {PREFIX}02{SUFFIX} Dark Theme
+ {PREFIX}03{SUFFIX} Darker Theme
+ {PREFIX}04{SUFFIX} Midnight Theme
 """)
     choice = input(f"{INPUT} Choice {red}->{reset} ").strip().lstrip("0")
 
     themes = {
         "1": "light",
-        "2": "dark", 
+        "2": "dark",
         "3": "darker",
         "4": "midnight"
     }
     if choice in themes:
         theme = themes[choice]
 
-        headers = {'Authorization': token, 'Content-Type': 'application/json'}
-        data    = {"theme": theme}
+        print(f"{LOADING} Changing Theme..", reset)
 
-        print(f"{INFO} Changing Theme..", reset)
+        headers = {"Authorization": token, "Content-Type": "application/json"}
+        data = {"theme": theme}
 
         try:
-            response = requests.patch('https://discord.com/api/v9/users/@me/settings', json=data, headers=headers)
+            response = requests.patch("https://discord.com/api/v9/users/@me/settings", json=data, headers=headers)
             if response.status_code == 200:
                 print(f"{SUCCESS} Theme changed!", reset)
             else:

@@ -1,4 +1,4 @@
-# Copyright (c) 2025 v4lkyr0
+# Copyright (c) 2026 v4lkyr0
 # See LICENSE file for details
 
 from Plugins.Utils import *
@@ -10,35 +10,41 @@ try:
     changelog = f"""
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
- {INFO} {red} Creator Message:
- {INFO}    - Sorry for the slower progress lately. I've had a heavy teaching workload and other commitments, which
-          limited the time I could dedicate to development. Things should be moving forward more consistently soon.
-          Thanks for your patience.
+ {INFO}{red} Creator Message:
+ {INFO}    - Hello {username_pc}! Hope you're enjoying all the features in this tool. If you like it
+          and want to support the project, feel free to leave a star on the repository!
  
  {INFO} {red}New Features:
- {INFO}    - Discord Token Ghost Pinger
+ {INFO}    - Discord Token Grabber Builder [Star Required]
+ {INFO}    - Discord Injection Builder     [Star Required]
+ {INFO}    - Discord Injection Cleaner
+ {INFO}    - Discord Server Scraper        [Star Required]
+ {INFO}    - Discord Server Cloner         [Star Required]
+ {INFO}    - Discord Server Editor
+ {INFO}    - Discord Vanity Url Sniper     [Star Required]
+ {INFO}    - Discord Invite Generator
+ {INFO}    - Discord Invite Tracker
+ {INFO}    - Discord Embed Creator
+ {INFO}    - Discord Bot Information
+ {INFO}    - Discord Bot Nuker             [Star Required]
+ {INFO}    - Discord Bot Raider            [Star Required]
+ {INFO}    - Discord Token Banner Changer
+ {INFO}    - Discord Server Ban All        [Star Required]
+ {INFO}    - Discord Server Kick All
+ {INFO}    - Discord Server Unban All
+ {INFO}    - Discord Server Mute All
 
  {INFO} {red}Improvements:
- {INFO}    - README file updated.
- {INFO}    - Extras Files updated.
- {INFO}    - Added a second page to the main menu.
+ {INFO}    - All scripts are now more stable and less likely to encounter errors or get rate limited.
 
  {INFO} {red}Bug Fixes:
- {INFO}    - Update Checker now displays the correct version number.
- {INFO}    - Discord Token Delete Dm now works properly.
- {INFO}    - Discord Token Mass Dm now works properly.
- {INFO}    - Discord Id To Token now works properly.
- {INFO}    - Discord Token Delete Friends now works properly.
- {INFO}    - Discord Token Block Friends now works properly.
- {INFO}    - Discord Token Leaver now works properly.
- {INFO}    - Discord Token Generator now works properly.
- {INFO}    - Discord Token Login now works properly.
+ {INFO}    - All known bugs have been fixed.
 
  {INFO} {red}Renamed Features:
- {INFO}    - Tokens File {red}->{white} Extras Files
+ {INFO}    - Discord Token Alias Changer {red}->{white} Discord Token Pronoun Changer
 
  {INFO} {red}Removed Features:
- {INFO}    - Discord Nitro Generator
+ {INFO}    - Nothing has been removed.
 
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────"""
     Scroll(Gradient(changelog))

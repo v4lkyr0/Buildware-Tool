@@ -1,4 +1,4 @@
-# Copyright (c) 2025 v4lkyr0
+# Copyright (c) 2026 v4lkyr0
 # See LICENSE file for details
 
 from Plugins.Utils import *
@@ -15,21 +15,18 @@ Title("Extras File")
 try:
     extras_path = os.path.join(tool_path, "Programs", "Extras")
     
-    print(f"\n{PREFIX}01{SUFFIX} Discord Tokens File", reset)
-    print(f"{PREFIX}02{SUFFIX} Discord Webhooks File", reset)
-    print(f"{PREFIX}03{SUFFIX} Extras Folder\n", reset)
+    Scroll(f"""
+{PREFIX}01{SUFFIX} Data File
+{PREFIX}02{SUFFIX} Extras Folder
+""")
     
-    choice = input(f"{INPUT} Choice {red}->{reset} ").lstrip("0")
+    choice = input(f"{INPUT} Choice {red}->{reset} ").strip().lstrip("0")
     
     if choice == "1":
-        file_path = os.path.join(extras_path, "DiscordTokens.txt")
-        file_name = "DiscordTokens.txt"
-        print(f"{INFO} Each token must be on a separate line", reset)
+        file_path = os.path.join(extras_path, "Config.json")
+        file_name = "Config.json"
+        print(f"{INFO} Contains webhooks, tokens, bots, and settings", reset)
     elif choice == "2":
-        file_path = os.path.join(extras_path, "DiscordWebhooks.txt")
-        file_name = "DiscordWebhooks.txt"
-        print(f"{INFO} Each webhook URL must be on a separate line", reset)
-    elif choice == "3":
         file_path = extras_path
         file_name = "Extras"
     else:
@@ -41,10 +38,7 @@ try:
         if platform_pc == "Windows":
             os.startfile(file_path)
         else:
-            if choice == "3":
-                subprocess.Popen(['xdg-open', file_path])
-            else:
-                subprocess.Popen(['xdg-open', file_path])
+            subprocess.Popen(['xdg-open', file_path])
         print(f"{SUCCESS} {file_name} opened!", reset)
     except:
         print(f"{ERROR} Error while trying to open {file_name}!", reset)

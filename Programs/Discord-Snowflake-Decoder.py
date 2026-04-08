@@ -1,4 +1,4 @@
-# Copyright (c) 2025 v4lkyr0
+# Copyright (c) 2026 v4lkyr0
 # See LICENSE file for details
 
 from Plugins.Utils import *
@@ -10,7 +10,6 @@ except Exception as e:
     MissingModule(e)
 
 Title("Discord Snowflake Decoder")
-Connection()
 
 def decode_snowflake(snowflake):
     try:
@@ -43,50 +42,24 @@ try:
         Reset()
 
     print(f"{LOADING} Decoding Snowflake..", reset)
+
+    result = decode_snowflake(snowflake.strip())
     
-    result         = decode_snowflake(snowflake.strip())
-    now            = datetime.now()
-    age            = now - result['timestamp']
-    days           = age.days
-    years          = days // 365
-    remaining_days = days % 365
-        
-    try:
-        snowflake_id = snowflake
-    except:
-        snowflake_id = "N/A"
-
-    try:
-        created_at = result['timestamp'].strftime("%Y-%m-%d %H:%M:%S")
-    except:
-        created_at = "N/A"
-
-    try:
-        timestamps_ms = result['timestamp_ms']
-    except:
-        timestamps_ms = "N/A"
-
-    try:
-        worker_id = result['worker_id']
-    except:
-        worker_id = "N/A"
-    
-    try:
-        process_id = result['process_id']
-    except:
-        process_id = "N/A"
-
-    try:
-        increment = result['increment']
-    except:
-        increment = "N/A"
-    
-    try:
-        binary = result['binary']
-    except:
-        binary = "N/A"
-
     if result['valid']:
+        now = datetime.now()
+        age = now - result['timestamp']
+        days = age.days
+        years = days // 365
+        remaining_days = days % 365
+
+        snowflake_id = snowflake
+        created_at = result['timestamp'].strftime("%Y-%m-%d %H:%M:%S")
+        timestamps_ms = result['timestamp_ms']
+        worker_id = result['worker_id']
+        process_id = result['process_id']
+        increment = result['increment']
+        binary = result['binary']
+
         Scroll(f"""
  {INFO} Snowflake Id    :{red} {snowflake_id}
  {INFO} Created At      :{red} {created_at}

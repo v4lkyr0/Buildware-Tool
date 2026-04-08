@@ -1,12 +1,12 @@
-# Copyright (c) 2025 v4lkyr0
+# Copyright (c) 2026 v4lkyr0
 # See LICENSE file for details
 
 from Plugins.Utils import *
 from Plugins.Config import *
 
 try:
-    import requests  
     from datetime import datetime
+    import requests
 except Exception as e:
     MissingModule(e)
 
@@ -33,7 +33,7 @@ try:
         "user-agent": RandomUserAgents(),
         "sec-ch-ua": '"Chromium";v="92", " Not A;Brand";v="99", "Google Chrome";v="92"',
         "sec-ch-ua-mobile": "?0",
-        "x-debug-options": "bugReporterEnabled",
+        "x-debug-options": "bugReporterEnabled"
     }
 
     try:

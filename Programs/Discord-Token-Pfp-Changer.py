@@ -1,15 +1,15 @@
-# Copyright (c) 2025 v4lkyr0
+# Copyright (c) 2026 v4lkyr0
 # See LICENSE file for details
 
 from Plugins.Utils import *
 from Plugins.Config import *
 
 try:
-    import requests
-    from tkinter import filedialog
-    import tkinter as tk
     import base64
     from pathlib import Path
+    import requests
+    import tkinter as tk
+    from tkinter import filedialog
 except Exception as e:
     MissingModule(e)
 
@@ -25,7 +25,8 @@ try:
             response = requests.get("https://discord.com/api/v9/users/@me", headers=headers)
             if response.status_code == 200:
                 user = response.json()
-                return user.get("premium_type", 0) in [1, 2]
+                premium_type = user.get("premium_type", 0)
+                return premium_type in [1, 2]
         except:
             pass
         return False
@@ -46,11 +47,9 @@ try:
 
         file_path = filedialog.askopenfilename(title=f"{name_tool} {version_tool} - Select Profile Picture", filetypes=file_types)
         return file_path
-    
-    def ChangePfp(token, pfp_path):
-        print(f"{INFO} Changing Profile Picture..", reset)
 
-        url = "https://discord.com/api/v9/users/@me"
+    def ChangePfp(token, pfp_path):
+        print(f"{LOADING} Changing Profile Picture..", reset)
 
         headers = {"Authorization": token, "Content-Type": "application/json", "User-Agent": RandomUserAgents()}
 
@@ -59,19 +58,19 @@ try:
                 pfp_data = base64.b64encode(pfp_file.read()).decode('utf-8')
 
             ext = Path(pfp_path).suffix.lower()
-            mime_type = {
+            mime_types = {
                 ".png": "image/png",
                 ".jpg": "image/jpeg",
                 ".jpeg": "image/jpeg",
                 ".gif": "image/gif"
             }
-            mime_type = mime_type.get(ext, "image/png")
+            mime_type = mime_types.get(ext, "image/png")
 
             avatar_data = f"data:{mime_type};base64,{pfp_data}"
-            payload     = {"avatar": avatar_data}
+            payload = {"avatar": avatar_data}
 
             try:
-                response = requests.patch(url, headers=headers, json=payload)
+                response = requests.patch("https://discord.com/api/v9/users/@me", headers=headers, json=payload)
                 if response.status_code == 200:
                     print(f"{SUCCESS} Profile Picture changed!", reset)
                     return response.json()
@@ -87,7 +86,7 @@ try:
             return None
 
     print(f"{INPUT} Select Image {red}->", reset)
-    
+
     pfp_path = ChoicePfp()
     if not pfp_path:
         print(f"{ERROR} No Image selected!", reset)

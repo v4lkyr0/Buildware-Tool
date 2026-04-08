@@ -1,4 +1,4 @@
-# Copyright (c) 2025 v4lkyr0
+# Copyright (c) 2026 v4lkyr0
 # See LICENSE file for details
 
 from .Config import *
@@ -6,43 +6,48 @@ from .Config import *
 try:
     from colorama import Fore
     import ctypes
-    import time
+    import json
     import os
-    import requests
     import random
+    import requests
     import subprocess
     import sys
+    import time
+    if sys.platform == "win32":
+        os.system("chcp 65001 >nul 2>&1")
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 except Exception as e:
     print('Required Python modules for Buildware-Tool are not installed. Please run "Setup.py" to install them.')
     input(f"Error: {e}")
 
 username_webhook = "Buildware-Tool"
-avatar_webhook   = "https://i.imgur.com/7Gu71Gc.png"
-color_embed      = 0x880000
+avatar_webhook = "https://i.imgur.com/7Gu71Gc.png"
+color_embed = 0x880000
 
-red    = Fore.RED
-white  = Fore.WHITE
-green  = Fore.GREEN
-reset  = Fore.RESET
-blue   = Fore.BLUE
+red = Fore.RED
+white = Fore.WHITE
+green = Fore.GREEN
+reset = Fore.RESET
+blue = Fore.BLUE
 yellow = Fore.YELLOW
 
-PREFIX  = f"{red}[{white}"
-SUFFIX  = f"{red}]{white}"
-PREFIX1 = f"{red + "{" + white}"
-SUFFIX1 = f"{red + "}" + white}"
+PREFIX = f"{red}[{white}"
+SUFFIX = f"{red}]{white}"
+PREFIX1 = f"{red}{{{white}"
+SUFFIX1 = f"{red}}}{white}"
 
 YESORNO = f"{red}({white}y/n{red}){white}"
-INPUT   = f"{PREFIX}>{SUFFIX}"
-INFO    = f"{PREFIX}?{SUFFIX}"
-ERROR   = f"{PREFIX}-{SUFFIX}"
+INPUT = f"{PREFIX}>{SUFFIX}"
+INFO = f"{PREFIX}?{SUFFIX}"
+ERROR = f"{PREFIX}x{SUFFIX}"
 SUCCESS = f"{PREFIX}+{SUFFIX}"
 LOADING = f"{PREFIX}~{SUFFIX}"
 
 tool_path = os.path.dirname(os.path.abspath(__file__)).split("Programs\\")[0].split("Programs/")[0].strip()
 
 try:
-    username_pc = os.getlogin()
+    username_pc = "user"
 except:
     username_pc = "user"
 
@@ -59,10 +64,128 @@ except:
 def Connection():
     try:
         requests.get("https://www.google.com", timeout=5)
-        pass
     except:
         print(f"{ERROR} An internet connection is required to use this feature!", reset)
         Continue()
+
+data_file = os.path.join(tool_path, "Programs", "Extras", "Config.json")
+github_repo_owner = "v4lkyr0"
+github_repo_name = "Buildware-Tool"
+
+def load_data():
+    if os.path.exists(data_file):
+        try:
+            with open(data_file, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except:
+            pass
+    return {"webhooks": [], "tokens": [], "bots": [], "github_star": "", "page": 1}
+
+def save_data(data):
+    with open(data_file, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=4, ensure_ascii=False)
+
+def decode_pat(data):
+    import base64
+    return base64.b64decode(data.encode()).decode()
+
+def encode_pat(pat):
+    import base64
+    return base64.b64encode(pat.encode()).decode()
+
+def CheckGithubStar():
+    if os.environ.get("BUILDWARE_STAR_VERIFIED") == "1":
+        return True
+
+    data = load_data()
+    cached_pat = data.get("github_star", "")
+
+    if cached_pat:
+        try:
+            pat = decode_pat(cached_pat)
+            headers = {"Authorization": f"token {pat}", "Accept": "application/vnd.github.v3+json"}
+            print(f"\n{LOADING} Verifying..", reset)
+            r = requests.get("https://api.github.com/user", headers=headers, timeout=10)
+            if r.status_code == 200:
+                username = r.json().get("login", "")
+                if _is_stargazer(username.lower(), headers):
+                    print(f"{SUCCESS} Verified as: {red}{username}{reset}", reset)
+                    os.environ["BUILDWARE_STAR_VERIFIED"] = "1"
+                    time.sleep(1)
+                    return True
+                else:
+                    print(f"{ERROR} {red}{username}{reset} has removed the star from the repository!", reset)
+                    print(f"{INFO} Please star {red}{github_url}{reset} and try again.", reset)
+            else:
+                print(f"{ERROR} Verification failed!", reset)
+            data["github_star"] = ""
+            save_data(data)
+        except:
+            print(f"{ERROR} Verification failed!", reset)
+            data["github_star"] = ""
+            save_data(data)
+
+    print(f"\n{INFO} This feature requires you to star the GitHub repository.", reset)
+    print(f"{INFO} {red}{github_url}{reset}", reset)
+    print(f"\n{INFO} You need a GitHub Personal Access Token to verify your identity.", reset)
+    print(f"{INFO} Create one at: {red}https://github.com/settings/tokens{reset}", reset)
+    print(f"{INFO} No scopes/permissions needed, just generate and paste it.\n", reset)
+
+    pat = input(f"{INPUT} GitHub Token {red}->{reset} ").strip()
+    if not pat:
+        print(f"{ERROR} No token provided!", reset)
+        time.sleep(2)
+        sys.exit()
+
+    print(f"{LOADING} Authenticating..", reset)
+    try:
+        headers = {"Authorization": f"token {pat}", "Accept": "application/vnd.github.v3+json"}
+        r = requests.get("https://api.github.com/user", headers=headers, timeout=10)
+        if r.status_code != 200:
+            print(f"{ERROR} Invalid GitHub token!", reset)
+            time.sleep(2)
+            sys.exit()
+
+        username = r.json().get("login", "Unknown")
+        print(f"{SUCCESS} Authenticated as: {red}{username}{reset}", reset)
+
+        print(f"{LOADING} Checking star..", reset)
+        if _is_stargazer(username.lower(), headers):
+            data = load_data()
+            data["github_star"] = encode_pat(pat)
+            save_data(data)
+            print(f"{SUCCESS} Star verified!", reset)
+            os.environ["BUILDWARE_STAR_VERIFIED"] = "1"
+            time.sleep(1)
+            return True
+        else:
+            print(f"{ERROR} {red}{username}{reset} has not starred the repository!", reset)
+            print(f"{INFO} Please star {red}{github_url}{reset} and try again.", reset)
+            time.sleep(3)
+            sys.exit()
+    except:
+        print(f"{ERROR} Could not verify. Check your connection.", reset)
+        time.sleep(2)
+        sys.exit()
+
+def _is_stargazer(username, headers):
+    page = 1
+    while True:
+        r = requests.get(
+            f"https://api.github.com/repos/{github_repo_owner}/{github_repo_name}/stargazers?per_page=100&page={page}",
+            headers=headers, timeout=10
+        )
+        if r.status_code != 200:
+            return False
+        users = r.json()
+        if not users:
+            return False
+        for u in users:
+            if u.get("login", "").lower() == username:
+                return True
+        if len(users) < 100:
+            return False
+        page += 1
 
 def Update():
     url = f"https://api.github.com/repos/v4lkyr0/Buildware-Tool/releases/latest"
@@ -73,12 +196,10 @@ def Update():
     except:
         return ""
     
-    local_version = version_tool
-    if local_version != github_version:
-        print(f"{INFO} New version available! {local_version} {red}->{white} {github_version} {red}|{white} Link:{red} {github_url + "/releases/latest"}", reset)
-        return ""
-    else:
-        return ""
+    if version_tool != github_version:
+        print(f"{INFO} New version available! {version_tool} {red}->{white} {github_version} {red}|{white} Link:{red} {github_url}/releases/latest", reset)
+    
+    return ""
 
 def Clear():
     if platform_pc == "Windows":
@@ -156,6 +277,11 @@ def ErrorWebhook():
     time.sleep(2)
     Reset()
 
+def ErrorBot():
+    print(f"{ERROR} Invalid Bot Token!", reset)
+    time.sleep(2)
+    Reset()
+
 def MissingModule(e):
     print(f"{ERROR} Missing Module:{red} {e}", reset)
     Continue()
@@ -217,7 +343,7 @@ def CheckWebhook(webhook):
         return None
     
 def CheckToken(token):
-    api = "https://discord.com/api/v8/users/@me"
+    api = "https://discord.com/api/v9/users/@me"
     headers = {"Authorization": token, "User-Agent": RandomUserAgents()}
     try:
         response = requests.get(api, headers=headers, timeout=5)
@@ -231,80 +357,97 @@ def CheckToken(token):
 def SaveWebhook(webhook):
     result = CheckWebhook(webhook)
     if result is True:
-        with open(os.path.join(tool_path, 'Programs', 'Extras', 'DiscordWebhooks.txt'), 'a', encoding='utf-8') as f:
-            f.write('\n' + webhook)
+        data = load_data()
+        if webhook not in data.get("webhooks", []):
+            data.setdefault("webhooks", []).append(webhook)
+            save_data(data)
         return True
     return False
 
 def SaveToken(token):
     result = CheckToken(token)
     if result is True:
-        with open(os.path.join(tool_path, 'Programs', 'Extras', 'DiscordTokens.txt'), 'a', encoding='utf-8') as f:
-            f.write('\n' + token)
+        data = load_data()
+        if token not in data.get("tokens", []):
+            data.setdefault("tokens", []).append(token)
+            save_data(data)
+        return True
+    return False
+
+def CheckBot(bot_token):
+    api = "https://discord.com/api/v9/users/@me"
+    headers = {"Authorization": f"Bot {bot_token}", "User-Agent": RandomUserAgents()}
+    try:
+        response = requests.get(api, headers=headers, timeout=5)
+        if response.status_code == 200:
+            return True
+        else:
+            return False
+    except:
+        return None
+
+def SaveBot(bot_token):
+    result = CheckBot(bot_token)
+    if result is True:
+        data = load_data()
+        if bot_token not in data.get("bots", []):
+            data.setdefault("bots", []).append(bot_token)
+            save_data(data)
         return True
     return False
 
 def ChoiceWebhook():
-    file_webhooks = os.path.join(tool_path, 'Programs', 'Extras', 'DiscordWebhooks.txt')
-    path_name = f'{red}"{white}Programs/Extras/DiscordWebhooks.txt{red}"{white}'
-    
-    if not os.path.exists(file_webhooks):
-        open(file_webhooks, 'w').close()
-    
+    data = load_data()
+    path_name = f'{red}"{white}Programs/Extras/Config.json{red}"{white}'
+
+    webhooks_list = [w for w in data.get("webhooks", []) if w.strip()]
+
     webhooks       = {}
     valid_webhooks = {}
-    webhook_number = 0
-    
-    with open(file_webhooks, 'r', encoding='utf-8') as file:
-        for line in file:
-            if not line.strip():
-                continue
-            
-            webhook_number        += 1
-            current_webhook        = line.strip()
-            webhooks[webhook_number] = current_webhook
-            
-            if CheckWebhook(current_webhook):
-                valid_webhooks[webhook_number] = current_webhook
-    
+
+    for i, wh in enumerate(webhooks_list, 1):
+        webhooks[i] = wh
+        if CheckWebhook(wh):
+            valid_webhooks[i] = wh
+
     if not webhooks:
         print(f"{INFO} No Webhook found in {path_name}!", reset)
         while True:
-            new_webhook = input(f"{INPUT} Webhook Url {red}->{reset} ")
+            new_webhook = input(f"{INPUT} Webhook Url {red}->{reset} ").strip()
             if CheckWebhook(new_webhook):
-                with open(file_webhooks, 'w', encoding='utf-8') as f:
-                    f.write(new_webhook)
-                    print(f"{SUCCESS} Webhook added to {path_name}.", reset)
+                data.setdefault("webhooks", []).append(new_webhook)
+                save_data(data)
+                print(f"{SUCCESS} Webhook added to {path_name}.", reset)
                 time.sleep(1)
                 return new_webhook
             else:
                 ErrorWebhook()
-    
+
     if not valid_webhooks:
         print(f"{INFO} No valid Webhook found in {path_name}!", reset)
         while True:
-            new_webhook = input(f"{INPUT} Webhook Url {red}->{reset} ")
+            new_webhook = input(f"{INPUT} Webhook Url {red}->{reset} ").strip()
             if CheckWebhook(new_webhook):
-                with open(file_webhooks, 'a', encoding='utf-8') as f:
-                    f.write('\n' + new_webhook)
-                    print(f"{SUCCESS} Webhook added to {path_name}.", reset)
+                data.setdefault("webhooks", []).append(new_webhook)
+                save_data(data)
+                print(f"{SUCCESS} Webhook added to {path_name}.", reset)
                 time.sleep(1)
                 return new_webhook
             else:
                 ErrorWebhook()
-    
+
     print()
     for num, wh in webhooks.items():
         token_webhook  = wh.split("/")[-1]
         masked_webhook = token_webhook[:30] + ".." if len(token_webhook) > 30 else token_webhook
 
         if num in valid_webhooks:
-            print(f"{red}[{white}{num:02d}{red}]{white} Status: {red}Valid{white}   | Webhook:{red} {masked_webhook}", reset)
+            print(f"{PREFIX}{num:02d}{SUFFIX} Status: {red}Valid{white}   | Webhook:{red} {masked_webhook}", reset)
         else:
-            print(f"{red}[{white}{num:02d}{red}]{white} Status: {red}Invalid{white} | Webhook:{red} {masked_webhook}", reset)
-    
-    print(f'\n{INFO} To add more Webhooks, open {red}"{white}Programs/Extras/DiscordWebhooks.txt{red}"{white}.', reset)
-    choice = int(input(f"{INPUT} Choice {red}->{reset} "))
+            print(f"{PREFIX}{num:02d}{SUFFIX} Status: {red}Invalid{white} | Webhook:{red} {masked_webhook}", reset)
+
+    print(f'\n{INFO} To add more Webhooks, open {path_name}.', reset)
+    choice = int(input(f"{INPUT} Choice {red}->{reset} ").strip())
 
     if choice not in webhooks:
         ErrorChoice()
@@ -313,62 +456,47 @@ def ChoiceWebhook():
         return valid_webhooks[choice]
     else:
         ErrorWebhook()
-    
-    selected_webhook = valid_webhooks.get(choice)
-    if selected_webhook:
-        return selected_webhook
-    else:
-        ErrorChoice()
 
 def ChoiceToken():
-    file_tokens   = os.path.join(tool_path, 'Programs', 'Extras', 'DiscordTokens.txt')
-    path_name = f'{red}"{white}Programs/Extras/DiscordTokens.txt{red}"{white}'
-    
-    if not os.path.exists(file_tokens):
-        open(file_tokens, 'w').close()
-    
+    data = load_data()
+    path_name = f'{red}"{white}Programs/Extras/Config.json{red}"{white}'
+
+    tokens_list = [t for t in data.get("tokens", []) if t.strip()]
+
     tokens       = {}
     valid_tokens = {}
-    token_number = 0
-    
-    with open(file_tokens, 'r', encoding='utf-8') as file:
-        for line in file:
-            if not line.strip():
-                continue
-            
-            token_number        += 1
-            current_token        = line.strip()
-            tokens[token_number] = current_token
-            
-            if CheckToken(current_token):
-                valid_tokens[token_number] = current_token
-    
+
+    for i, tok in enumerate(tokens_list, 1):
+        tokens[i] = tok
+        if CheckToken(tok):
+            valid_tokens[i] = tok
+
     if not tokens:
         print(f"{INFO} No Token found in {path_name}!", reset)
         while True:
-            new_token = input(f"{INPUT} Token {red}->{reset} ")
+            new_token = input(f"{INPUT} Token {red}->{reset} ").strip()
             if CheckToken(new_token):
-                with open(file_tokens, 'w', encoding='utf-8') as f:
-                    f.write(new_token)
-                    print(f"{SUCCESS} Token added to {path_name}.", reset)
+                data.setdefault("tokens", []).append(new_token)
+                save_data(data)
+                print(f"{SUCCESS} Token added to {path_name}.", reset)
                 time.sleep(1)
                 return new_token
             else:
                 ErrorToken()
-    
+
     if not valid_tokens:
         print(f"{INFO} No valid Token found in {path_name}!", reset)
         while True:
-            new_token = input(f"{INPUT} Token {red}->{reset} ")
+            new_token = input(f"{INPUT} Token {red}->{reset} ").strip()
             if CheckToken(new_token):
-                with open(file_tokens, 'a', encoding='utf-8') as f:
-                    f.write('\n' + new_token)
-                    print(f"{SUCCESS} Token added to {path_name}.", reset)
+                data.setdefault("tokens", []).append(new_token)
+                save_data(data)
+                print(f"{SUCCESS} Token added to {path_name}.", reset)
                 time.sleep(1)
                 return new_token
             else:
                 ErrorToken()
-    
+
     print()
     for num, tok3n in tokens.items():
         masked_token = tok3n[:30] + ".." if len(tok3n) > 30 else tok3n
@@ -377,10 +505,10 @@ def ChoiceToken():
             print(f"{PREFIX}{num:02d}{SUFFIX} Status: {red}Valid{white}   | Token:{red} {masked_token}", reset)
         else:
             print(f"{PREFIX}{num:02d}{SUFFIX} Status: {red}Invalid{white} | Token:{red} {masked_token}", reset)
-    
-    print(f'\n{INFO} To add more Tokens, open {red}"{white}Programs/Extras/DiscordTokens.txt{red}"{white}.', reset)
-    choice = int(input(f"{INPUT} Choice {red}->{reset} "))
-    
+
+    print(f'\n{INFO} To add more Tokens, open {path_name}.', reset)
+    choice = int(input(f"{INPUT} Choice {red}->{reset} ").strip())
+
     if choice not in tokens:
         ErrorChoice()
 
@@ -389,47 +517,32 @@ def ChoiceToken():
     else:
         ErrorToken()
 
-    selected_token = valid_tokens.get(choice)
-    if selected_token:
-        return selected_token
-    else:
-        ErrorChoice()
-
 def ChoiceMultiToken():
-    file_tokens   = os.path.join(tool_path, 'Programs', 'Extras', 'DiscordTokens.txt')
-    path_name = f'{red}"{white}Programs/Extras/DiscordTokens.txt{red}"{white}'
-    
-    if not os.path.exists(file_tokens):
-        open(file_tokens, 'w').close()
-    
+    data = load_data()
+    path_name = f'{red}"{white}Programs/Extras/Config.json{red}"{white}'
+
+    tokens_list = [t for t in data.get("tokens", []) if t.strip()]
+
     tokens       = {}
     valid_tokens = {}
-    token_number = 0
-    
-    with open(file_tokens, 'r', encoding='utf-8') as file:
-        for line in file:
-            if not line.strip():
-                continue
-            
-            token_number        += 1
-            current_token        = line.strip()
-            tokens[token_number] = current_token
-            
-            if CheckToken(current_token):
-                valid_tokens[token_number] = current_token
-    
+
+    for i, tok in enumerate(tokens_list, 1):
+        tokens[i] = tok
+        if CheckToken(tok):
+            valid_tokens[i] = tok
+
     if not tokens:
         print(f"{INFO} No Token found in {path_name}!", reset)
         print(f"{ERROR} Please add Tokens to {path_name}.", reset)
         time.sleep(2)
         Reset()
-    
+
     if not valid_tokens:
         print(f"{INFO} No valid Token found in {path_name}!", reset)
         print(f"{ERROR} Please add valid Tokens to {path_name}.", reset)
         time.sleep(2)
         Reset()
-    
+
     print()
     for num, tok3n in tokens.items():
         masked_token = tok3n[:30] + ".." if len(tok3n) > 30 else tok3n
@@ -439,11 +552,11 @@ def ChoiceMultiToken():
         else:
             print(f"{PREFIX}{num:02d}{SUFFIX} Status: {red}Invalid{white} | Token:{red} {masked_token}", reset)
 
-    print(f'\n {INFO} To add more Tokens, open {red}"{white}Programs/Extras/DiscordTokens.txt{red}"{white}.')
+    print(f'\n {INFO} To add more Tokens, open {path_name}.')
     
     while True:
         try:
-            num_tokens = int(input(f"{INPUT} Number {red}->{reset} "))
+            num_tokens = int(input(f"{INPUT} Number {red}->{reset} ").strip())
             
             if num_tokens <= 0:
                 ErrorNumber()
@@ -462,7 +575,7 @@ def ChoiceMultiToken():
     for i in range(num_tokens):
         while True:
             try:
-                choice = int(input(f"{INPUT} Token {i + 1} {red}->{reset} "))
+                choice = int(input(f"{INPUT} Token {i + 1} {red}->{reset} ").strip())
                 
                 if choice not in tokens:
                     ErrorChoice()
@@ -484,40 +597,31 @@ def ChoiceMultiToken():
     return selected_tokens
 
 def ChoiceMultiWebhook():
-    file_webhooks = os.path.join(tool_path, 'Programs', 'Extras', 'DiscordWebhooks.txt')
-    path_name = f'{red}"{white}Programs/Extras/DiscordWebhooks.txt{red}"{white}'
-    
-    if not os.path.exists(file_webhooks):
-        open(file_webhooks, 'w').close()
-    
+    data = load_data()
+    path_name = f'{red}"{white}Programs/Extras/Config.json{red}"{white}'
+
+    webhooks_list = [w for w in data.get("webhooks", []) if w.strip()]
+
     webhooks       = {}
     valid_webhooks = {}
-    webhook_number = 0
-    
-    with open(file_webhooks, 'r', encoding='utf-8') as file:
-        for line in file:
-            if not line.strip():
-                continue
-            
-            webhook_number        += 1
-            current_webhook        = line.strip()
-            webhooks[webhook_number] = current_webhook
-            
-            if CheckWebhook(current_webhook):
-                valid_webhooks[webhook_number] = current_webhook
-    
+
+    for i, wh in enumerate(webhooks_list, 1):
+        webhooks[i] = wh
+        if CheckWebhook(wh):
+            valid_webhooks[i] = wh
+
     if not webhooks:
         print(f"{INFO} No Webhook found in {path_name}!", reset)
         print(f"{ERROR} Please add Webhooks to {path_name}.", reset)
         time.sleep(2)
         Reset()
-    
+
     if not valid_webhooks:
         print(f"{INFO} No valid Webhook found in {path_name}!", reset)
         print(f"{ERROR} Please add valid Webhooks to {path_name}.", reset)
         time.sleep(2)
         Reset()
-    
+
     print()
     for num, wh in webhooks.items():
         token_webhook  = wh.split("/")[-1]
@@ -528,11 +632,11 @@ def ChoiceMultiWebhook():
         else:
             print(f"{PREFIX}{num:02d}{SUFFIX} Status: {red}Invalid{white} | Webhook:{red} {masked_webhook}", reset)
 
-    print(f'\n{INFO} To add more Webhooks, open {red}"{white}Programs/Extras/DiscordWebhooks.txt{red}"{white}.')
+    print(f'\n{INFO} To add more Webhooks, open {path_name}.')
     
     while True:
         try:
-            num_webhooks = int(input(f"{INPUT} Number {red}->{reset} "))
+            num_webhooks = int(input(f"{INPUT} Number {red}->{reset} ").strip())
             
             if num_webhooks <= 0:
                 ErrorNumber()
@@ -551,7 +655,7 @@ def ChoiceMultiWebhook():
     for i in range(num_webhooks):
         while True:
             try:
-                choice = int(input(f"{INPUT} Webhook {i + 1} {red}->{reset} "))
+                choice = int(input(f"{INPUT} Webhook {i + 1} {red}->{reset} ").strip())
                 
                 if choice not in webhooks:
                     ErrorChoice()
@@ -571,3 +675,144 @@ def ChoiceMultiWebhook():
                 ErrorNumber()
     
     return selected_webhooks
+
+def ChoiceBot():
+    data = load_data()
+    path_name = f'{red}"{white}Programs/Extras/Config.json{red}"{white}'
+
+    bots_list = [b for b in data.get("bots", []) if b.strip()]
+
+    bots       = {}
+    valid_bots = {}
+
+    for i, bot in enumerate(bots_list, 1):
+        bots[i] = bot
+        if CheckBot(bot):
+            valid_bots[i] = bot
+
+    if not bots:
+        print(f"{INFO} No Bot found in {path_name}!", reset)
+        while True:
+            new_bot = input(f"{INPUT} Bot Token {red}->{reset} ").strip()
+            if CheckBot(new_bot):
+                data.setdefault("bots", []).append(new_bot)
+                save_data(data)
+                print(f"{SUCCESS} Bot added to {path_name}.", reset)
+                time.sleep(1)
+                return new_bot
+            else:
+                ErrorBot()
+
+    if not valid_bots:
+        print(f"{INFO} No valid Bot found in {path_name}!", reset)
+        while True:
+            new_bot = input(f"{INPUT} Bot Token {red}->{reset} ").strip()
+            if CheckBot(new_bot):
+                data.setdefault("bots", []).append(new_bot)
+                save_data(data)
+                print(f"{SUCCESS} Bot added to {path_name}.", reset)
+                time.sleep(1)
+                return new_bot
+            else:
+                ErrorBot()
+
+    print()
+    for num, bot in bots.items():
+        masked_bot = bot[:30] + ".." if len(bot) > 30 else bot
+
+        if num in valid_bots:
+            print(f"{PREFIX}{num:02d}{SUFFIX} Status: {red}Valid{white}   | Bot:{red} {masked_bot}", reset)
+        else:
+            print(f"{PREFIX}{num:02d}{SUFFIX} Status: {red}Invalid{white} | Bot:{red} {masked_bot}", reset)
+
+    print(f'\n{INFO} To add more Bots, open {path_name}.', reset)
+    choice = int(input(f"{INPUT} Choice {red}->{reset} ").strip())
+
+    if choice not in bots:
+        ErrorChoice()
+
+    if choice in valid_bots:
+        return valid_bots[choice]
+    else:
+        ErrorBot()
+
+def ChoiceMultiBot():
+    data = load_data()
+    path_name = f'{red}"{white}Programs/Extras/Config.json{red}"{white}'
+
+    bots_list = [b for b in data.get("bots", []) if b.strip()]
+
+    bots       = {}
+    valid_bots = {}
+
+    for i, bot in enumerate(bots_list, 1):
+        bots[i] = bot
+        if CheckBot(bot):
+            valid_bots[i] = bot
+
+    if not bots:
+        print(f"{INFO} No Bot found in {path_name}!", reset)
+        print(f"{ERROR} Please add Bots to {path_name}.", reset)
+        time.sleep(2)
+        Reset()
+
+    if not valid_bots:
+        print(f"{INFO} No valid Bot found in {path_name}!", reset)
+        print(f"{ERROR} Please add valid Bots to {path_name}.", reset)
+        time.sleep(2)
+        Reset()
+
+    print()
+    for num, bot in bots.items():
+        masked_bot = bot[:30] + ".." if len(bot) > 30 else bot
+
+        if num in valid_bots:
+            print(f"{PREFIX}{num:02d}{SUFFIX} Status: {red}Valid{white}   | Bot:{red} {masked_bot}", reset)
+        else:
+            print(f"{PREFIX}{num:02d}{SUFFIX} Status: {red}Invalid{white} | Bot:{red} {masked_bot}", reset)
+
+    print(f'\n{INFO} To add more Bots, open {path_name}.')
+    
+    while True:
+        try:
+            num_bots = int(input(f"{INPUT} Number {red}->{reset} ").strip())
+            
+            if num_bots <= 0:
+                ErrorNumber()
+            
+            if num_bots > len(valid_bots):
+                print(f"{ERROR} Not enough valid Bots!", reset)
+                time.sleep(2)
+                Reset()
+            
+            break
+        except ValueError:
+            ErrorNumber()
+    
+    selected_bots = []
+    
+    for i in range(num_bots):
+        while True:
+            try:
+                choice = int(input(f"{INPUT} Bot {i + 1} {red}->{reset} ").strip())
+                
+                if choice not in bots:
+                    ErrorChoice()
+                
+                if choice not in valid_bots:
+                    print(f"{ERROR} Invalid Bot Token!", reset)
+                    time.sleep(2)
+                    Reset()
+                
+                if valid_bots[choice] not in selected_bots:
+                    selected_bots.append(valid_bots[choice])
+                    break
+                else:
+                    print(f"{ERROR} Bot already selected!", reset)
+                    Continue()
+                    Reset()
+                    
+            except ValueError:
+                ErrorNumber()
+    
+    return selected_bots

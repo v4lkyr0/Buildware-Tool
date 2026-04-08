@@ -1,12 +1,12 @@
-# Copyright (c) 2025 v4lkyr0
+# Copyright (c) 2026 v4lkyr0
 # See LICENSE file for details
 
 from Plugins.Utils import *
 from Plugins.Config import *
 
 try:
-    import requests
     from datetime import datetime
+    import requests
 except Exception as e:
     MissingModule(e)
 
@@ -59,34 +59,22 @@ try:
     inviter_accent_color = inviter_info.get("accent_color", "None")
     inviter_banner_color = inviter_info.get("banner_color", "None")
 
-    try:
-        type_map   = {0: "Standard Server", 1: "Group Dm", 2: "Community Server", 3: "Scheduled Event"}
-        type_value = type_map.get(type_value, str(type_value))
-    except:
-        type_value = "None"
+    type_map = {0: "Standard Server", 1: "Group Dm", 2: "Community Server", 3: "Scheduled Event"}
+    type_value = type_map.get(type_value, str(type_value))
+
+    invite_type = "Permanent" if expires_at is None and max_uses in (0, None) else "Temporary"
 
     try:
-        invite_type = "Permanent" if expires_at is None and max_uses in (0, None) else "Temporary"
-    except:
-        invite_type = "Unknown"
-
-    try:
-        dt         = datetime.fromisoformat(expires_at.replace("Z", "+00:00"))
+        dt = datetime.fromisoformat(expires_at.replace("Z", "+00:00"))
         expires_at = dt.strftime("%Y-%m-%d %H:%M:%S UTC")
     except:
         expires_at = "Unlimited"
 
-    try:
-        if max_uses == 0:
-            max_uses = "Unlimited"
-    except:
-        max_uses = "None"
+    if max_uses == 0:
+        max_uses = "Unlimited"
 
-    try:
-        if uses is None:
-            uses = "No permission"
-    except:
-        uses = "None"
+    if uses is None:
+        uses = "No permission"
 
     try:
         if server_icon.startswith("a_"):
@@ -96,15 +84,12 @@ try:
     except:
         server_icon_url = "None"
 
-    try:
-        channel_type_map = {
-            0: "Text Channel", 2: "Voice Channel", 3: "Category",
-            4: "Announcement Channel", 5: "Store Channel", 10: "News Thread",
-            11: "Public Thread", 12: "Private Thread", 13: "Stage Channel", 15: "Forum Channel"
-        }
-        channel_type = channel_type_map.get(channel_type, "None")
-    except:
-        channel_type = "None"
+    channel_type_map = {
+        0: "Text Channel", 2: "Voice Channel", 3: "Category",
+        4: "Announcement Channel", 5: "Store Channel", 10: "News Thread",
+        11: "Public Thread", 12: "Private Thread", 13: "Stage Channel", 15: "Forum Channel"
+    }
+    channel_type = channel_type_map.get(channel_type, "None")
 
     Scroll(f"""
  {INFO} Server Invitation                 :{red} {invite}

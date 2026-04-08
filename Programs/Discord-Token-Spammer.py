@@ -1,4 +1,4 @@
-# Copyright (c) 2025 v4lkyr0
+# Copyright (c) 2026 v4lkyr0
 # See LICENSE file for details
 
 from Plugins.Utils import *
@@ -6,7 +6,7 @@ from Plugins.Config import *
 
 try:
     import requests
-    import threading    
+    import threading
 except Exception as e:
     MissingModule(e)
 
@@ -17,6 +17,15 @@ try:
     token          = ChoiceToken()
     channel_id     = input(f"{INPUT} Channel Id {red}->{reset} ")
     message        = input(f"{INPUT} Message {red}->{reset} ")
+    
+    message_limit_input = input(f"{INPUT} Total Messages {red}({white}0 for unlimited{red}){white} {red}->{reset} ").strip()
+    try:
+        message_limit = int(message_limit_input)
+        if message_limit < 0:
+            message_limit = 0
+    except ValueError:
+        message_limit = 0
+    
     threads_number = int(input(f"{INPUT} Threads {red}->{reset} "))
     if not channel_id or not message:
         ErrorInput()
@@ -24,24 +33,36 @@ try:
         ErrorNumber()
 
     print(f"{LOADING} Starting Token Spammer..", reset)
+    
+    message_count = 0
+    max_messages_reached = False
 
     def Spammer(token, channel_id, message):
+        global message_count, max_messages_reached
+        
+        if message_limit > 0 and message_count >= message_limit:
+            max_messages_reached = True
+            return
+        
         try:
             headers = {"Authorization": token, "Content-Type": "application/json", "User-Agent": RandomUserAgents()}
             payload = {"content": message}
 
             response = requests.post(f"https://discord.com/api/v9/channels/{channel_id}/messages", headers=headers, json=payload)
             if response.status_code in [200, 201]:
-                print(f"{SUCCESS} Status:{red} Sent   {white}| Channel Id:{red} {channel_id}", reset)
+                message_count += 1
+                print(f"{SUCCESS} Status:{red} Sent    {white}| Messages:{red} {message_count:<6} {white}| Channel:{red} {channel_id}", reset)
             else:
-                print(f"{ERROR} Status:{red} Failed {white}| Channel Id:{red} {channel_id}", reset)
+                print(f"{ERROR} Status:{red} Failed  {white}| Channel Id:{red} {channel_id}", reset)
         except:
-            print(f"{ERROR} Status:{red} Error  {white}| Channel Id:{red} {channel_id}", reset)
+            print(f"{ERROR} Status:{red} Error   {white}| Channel Id:{red} {channel_id}", reset)
 
     def Request():
         threads = []
         try:
             for _ in range(threads_number):
+                if message_limit > 0 and message_count >= message_limit:
+                    break
                 t = threading.Thread(target=Spammer, args=(token, channel_id, message))
                 t.start()
                 threads.append(t)
@@ -52,7 +73,13 @@ try:
             thread.join()
 
     while True:
+        if message_limit > 0 and message_count >= message_limit:
+            print(f"\n{INFO} Message limit reached:{red} {message_count}", reset)
+            break
         Request()
+    
+    Continue()
+    Reset()
 
 except Exception as e:
     Error(e)

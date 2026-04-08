@@ -2,6 +2,15 @@ Copyright (c) 2025 v4lkyr0/v4lkyr_
 
 ENGLISH:
 
+LEGAL DISCLAIMER:
+This software is provided for EDUCATIONAL and RESEARCH purposes ONLY. The tools 
+included in this software must be used in accordance with all applicable laws, 
+regulations, and the Terms of Service of any third-party platforms (including 
+but not limited to Discord). The author does NOT condone, encourage, or support 
+any malicious, unauthorized, or illegal use of this software. By using this 
+software, you acknowledge and agree that you are solely responsible for ensuring 
+your use complies with all applicable legal requirements and platform policies.
+
 Permission is granted to use, copy, and modify this software for personal and 
 non-commercial purposes only, subject to the following conditions:
 
@@ -38,9 +47,60 @@ implied. In no event shall the author be liable for any damages or claims,
 whether in contract, tort, or otherwise, arising from the use or inability 
 to use this software.
 
+USER RESPONSIBILITIES:
+You, as the user of this software, are solely responsible for:
+- Ensuring your use complies with all applicable laws and regulations
+- Respecting the Terms of Service of third-party platforms (Discord, etc.)
+- Any consequences resulting from your use or misuse of this software
+- Obtaining necessary permissions before using tools on systems or accounts 
+  you do not own or have explicit authorization to test
+
+The author expressly disclaims any responsibility for unauthorized, malicious, 
+or illegal use of this software.
+
+TERMINATION:
+Your rights under this license will terminate automatically if you fail to 
+comply with any of its terms and conditions. Upon termination, you must:
+- Immediately cease all use of the software
+- Destroy all copies of the software in your possession
+- Remove any derivatives or modifications you have created
+
+The author reserves the right to revoke this license at any time for violations 
+of its terms.
+
+SEVERABILITY:
+If any provision of this license is found to be unenforceable or invalid under 
+applicable law, such unenforceability or invalidity shall not render this license 
+unenforceable or invalid as a whole. Such provisions shall be modified or deleted 
+only to the extent necessary to make them enforceable and valid.
+
+APPLICABLE LAW:
+This license shall be governed by and construed in accordance with the laws of 
+France, without regard to its conflict of law provisions. Any dispute arising 
+from this license shall be subject to the exclusive jurisdiction of the French 
+courts.
+
+LICENSE VERSIONS:
+This license applies to the current version of the software and all future 
+versions unless explicitly stated otherwise. The author reserves the right to 
+release future versions under different license terms. Using a specific version 
+of the software binds you to the license terms applicable at the time of that 
+version's release.
+
 ---
 
 FRANÇAIS :
+
+AVERTISSEMENT LÉGAL :
+Ce logiciel est fourni à des fins ÉDUCATIVES et de RECHERCHE UNIQUEMENT. Les 
+outils inclus dans ce logiciel doivent être utilisés conformément à toutes les 
+lois, réglementations applicables et aux Conditions d'Utilisation de toute 
+plateforme tierce (y compris, mais sans s'y limiter, Discord). L'auteur ne 
+cautionne, n'encourage ni ne soutient aucune utilisation malveillante, non 
+autorisée ou illégale de ce logiciel. En utilisant ce logiciel, vous reconnaissez 
+et acceptez que vous êtes seul responsable de vous assurer que votre utilisation 
+est conforme à toutes les exigences légales applicables et aux politiques des 
+plateformes.
 
 Permission est accordée d'utiliser, copier et modifier ce logiciel à des fins 
 personnelles et non commerciales uniquement, sous réserve des conditions suivantes :
@@ -77,3 +137,46 @@ Ce logiciel est fourni "TEL QUEL", sans garantie d'aucune sorte, expresse ou
 implicite. En aucun cas, l'auteur ne pourra être tenu responsable de tout dommage 
 ou réclamation, que ce soit dans le cadre d'une action contractuelle, délictuelle 
 ou autre, découlant de l'utilisation ou de l'impossibilité d'utiliser ce logiciel.
+
+RESPONSABILITÉS DE L'UTILISATEUR :
+Vous, en tant qu'utilisateur de ce logiciel, êtes seul responsable de :
+- Vous assurer que votre utilisation est conforme à toutes les lois et 
+  réglementations applicables
+- Respecter les Conditions d'Utilisation des plateformes tierces (Discord, etc.)
+- Toutes les conséquences résultant de votre utilisation ou mauvaise utilisation 
+  de ce logiciel
+- Obtenir les autorisations nécessaires avant d'utiliser les outils sur des 
+  systèmes ou comptes que vous ne possédez pas ou pour lesquels vous n'avez pas 
+  d'autorisation explicite de test
+
+L'auteur décline expressément toute responsabilité pour toute utilisation non 
+autorisée, malveillante ou illégale de ce logiciel.
+
+RÉSILIATION :
+Vos droits en vertu de cette licence prendront fin automatiquement si vous ne 
+respectez pas l'un de ses termes et conditions. Lors de la résiliation, vous devez :
+- Cesser immédiatement toute utilisation du logiciel
+- Détruire toutes les copies du logiciel en votre possession
+- Supprimer tous les dérivés ou modifications que vous avez créés
+
+L'auteur se réserve le droit de révoquer cette licence à tout moment en cas de 
+violation de ses termes.
+
+DIVISIBILITÉ :
+Si une disposition de cette licence est jugée inapplicable ou invalide en vertu 
+de la loi applicable, cette inapplicabilité ou invalidité ne rendra pas cette 
+licence inapplicable ou invalide dans son ensemble. Ces dispositions seront 
+modifiées ou supprimées uniquement dans la mesure nécessaire pour les rendre 
+applicables et valides.
+
+LOI APPLICABLE :
+Cette licence sera régie et interprétée conformément aux lois de la France, sans 
+égard à ses dispositions relatives aux conflits de lois. Tout litige découlant 
+de cette licence sera soumis à la juridiction exclusive des tribunaux français.
+
+VERSIONS DE LA LICENCE :
+Cette licence s'applique à la version actuelle du logiciel et à toutes les 
+versions futures, sauf indication contraire explicite. L'auteur se réserve le 
+droit de publier des versions futures sous des conditions de licence différentes. 
+L'utilisation d'une version spécifique du logiciel vous lie aux conditions de 
+licence applicables au moment de la publication de cette version.

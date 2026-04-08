@@ -1,12 +1,12 @@
-# Copyright (c) 2025 v4lkyr0
+# Copyright (c) 2026 v4lkyr0
 # See LICENSE file for details
 
 from Plugins.Utils import *
 from Plugins.Config import *
 
 try:
-    import time
     from selenium import webdriver
+    import time
 except Exception as e:
     MissingModule(e)
 
