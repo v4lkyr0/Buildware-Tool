@@ -24,7 +24,6 @@
 </div>
 
 <br>
-
 ---
 
 ## 💖 Support
@@ -36,7 +35,6 @@ If you like **Buildware-Tools** and want to support the project, you can leave a
 </div>
 
 <br>
-
 ---
 
 ## ⚠️ Warning
@@ -44,7 +42,6 @@ If you like **Buildware-Tools** and want to support the project, you can leave a
 **DO NOT** download Buildware-Tools from unofficial sources. **Only use** this official GitHub repository to avoid malware, scams, or compromised versions.
 
 <br>
-
 ---
 
 ## 📌 About
@@ -52,12 +49,13 @@ If you like **Buildware-Tools** and want to support the project, you can leave a
 **Buildware-Tools** is a powerful multitool built by **v4lkyr0 (myself)**, designed to handle everything from **Discord automation** and **OSINT reconnaissance** to **network diagnostics**, **cryptography utilities**, and **Roblox lookups** — all from a single terminal interface. It works natively on **Windows & Linux**, requires no external setup beyond Python, and is **regularly updated** with new features and improvements.
 
 <br>
-
 ---
 
 ## ✨ Features
 
 > Features marked with `[⭐]` are the **most powerful** and require a **GitHub star to unlock**.
+
+> Features marked with `[🔧]` are **currently under testing** and will **not be available**.
 
 ```
 🛠️ Buildware-Tools
@@ -69,19 +67,6 @@ If you like **Buildware-Tools** and want to support the project, you can leave a
 │   ├── Extras File                     : Opens Config file and Extras folder
 │   ├── Next Page                       : Navigate to the next page of features
 │   └── Back Page                       : Navigate to the previous page of features
-│
-├── 🔍 OSINT (10)
-│   │
-│   ├── Ip Lookup                       : Geolocates an IP address with ISP and AS details
-│   ├── Dns Lookup                      : Resolves DNS records for a domain
-│   ├── Whois Lookup                    : Retrieves WHOIS registration data for a domain
-│   ├── Subdomain Finder                : [⭐] Discovers subdomains using certificate transparency
-│   ├── Header Analyzer                 : Inspects HTTP response headers of a website
-│   ├── Website Detector                : Detects technologies used by a website
-│   ├── Username Lookup                 : [⭐] Searches a username across multiple platforms
-│   ├── Email Checker                   : Validates an email address
-│   ├── Email Breach Checker            : [⭐] Checks if an email has been in data breaches
-│   └── Phone Lookup                    : Retrieves carrier and location data for a phone number
 │
 ├── 🌐 Network (10)
 │   │
@@ -96,6 +81,20 @@ If you like **Buildware-Tools** and want to support the project, you can leave a
 │   ├── Proxy Checker                   : Tests if a proxy is working and anonymous
 │   └── Wifi Passwords                  : [⭐] Retrieves saved Wi-Fi passwords from the system
 │
+├── 🔍 Osint (10)
+│   │
+│   ├── Ip Lookup                       : Geolocates an IP address with ISP and AS details
+│   ├── Dns Lookup                      : Resolves DNS records for a domain
+│   ├── Whois Lookup                    : Retrieves WHOIS registration data for a domain
+│   ├── Subdomain Finder                : [⭐] Discovers subdomains using certificate transparency
+│   ├── Header Analyzer                 : Inspects HTTP response headers of a website
+│   ├── Website Detector                : Detects technologies used by a website
+│   ├── Username Lookup                 : [⭐] Searches a username across multiple platforms
+│   ├── Email Checker                   : Validates an email address
+│   ├── Email Breach Checker            : [⭐] Checks if an email has been in data breaches
+│   └── Phone Lookup                    : Retrieves carrier and location data for a phone number
+│
+│
 ├── 🧰 Utilities (10)
 │   │
 │   ├── Password Generator              : Generates secure random passwords with options
@@ -109,59 +108,85 @@ If you like **Buildware-Tools** and want to support the project, you can leave a
 │   ├── Text Converter                  : Converts text between various formats
 │   └── Url Analyzer                    : Analyzes URLs for headers, redirects and content
 │
-├── 👾 Discord (30)
+├── 🔐 Stealer (1)
 │   │
-│   ├── Server
-│   │   ├── Server Information          : Shows detailed information about a server
-│   │   ├── Server Editor               : Edits server settings and configuration
-│   │   ├── Server Scraper              : [⭐] Scrapes members from a server
-│   │   ├── Server Cloner               : [⭐] Clones a server's structure, channels and roles
-│   │   ├── Server Ban All              : [⭐] Bans all members from a server
-│   │   ├── Server Kick All             : Kicks all members from a server
-│   │   ├── Server Unban All            : Unbans all banned members from a server
-│   │   └── Server Mute All             : Mutes all members in a server
-│   │
-│   ├── Bot
-│   │   ├── Bot Nuker                   : [⭐] Performs destructive actions on a server via a bot
-│   │   └── Bot Raider                  : Spams messages across all channels via a bot
-│   │
-│   ├── Token
-│   │   ├── Token Information           : Displays sensitive information about a token
-│   │   ├── Token Login                 : Log in to Discord using a token via browser
-│   │   ├── Token Joiner                : Makes a token join a server
-│   │   ├── Token Leaver                : Makes a token leave a server
-│   │   ├── Token Mass Dm               : [⭐] Sends mass private messages to all DMs
-│   │   ├── Token Spammer               : Sends mass messages in a channel
-│   │   ├── Token Ghost Pinger          : Sends mentions and deletes them instantly
-│   │   ├── Token Nuker                 : [⭐] Performs destructive actions on the account
-│   │   ├── Token Disabler              : Disables a token permanently
-│   │   ├── Token Onliner               : Sets a token's status to online via gateway
-│   │   ├── Token Image Changer         : Changes the account's profile picture or banner
-│   │   ├── Token Bio Changer           : Changes the account's bio
-│   │   ├── Token Status Changer        : Changes the custom status of the account
-│   │   └── Token Generator             : Generates and checks random tokens
-│   │
-│   ├── Webhook
-│   │   ├── Webhook Spammer             : Spams a webhook with messages
-│   │   └── Webhook Information         : Shows detailed information about a webhook
-│   │
-│   └── Other
-│       ├── Embed Creator               : Creates and sends custom Discord embeds
-│       ├── Injection Cleaner           : Detects and removes Discord client injections
-│       ├── Vanity Url Sniper           : Monitors and snipes custom vanity URLs
-│       └── Snowflake Decoder           : Decodes any Discord snowflake ID
+│   └── Stealer Builder                 : [⭐] Generates a custom stealer with selected modules
+│       └── Features
+│           ├── System Information      : Detailed system information
+│           ├── Wallets Sessions Files  : Crypto wallet sessions/files
+│           ├── Games Sessions Files    : Game launcher sessions
+│           ├── Telegram Sessions Files : Telegram Desktop sessions (tdata)
+│           ├── Discord Tokens          : Discord tokens from clients & browsers
+│           ├── Discord Injection       : Persistent injection into Discord clients
+│           ├── Browser Passwords       : Saved passwords
+│           ├── Browser Cookies         : Browser cookies
+│           ├── Browser History         : Browsing history
+│           ├── Browser Downloads       : Download history
+│           ├── Browser Extensions      : Installed extensions, files and manifests
+│           ├── Interesting Files       : Sensitive files
+│           ├── Camera Capture          : Webcam snapshot
+│           ├── Screenshot              : Full-screen screenshot
+│           └── Ping On Discord         : Ping @everyone in the webhook on report
 │
-└── 🎮 Roblox (6)
-    ├── Cookie Login                    : [⭐] Log in to Roblox using a cookie via browser
-    ├── Cookie Information              : [⭐] Displays detailed account info from a cookie
-    ├── Id Information                  : Looks up a Roblox user by their ID
-    ├── Username Information            : Looks up a Roblox user by their username
-    ├── Group Information               : Shows detailed information about a Roblox group
-    └── Game Information                : Shows detailed information about a Roblox game
+├── ⚔️ Attacks (5)
+│   ├── Email Bomber                    : [🔧] Sends a large number of emails to a target address
+│   ├── Sms Bomber                      : [🔧] Sends multiple SMS messages to a target number
+│   ├── Phishing Attack                 : [🔧] Generates phishing pages
+│   ├── Password Zip Cracker            : [🔧] Attempts to crack password-protected ZIP archives
+│   └── Password Hash Cracker           : [🔧] Attempts to recover passwords from hash values
+│
+├── 🎮 Roblox (6)
+│   ├── Cookie Login                    : [⭐] Log in to Roblox using a cookie via browser
+│   ├── Cookie Information              : [⭐] Displays detailed account info from a cookie
+│   ├── Id Information                  : Looks up a Roblox user by their ID
+│   ├── Username Information            : Looks up a Roblox user by their username
+│   ├── Group Information               : Shows detailed information about a Roblox group
+│   └── Game Information                : Shows detailed information about a Roblox game
+│
+└── 👾 Discord (30)
+    │
+    ├── Server
+    │   ├── Server Information          : Shows detailed information about a server
+    │   ├── Server Editor               : Edits server settings and configuration
+    │   ├── Server Scraper              : [⭐] Scrapes members from a server
+    │   ├── Server Cloner               : [⭐] Clones a server's structure, channels and roles
+    │   ├── Server Ban All              : [⭐] Bans all members from a server
+    │   ├── Server Kick All             : Kicks all members from a server
+    │   ├── Server Unban All            : Unbans all banned members from a server
+    │   └── Server Mute All             : Mutes all members in a server
+    │
+    ├── Bot
+    │   ├── Bot Nuker                   : [⭐] Performs destructive actions on a server via a bot
+    │   └── Bot Raider                  : Spams messages across all channels via a bot
+    │
+    ├── Token
+    │   ├── Token Information           : Displays sensitive information about a token
+    │   ├── Token Login                 : Log in to Discord using a token via browser
+    │   ├── Token Joiner                : Makes a token join a server
+    │   ├── Token Leaver                : Makes a token leave a server
+    │   ├── Token Mass Dm               : [⭐] Sends mass private messages to all DMs
+    │   ├── Token Spammer               : Sends mass messages in a channel
+    │   ├── Token Ghost Pinger          : Sends mentions and deletes them instantly
+    │   ├── Token Nuker                 : [⭐] Performs destructive actions on the account
+    │   ├── Token Disabler              : Disables a token permanently
+    │   ├── Token Onliner               : Sets a token's status to online via gateway
+    │   ├── Token Image Changer         : Changes the account's profile picture or banner
+    │   ├── Token Bio Changer           : Changes the account's bio
+    │   ├── Token Status Changer        : Changes the custom status of the account
+    │   └── Token Generator             : Generates and checks random tokens
+    │
+    ├── Webhook
+    │   ├── Webhook Spammer             : Spams a webhook with messages
+    │   └── Webhook Information         : Shows detailed information about a webhook
+    │
+    └── Other
+        ├── Embed Creator               : Creates and sends custom Discord embeds
+        ├── Injection Cleaner           : Detects and removes Discord client injections
+        ├── Vanity Url Sniper           : Monitors and snipes custom vanity URLs
+        └── Snowflake Decoder           : Decodes any Discord snowflake ID
 ```
 
 <br>
-
 ---
 
 ## 📦 Installation
@@ -184,7 +209,6 @@ python Setup.py
 ```
 
 <br>
-
 ---
 
 ## 📋 Requirements
@@ -194,7 +218,6 @@ python Setup.py
 - **Internet connection.**
 
 <br>
-
 ---
 
 ## 📈 Star History
@@ -211,7 +234,6 @@ python Setup.py
 ```
 
 <br>
-
 ---
 
 ## ⚖️ Disclaimer

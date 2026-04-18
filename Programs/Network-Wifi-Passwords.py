@@ -1,5 +1,10 @@
-# Copyright (c) 2026 v4lkyr0
-# See LICENSE file for details
+# Copyright (c) 2025-2026 v4lkyr0 — Buildware-Tools
+# See the file 'LICENSE' for copying permission.
+# --------------------------------------------------------
+# EN: Non-commercial use only. Do not sell, remove credits
+#     or redistribute without prior written permission.
+# FR: Usage non-commercial uniquement. Ne pas vendre, supprimer
+#     les crédits ou redistribuer sans autorisation écrite.
 
 from Plugins.Utils import *
 from Plugins.Config import *
@@ -11,7 +16,9 @@ try:
 except Exception as e:
     MissingModule(e)
 
-Title("Network Wifi Passwords")
+Title("Wifi Passwords")
+
+Scroll(GradientBanner(network_banner))
 
 WLAN_PROFILE_GET_PLAINTEXT_KEY = 4
 ERROR_SUCCESS = 0
@@ -176,8 +183,6 @@ try:
 
         output += f"{SUCCESS} Network:{red} {name:20s}{white}| Password:{red} {password:20s}{white}| Auth:{red} {auth}{reset}\n"
         found += 1
-
-    output += f"\n{INFO} Total retrieved:{red} {found}/{len(profiles)}{reset}\n"
 
     Scroll(f"\n{output}")
 

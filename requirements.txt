@@ -4,3 +4,6 @@ selenium
 websocket-client
 icmplib
 psutil
+customtkinter
+pynput
+py7zr

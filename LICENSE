@@ -1,182 +1,90 @@
-Copyright (c) 2025 v4lkyr0/v4lkyr_
+Copyright (c) 2025-2026 v4lkyr0
 
-ENGLISH:
+Permission is granted to use this software under the terms below. If you do
+not agree, do not use or distribute it.
 
-LEGAL DISCLAIMER:
-This software is provided for EDUCATIONAL and RESEARCH purposes ONLY. The tools 
-included in this software must be used in accordance with all applicable laws, 
-regulations, and the Terms of Service of any third-party platforms (including 
-but not limited to Discord). The author does NOT condone, encourage, or support 
-any malicious, unauthorized, or illegal use of this software. By using this 
-software, you acknowledge and agree that you are solely responsible for ensuring 
-your use complies with all applicable legal requirements and platform policies.
+1. Purpose
 
-Permission is granted to use, copy, and modify this software for personal and 
-non-commercial purposes only, subject to the following conditions:
+This software is provided primarily for educational and research use. You
+must comply with applicable laws, regulations, and the terms of service of
+any third-party platforms you use with it (including, without limitation,
+Discord). The author does not condone malicious, unauthorized, or illegal use.
+You are solely responsible for your use of the software.
 
-PERMISSIONS:
-- Personal and non-commercial use
-- Code modification for personal use only
-- Study and analysis of the source code
-- Sharing the original software with proper credit to the author
+2. What you may do (non-commercial)
 
-PROHIBITIONS:
-- Selling, renting, or commercializing this software or any derivative work
-- Using this software in a commercial or professional context
-- Redistributing modified versions of the software
-- Distributing compiled or binary versions (modified or not)
-- Removing or modifying copyright and attribution notices
+You may, for non-commercial purposes:
 
-REQUIREMENTS:
-- The original copyright notice MUST be preserved in all copies
-- The original author MUST be credited in any use or sharing
-- The source code MUST remain accessible (no binary-only distribution)
+- Run, study, and analyze the source code.
+- Copy and modify the software for your own use.
+- Share the software (original or modified) privately or publicly, provided that
+  you meet all conditions in section 3.
 
-CONTRIBUTIONS:
-Any contribution to the project (pull requests, code suggestions, etc.) is 
-subject to the same terms of this license and transfers copyright ownership 
-to the original author of the project.
+3. Conditions on use and sharing
 
-CONTACT:
-For any commercial use request, special permission, or questions regarding 
-this license, please contact: v4lkyr_ on Discord
+Whenever you copy or share the software (in source or built form), you must:
 
-WARRANTY:
-This software is provided "AS IS", without warranty of any kind, express or 
-implied. In no event shall the author be liable for any damages or claims, 
-whether in contract, tort, or otherwise, arising from the use or inability 
-to use this software.
+- Keep all copyright and license notices intact and visible.
+- Clearly credit the original project and author; you must not present the
+  work as solely your own or remove attribution in a way that suggests you are
+  the original author of this project.
+- Include this license (or a verbatim copy) with any distribution.
+- Not use the software or derivatives in a commercial or professional context
+  without prior written permission from the author.
 
-USER RESPONSIBILITIES:
-You, as the user of this software, are solely responsible for:
-- Ensuring your use complies with all applicable laws and regulations
-- Respecting the Terms of Service of third-party platforms (Discord, etc.)
-- Any consequences resulting from your use or misuse of this software
-- Obtaining necessary permissions before using tools on systems or accounts 
-  you do not own or have explicit authorization to test
+4. What you may not do
 
-The author expressly disclaims any responsibility for unauthorized, malicious, 
-or illegal use of this software.
+Without prior written permission from the author, you must not:
 
-TERMINATION:
-Your rights under this license will terminate automatically if you fail to 
-comply with any of its terms and conditions. Upon termination, you must:
-- Immediately cease all use of the software
-- Destroy all copies of the software in your possession
-- Remove any derivatives or modifications you have created
+- Sell, rent, sublicense, or otherwise commercialize the software or a
+  substantial part of it, whether modified or not.
+- Remove or alter copyright, attribution, or this license in distributed copies.
+- Distribute binaries without also making the corresponding source available
+  under the same terms (for example in the same package or repository), unless
+  the distribution is only of the unmodified upstream release as published by
+  the author with notices included.
 
-The author reserves the right to revoke this license at any time for violations 
-of its terms.
+5. Contributions
 
-SEVERABILITY:
-If any provision of this license is found to be unenforceable or invalid under 
-applicable law, such unenforceability or invalidity shall not render this license 
-unenforceable or invalid as a whole. Such provisions shall be modified or deleted 
-only to the extent necessary to make them enforceable and valid.
+If you submit contributions (for example pull requests or patches), you grant
+the project maintainer(s) a perpetual, worldwide, non-exclusive license to use,
+reproduce, modify, and distribute those contributions as part of this project,
+under these same terms. You retain your moral rights where applicable; you
+represent that you have the right to grant this license.
 
-APPLICABLE LAW:
-This license shall be governed by and construed in accordance with the laws of 
-France, without regard to its conflict of law provisions. Any dispute arising 
-from this license shall be subject to the exclusive jurisdiction of the French 
-courts.
+For commercial licensing or other questions: v4lkyr_ on Discord.
 
-LICENSE VERSIONS:
-This license applies to the current version of the software and all future 
-versions unless explicitly stated otherwise. The author reserves the right to 
-release future versions under different license terms. Using a specific version 
-of the software binds you to the license terms applicable at the time of that 
-version's release.
+6. Disclaimer of warranty
 
----
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHOR BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY ARISING FROM OR
+RELATED TO THE SOFTWARE OR ITS USE, WHETHER IN CONTRACT, TORT, OR OTHERWISE.
 
-FRANÇAIS :
+7. Your responsibilities
 
-AVERTISSEMENT LÉGAL :
-Ce logiciel est fourni à des fins ÉDUCATIVES et de RECHERCHE UNIQUEMENT. Les 
-outils inclus dans ce logiciel doivent être utilisés conformément à toutes les 
-lois, réglementations applicables et aux Conditions d'Utilisation de toute 
-plateforme tierce (y compris, mais sans s'y limiter, Discord). L'auteur ne 
-cautionne, n'encourage ni ne soutient aucune utilisation malveillante, non 
-autorisée ou illégale de ce logiciel. En utilisant ce logiciel, vous reconnaissez 
-et acceptez que vous êtes seul responsable de vous assurer que votre utilisation 
-est conforme à toutes les exigences légales applicables et aux politiques des 
-plateformes.
+You are responsible for lawful use, for respecting third-party terms of service,
+and for obtaining authorization before testing or using tools on systems or
+accounts you do not own or are not explicitly permitted to access.
 
-Permission est accordée d'utiliser, copier et modifier ce logiciel à des fins 
-personnelles et non commerciales uniquement, sous réserve des conditions suivantes :
+8. Termination
 
-AUTORISATIONS :
-- Utilisation personnelle et non commerciale
-- Modification du code pour usage personnel uniquement
-- Étude et analyse du code source
-- Partage du logiciel original en créditant l'auteur
+If you materially breach these terms, your rights under this license end. You
+must then stop distributing the software and derivatives, and remove public
+copies you published. You may retain a single private copy solely to document
+what you used, unless prohibited by law. The author may also seek other remedies
+available under applicable law.
 
-INTERDICTIONS :
-- Vendre, louer ou commercialiser ce logiciel ou toute œuvre dérivée
-- Utiliser ce logiciel dans un cadre commercial ou professionnel
-- Redistribuer des versions modifiées du logiciel
-- Distribuer des versions compilées ou binaires (modifiées ou non)
-- Retirer ou modifier les mentions de copyright et d'attribution
+9. Severability and governing law
 
-OBLIGATIONS :
-- L'avis de copyright original DOIT être conservé dans toutes les copies
-- L'auteur original DOIT être crédité dans toute utilisation ou partage
-- Le code source DOIT rester accessible (pas de distribution binaire seule)
+If any provision is held invalid, the remainder stays in effect to the fullest
+extent permitted. This license is governed by the laws of France. Courts in
+France have exclusive jurisdiction, without prejudice to mandatory rules where
+you reside.
 
-CONTRIBUTIONS :
-Toute contribution au projet (pull requests, suggestions de code, etc.) est 
-soumise aux mêmes termes de cette licence et cède les droits d'auteur à 
-l'auteur original du projet.
+10. Versions
 
-CONTACT :
-Pour toute demande d'utilisation commerciale, permission spéciale ou question 
-concernant cette licence, veuillez contacter : v4lkyr_ sur Discord
-
-GARANTIE :
-Ce logiciel est fourni "TEL QUEL", sans garantie d'aucune sorte, expresse ou 
-implicite. En aucun cas, l'auteur ne pourra être tenu responsable de tout dommage 
-ou réclamation, que ce soit dans le cadre d'une action contractuelle, délictuelle 
-ou autre, découlant de l'utilisation ou de l'impossibilité d'utiliser ce logiciel.
-
-RESPONSABILITÉS DE L'UTILISATEUR :
-Vous, en tant qu'utilisateur de ce logiciel, êtes seul responsable de :
-- Vous assurer que votre utilisation est conforme à toutes les lois et 
-  réglementations applicables
-- Respecter les Conditions d'Utilisation des plateformes tierces (Discord, etc.)
-- Toutes les conséquences résultant de votre utilisation ou mauvaise utilisation 
-  de ce logiciel
-- Obtenir les autorisations nécessaires avant d'utiliser les outils sur des 
-  systèmes ou comptes que vous ne possédez pas ou pour lesquels vous n'avez pas 
-  d'autorisation explicite de test
-
-L'auteur décline expressément toute responsabilité pour toute utilisation non 
-autorisée, malveillante ou illégale de ce logiciel.
-
-RÉSILIATION :
-Vos droits en vertu de cette licence prendront fin automatiquement si vous ne 
-respectez pas l'un de ses termes et conditions. Lors de la résiliation, vous devez :
-- Cesser immédiatement toute utilisation du logiciel
-- Détruire toutes les copies du logiciel en votre possession
-- Supprimer tous les dérivés ou modifications que vous avez créés
-
-L'auteur se réserve le droit de révoquer cette licence à tout moment en cas de 
-violation de ses termes.
-
-DIVISIBILITÉ :
-Si une disposition de cette licence est jugée inapplicable ou invalide en vertu 
-de la loi applicable, cette inapplicabilité ou invalidité ne rendra pas cette 
-licence inapplicable ou invalide dans son ensemble. Ces dispositions seront 
-modifiées ou supprimées uniquement dans la mesure nécessaire pour les rendre 
-applicables et valides.
-
-LOI APPLICABLE :
-Cette licence sera régie et interprétée conformément aux lois de la France, sans 
-égard à ses dispositions relatives aux conflits de lois. Tout litige découlant 
-de cette licence sera soumis à la juridiction exclusive des tribunaux français.
-
-VERSIONS DE LA LICENCE :
-Cette licence s'applique à la version actuelle du logiciel et à toutes les 
-versions futures, sauf indication contraire explicite. L'auteur se réserve le 
-droit de publier des versions futures sous des conditions de licence différentes. 
-L'utilisation d'une version spécifique du logiciel vous lie aux conditions de 
-licence applicables au moment de la publication de cette version.
+This license applies to the version(s) of the software it accompanies. The
+author may publish later versions under different terms; your use of a given
+release is governed by the license file shipped with that release.
