@@ -8,9 +8,9 @@
 
 name_tool    = "Buildware-Tools"
 version_tool = "2.1"
-author_tool  = "v4lkyr0/v4lkyr_"
+author_tool  = "v4lkyr0"
 type_tool    = "Multitool"
 license      = "Proprietary License"
 license_url  = "https://github.com/v4lkyr0/Buildware-Tools/blob/main/LICENSE"
 github_url   = "https://github.com/v4lkyr0/Buildware-Tools"
-gunslol_url  = "https://guns.lol/v4lkyr_"
+gunslol_url  = "https://guns.lol/sg0r"
