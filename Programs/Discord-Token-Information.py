@@ -15,152 +15,131 @@ try:
 except Exception as e:
     MissingModule(e)
 
-Title("Discord Token Information")
+Title("Token Information")
 Connection()
 
 Scroll(GradientBanner(discord_banner))
 
 try:
-    token = ChoiceToken()
+    token   = ChoiceToken()
+    headers = {"Authorization": token, "Content-Type": "application/json", "User-Agent": RandomUserAgents()}
 
-    print(f"{LOADING} Retrieving Information..", reset)
+    print(f"{LOADING} Fetching..", reset)
 
-    headers  = {'Authorization': token, 'Content-Type': 'application/json', 'User-Agent': RandomUserAgents()}
-    api      = requests.get('https://discord.com/api/v9/users/@me', headers={'Authorization': token, 'User-Agent': RandomUserAgents()}).json()
-    response = requests.get('https://discord.com/api/v9/users/@me', headers=headers)
+    response = requests.get("https://discord.com/api/v9/users/@me", headers=headers, timeout=10)
 
-    status = "Valid" if response.status_code == 200 else "Invalid"
+    if response.status_code != 200:
+        print(f"{ERROR} Invalid token!", reset)
+        Continue()
+        Reset()
 
-    username          = api.get('username')
-    display_name      = api.get('global_name')
-    user_id           = api.get('id')
-    country           = api.get('locale')
-    email             = api.get('email')
-    email_verified    = api.get('verified')
-    phone             = api.get('phone')
-    avatar_decoration = api.get('avatar_decoration')
-    avatar            = api.get('avatar')
-    accent_color      = api.get('accent_color')
-    banner            = api.get('banner')
-    banner_color      = api.get('banner_color')
-    flags             = api.get('flags')
-    public_flags      = api.get('public_flags')
-    nsfw_allowed      = api.get('nsfw_allowed')
-    mfa_enabled       = api.get('mfa_enabled')
-    bio               = api.get('bio')
+    api      = response.json()
+    user_id  = api.get("id")
+    username = api.get("username")
+    avatar   = api.get("avatar")
 
     try:
-        linked_users_raw = api.get('linked_users')
-        linked_users = ', '.join([str(u) for u in linked_users_raw]) if linked_users_raw else "None"
-    except:
-        linked_users = "None"
-
-    try:
-        mfa_type_map = {1: 'SMS', 2: 'App', 3: 'WebAuthn'}
-        mfa_type_raw = api.get('authenticator_types', [])
-        mfa_type     = ', '.join([mfa_type_map.get(m, f'Other ({m})') for m in mfa_type_raw]) if mfa_type_raw else "None"
-    except:
-        mfa_type = "None"
-
-    try:
-        created_at_raw = datetime.fromtimestamp(((int(user_id) >> 22) + 1420070400000) / 1000, timezone.utc)
-        created_at     = created_at_raw.strftime('%Y-%m-%d %H:%M:%S')
+        created_at = datetime.fromtimestamp(((int(user_id) >> 22) + 1420070400000) / 1000, timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
     except:
         created_at = "None"
 
     try:
-        premium_map = {0: "No Nitro", 1: "Nitro Classic", 2: "Nitro Boost"}
-        nitro_type  = premium_map.get(api.get('premium_type'), "No Nitro")
+        nitro_map  = {0: "No Nitro", 1: "Nitro Classic", 2: "Nitro Boost", 3: "Nitro Basic"}
+        nitro_type = nitro_map.get(api.get("premium_type", 0), "No Nitro")
     except:
         nitro_type = "No Nitro"
 
     try:
-        avatar_url = f"https://cdn.discordapp.com/avatars/{user_id}/{avatar}.gif" if requests.get(f"https://cdn.discordapp.com/avatars/{user_id}/{avatar}.gif").status_code == 200 else f"https://cdn.discordapp.com/avatars/{user_id}/{avatar}.png"
+        mfa_type_map = {1: "Sms", 2: "App", 3: "WebAuthn"}
+        mfa_type_raw = api.get("authenticator_types", [])
+        mfa_type     = ", ".join([mfa_type_map.get(m, f"Other ({m})") for m in mfa_type_raw]) if mfa_type_raw else "None"
     except:
-        avatar_url = "No Avatar"
+        mfa_type = "None"
 
     try:
-        billing = requests.get('https://discord.com/api/v9/users/@me/billing/payment-sources', headers={'Authorization': token, 'User-Agent': RandomUserAgents()}).json()
-        if billing:
-            payment_map     = {1: 'Credit Card', 2: 'PayPal'}
-            payment_methods = ', '.join([payment_map.get(m['type'], 'Other') for m in billing])
+        linked_users_raw = api.get("linked_users", [])
+        linked_users     = ", ".join([str(u) for u in linked_users_raw]) if linked_users_raw else "None"
+    except:
+        linked_users = "None"
+
+    try:
+        if avatar:
+            av_gif = f"https://cdn.discordapp.com/avatars/{user_id}/{avatar}.gif"
+            avatar_url = av_gif if requests.get(av_gif, timeout=5).status_code == 200 else f"https://cdn.discordapp.com/avatars/{user_id}/{avatar}.png"
         else:
-            payment_methods = 'No Payment Methods'
+            avatar_url = "None"
     except:
-        payment_methods = 'No Payment Methods'
+        avatar_url = "None"
 
     try:
-        gift_codes = requests.get('https://discord.com/api/v9/users/@me/outbound-promotions/codes', headers={'Authorization': token, 'User-Agent': RandomUserAgents()}).json()
-        gift = ', '.join([f"{g.get('promotion', {}).get('outbound_title', 'Unknown')} -> {g.get('code', 'Unknown')}" for g in gift_codes]) if gift_codes else 'No Gift Codes'
-    except:
-        gift = 'No Gift Codes'
-
-    try:
-        guilds_response = requests.get('https://discord.com/api/v9/users/@me/guilds?with_counts=true', headers={'Authorization': token, 'User-Agent': RandomUserAgents()})
-        if guilds_response.status_code == 200:
-            guilds       = guilds_response.json()
-            guild_count  = len(guilds)
-            owner_guilds = [g for g in guilds if g.get('owner')]
-            owner_guilds_count = len(owner_guilds)
-            if owner_guilds:
-                owner_guilds_names = '\n' + ', '.join(f"{g.get('name')} {red}({white}{g.get('id')}{red})" for g in owner_guilds)
-            else:
-                owner_guilds_names = ''
+        billing = requests.get("https://discord.com/api/v9/users/@me/billing/payment-sources", headers=headers, timeout=10).json()
+        if billing and isinstance(billing, list):
+            payment_map     = {1: "Credit Card", 2: "PayPal"}
+            payment_methods = ", ".join([payment_map.get(m.get("type"), "Other") for m in billing])
         else:
-            guild_count        = 'None'
-            owner_guilds_count = 'None'
-            owner_guilds_names = ''
+            payment_methods = "None"
     except:
-        guild_count        = 'None'
-        owner_guilds_count = 'None'
-        owner_guilds_names = ''
+        payment_methods = "None"
 
     try:
-        relationships = requests.get('https://discord.com/api/v9/users/@me/relationships', headers={'Authorization': token, 'User-Agent': RandomUserAgents()}).json()
-        friends_list  = []
-        for friend in relationships:
-            if friend.get('type') != 1:
-                continue
-            user_data  = friend.get('user', {})
-            friend_str = f"{user_data.get('username', 'Unknown')} {red}({white}{user_data.get('id', 'Unknown')}{red})"
-            if len('\n'.join(friends_list)) + len(friend_str) >= 1024:
-                continue
-            friends_list.append(friend_str)
-        friends = f"{len(friends_list)}\n{', '.join(friends_list)}" if friends_list else 'None'
+        gift_codes = requests.get("https://discord.com/api/v9/users/@me/outbound-promotions/codes", headers=headers, timeout=10).json()
+        gift       = ", ".join([f"{g.get('promotion', {}).get('outbound_title', 'Unknown')} -> {g.get('code', 'Unknown')}" for g in gift_codes]) if gift_codes else "None"
     except:
-        friends = 'None'
+        gift = "None"
+
+    try:
+        guilds_response    = requests.get("https://discord.com/api/v9/users/@me/guilds?with_counts=true", headers=headers, timeout=10)
+        guilds             = guilds_response.json() if guilds_response.status_code == 200 else []
+        guild_count        = len(guilds)
+        owner_guilds       = [g for g in guilds if g.get("owner")]
+        owner_guilds_count = len(owner_guilds)
+        owner_guilds_names = "\n" + ", ".join(f"{g.get('name')} {red}({white}{g.get('id')}{red})" for g in owner_guilds) if owner_guilds else ""
+    except:
+        guild_count        = "None"
+        owner_guilds_count = "None"
+        owner_guilds_names = ""
+
+    try:
+        relationships = requests.get("https://discord.com/api/v9/users/@me/relationships", headers=headers, timeout=10).json()
+        friends_list  = [
+            f"{f.get('user', {}).get('username', 'Unknown')} {red}({white}{f.get('user', {}).get('id', 'Unknown')}{red})"
+            for f in relationships if f.get("type") == 1
+        ]
+        friends = f"{len(friends_list)}\n{', '.join(friends_list)}" if friends_list else "None"
+    except:
+        friends = "None"
 
     Scroll(f"""
- {INFO} Status            :{red} {status}
- {INFO} Token             :{red} {token}
- {INFO} Username          :{red} {username}
- {INFO} Display Name      :{red} {display_name}
- {INFO} User Id           :{red} {user_id}
- {INFO} Created At        :{red} {created_at}
- {INFO} Country           :{red} {country}
- {INFO} Email             :{red} {email}
- {INFO} Email Verified    :{red} {email_verified}
- {INFO} Phone             :{red} {phone}
- {INFO} Nitro             :{red} {nitro_type}
- {INFO} Linked Users      :{red} {linked_users}
- {INFO} Avatar Decoration :{red} {avatar_decoration}
- {INFO} Avatar            :{red} {avatar}
- {INFO} Avatar Url        :{red} {avatar_url}
- {INFO} Accent Color      :{red} {accent_color}
- {INFO} Banner            :{red} {banner}
- {INFO} Banner Color      :{red} {banner_color}
- {INFO} Flags             :{red} {flags}
- {INFO} Public Flags      :{red} {public_flags}
- {INFO} NSFW Allowed      :{red} {nsfw_allowed}
- {INFO} MFA Enabled       :{red} {mfa_enabled}
- {INFO} MFA Type          :{red} {mfa_type}
- {INFO} Billing           :{red} {payment_methods}
- {INFO} Gift Codes        :{red} {gift}
- {INFO} Guilds            :{red} {guild_count}
- {INFO} Owner Guilds      :{red} {owner_guilds_count}{owner_guilds_names}
- {INFO} Bio               :{red} {bio}
- {INFO} Friends           :{red} {friends}{reset}
+ {SUCCESS} Status            :{red} Valid{white}
+ {SUCCESS} Token             :{red} {token}{white}
+ {SUCCESS} Username          :{red} {username}{white}
+ {SUCCESS} Display Name      :{red} {api.get('global_name')}{white}
+ {SUCCESS} User Id           :{red} {user_id}{white}
+ {SUCCESS} Created At        :{red} {created_at}{white}
+ {SUCCESS} Country           :{red} {api.get('locale')}{white}
+ {SUCCESS} Email             :{red} {api.get('email')}{white}
+ {SUCCESS} Email Verified    :{red} {api.get('verified')}{white}
+ {SUCCESS} Phone             :{red} {api.get('phone')}{white}
+ {SUCCESS} Nitro             :{red} {nitro_type}{white}
+ {SUCCESS} Linked Users      :{red} {linked_users}{white}
+ {SUCCESS} Avatar Decoration :{red} {api.get('avatar_decoration')}{white}
+ {SUCCESS} Avatar Url        :{red} {avatar_url}{white}
+ {SUCCESS} Accent Color      :{red} {api.get('accent_color')}{white}
+ {SUCCESS} Banner            :{red} {api.get('banner')}{white}
+ {SUCCESS} Banner Color      :{red} {api.get('banner_color')}{white}
+ {SUCCESS} Flags             :{red} {api.get('flags')}{white}
+ {SUCCESS} Public Flags      :{red} {api.get('public_flags')}{white}
+ {SUCCESS} Nsfw Allowed      :{red} {api.get('nsfw_allowed')}{white}
+ {SUCCESS} Mfa Enabled       :{red} {api.get('mfa_enabled')}{white}
+ {SUCCESS} Mfa Type          :{red} {mfa_type}{white}
+ {SUCCESS} Billing           :{red} {payment_methods}{white}
+ {SUCCESS} Gift Codes        :{red} {gift}{white}
+ {SUCCESS} Guilds            :{red} {guild_count}{white}
+ {SUCCESS} Owner Guilds      :{red} {owner_guilds_count}{owner_guilds_names}{white}
+ {SUCCESS} Bio               :{red} {api.get('bio')}{white}
+ {SUCCESS} Friends           :{red} {friends}{white}
 """)
+
     Continue()
     Reset()
 

@@ -17,34 +17,63 @@ try:
     changelog = f"""
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
- {INFO} Creator message:
+ {INFO} Creator Message
  {INFO}    - Hi {username_pc}, welcome to {name_tool} v{version_tool}!
+ {INFO}    - I wanted to let you know that I read your comments, thank you for your messages
+ {INFO}      it makes me very happy! <3
 
- {INFO} New features:
- {INFO}    - Added Stealer Builder feature & category
- {INFO}    - Added 'Attacks' category
- {INFO}    - Added Email Bomber
- {INFO}    - Added SMS Bomber
- {INFO}    - Added Phishing Attack
- {INFO}    - Added Password Zip Cracker
- {INFO}    - Added Password Hash Cracker
- {INFO}    - Added small DataBase with common passwords
+ {INFO} New Features
+ {INFO}    - Added Dns Lookup
+ {INFO}    - Added Network Scanner
+ {INFO}    - Added Bandwidth Tester
+ {INFO}    - Added Http Headers
+ {INFO}    - Added Reverse Image Search
+ {INFO}    - Added Phone Number Lookup
+ {INFO}    - Added Ip Reputation Checker
+ {INFO}    - Added Text Encoder/Decoder
+ {INFO}    - Added Qr Code Generator
+ {INFO}    - Added Uuid Generator
+ {INFO}    - Added Google Dork Builder
+ {INFO}    - Added Jwt Decoder
+ {INFO}    - Added Regex Tester
+ {INFO}    - Added First Run Configuration
+ {INFO}    - Added Auto-Update
+ {INFO}    - Added Paid Category - maybe soon!
 
- {INFO} Improvements:
- {INFO}    - Swapped the 'Osint' & 'Network' columns
- {INFO}    - Added new banners for all categories
- {INFO}    - LICENSE rewritten
+ {INFO} Improvements
+ {INFO}    - Updated text colors for better visual distinction
+ {INFO}    - New icon created by me!
+ {INFO}    - Improved performance and stability
+ {INFO}    - Updated every feature for better user experience
 
- {INFO} Bug fixes:
- {INFO}    - Assorted fixes & small stability improvements
+ {INFO} Bug Fixes
+ {INFO}    - 
 
- {INFO} Renamed:
- {INFO}    - Nothing renamed in this release
+ {INFO} Renamed
+ {INFO}    - Temp Mail {red}->{white} Temporary Mail
+ {INFO}    - Username Lookup {red}->{white} Username Tracker
 
- {INFO} Removed:
- {INFO}    - Nothing removed in this release
+ {INFO} Removed
+ {INFO}    - Removed Caesar Cipher
+ {INFO}    - Removed Url Analyzer
+ {INFO}    - Removed Email Checker
+ {INFO}    - Removed Phone Lookup
+ {INFO}    - Removed Interface Information
+ {INFO}    - Removed Website Status
+ {INFO}    - Removed Text Converter
+ {INFO}    - Removed Hash Generator
+ {INFO}    - Removed Base64 Converter
+ {INFO}    - Removed Attacks Category
+ {INFO}    - Removed Reverse Dns
+ {INFO}    - Removed Wifi Passwords
+ {INFO}    - Removed Header Analyzer
+ {INFO}    - Removed Website Detector
+ {INFO}    - Removed Password Hash Cracker
+ {INFO}    - Removed Password Zip Cracker
+ {INFO}    - Removed DataBase Folder
 
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────"""
+
     Scroll(Gradient(changelog))
 
     Continue()

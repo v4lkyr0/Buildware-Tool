@@ -10,8 +10,7 @@ from Plugins.Utils import *
 from Plugins.Config import *
 
 try:
-    import requests
-    from datetime import datetime
+    import whois
 except Exception as e:
     MissingModule(e)
 
@@ -21,66 +20,50 @@ Connection()
 Scroll(GradientBanner(osint_banner))
 
 try:
-    domain = input(f"{INPUT} Domain {red}->{reset} ").strip().lower()
-    if not domain:
+    target = input(f"{INPUT} Domain {red}->{reset} ").strip()
+
+    if not target:
         ErrorInput()
 
-    domain = domain.replace("http://", "").replace("https://", "").split("/")[0]
+    print(f"{LOADING} Looking up..", reset)
 
-    print(f"{LOADING} Looking Up Whois Data..", reset)
+    try:
+        data = whois.whois(target)
 
-    response = requests.get(f"https://rdap.org/domain/{domain}", timeout=15)
+        def Clean(value):
+            if not value:
+                return "None"
+            if isinstance(value, list):
+                unique = list(dict.fromkeys([str(v).strip() for v in value if v]))
+                return ", ".join(unique[:3]) + (" ..." if len(unique) > 3 else "")
+            return str(value).strip() or "None"
 
-    if response.status_code != 200:
-        print(f"{ERROR} Could not retrieve WHOIS data for this domain!", reset)
-        Continue()
-        Reset()
+        name_servers = data.name_servers
+        if isinstance(name_servers, (list, set)):
+            name_servers = ", ".join(sorted(set(str(n).lower() for n in name_servers if n)))
+        else:
+            name_servers = str(name_servers) if name_servers else "None"
 
-    data = response.json()
-
-    name = data.get("ldhName", data.get("name", "N/A"))
-    handle = data.get("handle", "N/A")
-    status = ", ".join(data.get("status", [])) or "N/A"
-
-    registrar = "N/A"
-    for entity in data.get("entities", []):
-        roles = entity.get("roles", [])
-        if "registrar" in roles:
-            vcard = entity.get("vcardArray", [None, []])
-            if len(vcard) > 1:
-                for field in vcard[1]:
-                    if field[0] == "fn":
-                        registrar = field[3]
-                        break
-
-    nameservers = []
-    for ns in data.get("nameservers", []):
-        ns_name = ns.get("ldhName", "")
-        if ns_name:
-            nameservers.append(ns_name)
-
-    events_info = {}
-    for event in data.get("events", []):
-        action = event.get("eventAction", "")
-        date = event.get("eventDate", "")
-        if date:
-            try:
-                dt = datetime.fromisoformat(date.replace("Z", "+00:00"))
-                date = dt.strftime("%Y-%m-%d %H:%M:%S UTC")
-            except:
-                pass
-        events_info[action] = date
-
-    Scroll(f"""
- {INFO} Domain Name              :{red} {name}
- {INFO} Handle                   :{red} {handle}
- {INFO} Status                   :{red} {status}
- {INFO} Registrar                :{red} {registrar}
- {INFO} Registration Date        :{red} {events_info.get('registration', 'N/A')}
- {INFO} Last Updated             :{red} {events_info.get('last changed', events_info.get('last update of RDAP database', 'N/A'))}
- {INFO} Expiration Date          :{red} {events_info.get('expiration', 'N/A')}
- {INFO} Nameservers              :{red} {', '.join(nameservers) if nameservers else 'N/A'}
+        Scroll(f"""
+ {SUCCESS} Domain       :{red} {Clean(data.domain_name)}{white}
+ {SUCCESS} Registrar    :{red} {Clean(data.registrar)}{white}
+ {SUCCESS} Created      :{red} {Clean(data.creation_date)}{white}
+ {SUCCESS} Expires      :{red} {Clean(data.expiration_date)}{white}
+ {SUCCESS} Updated      :{red} {Clean(data.updated_date)}{white}
+ {SUCCESS} Status       :{red} {Clean(data.status)}{white}
+ {SUCCESS} Name Servers :{red} {name_servers}{white}
+ {SUCCESS} Emails       :{red} {Clean(data.emails)}{white}
+ {SUCCESS} Country      :{red} {Clean(data.country)}{white}
+ {SUCCESS} State        :{red} {Clean(data.state)}{white}
+ {SUCCESS} City         :{red} {Clean(data.city)}{white}
+ {SUCCESS} Org          :{red} {Clean(data.org)}{white}
+ {SUCCESS} Address      :{red} {Clean(data.address)}{white}
+ {SUCCESS} Zipcode      :{red} {Clean(data.zipcode)}{white}
+ {SUCCESS} Dnssec       :{red} {Clean(data.dnssec)}{white}
+ {SUCCESS} Whois Server :{red} {Clean(data.whois_server)}{white}
 """)
+    except:
+        print(f"{ERROR} Could not fetch Whois information!", reset)
 
     Continue()
     Reset()

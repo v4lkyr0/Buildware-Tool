@@ -10,7 +10,7 @@ from Plugins.Utils import *
 from Plugins.Config import *
 
 try:
-    from icmplib import traceroute as icmp_traceroute
+    from icmplib import traceroute
     import socket
 except Exception as e:
     MissingModule(e)
@@ -21,41 +21,29 @@ Connection()
 Scroll(GradientBanner(network_banner))
 
 try:
-    target = input(f"{INPUT} Target {red}->{reset} ").strip()
+    target = input(f"{INPUT} Host {red}->{reset} ").strip()
+
     if not target:
         ErrorInput()
 
-    target = target.replace("http://", "").replace("https://", "").split("/")[0]
+    try:
+        resolved = socket.gethostbyname(target)
+    except:
+        print(f"{ERROR} Could not resolve host!", reset)
+        Continue()
+        Reset()
 
-    print(f"{LOADING} Tracing Route to {red}{target}{white}..", reset)
-
-    output = ""
+    print(f"{LOADING} Tracerouting..", reset)
 
     try:
-        hops = icmp_traceroute(target, max_hops=30, timeout=2)
-
-        last_distance = 0
+        hops = traceroute(resolved, max_hops=30, timeout=2, privileged=False)
         for hop in hops:
-            if hop.distance != last_distance:
-                if hop.address:
-                    try:
-                        hostname = socket.gethostbyaddr(hop.address)[0]
-                        display = f"{hop.address} ({hostname})"
-                    except:
-                        display = hop.address
-                    output += f" {PREFIX}{hop.distance:02d}{SUFFIX} {red}{display}{white} - {red}{hop.avg_rtt:.2f} ms{reset}\n"
-                else:
-                    output += f" {PREFIX}{hop.distance:02d}{SUFFIX} {red}* * *{reset}\n"
-                last_distance = hop.distance
-
-        output += f"\n{SUCCESS} Traceroute completed!{reset}\n"
-
-    except PermissionError:
-        output += f"{ERROR} Administrator privileges required for traceroute!{reset}\n"
-    except Exception as e:
-        output += f"{ERROR} Traceroute failed:{red} {e}{reset}\n"
-
-    Scroll(f"\n{output}")
+            if hop.is_alive:
+                print(f"{SUCCESS} Hop:{red} {hop.distance:<3}{white} | IP:{red} {hop.address:<16}{white} | Time:{red} {hop.avg_rtt}ms", reset)
+            else:
+                print(f"{ERROR} Hop:{red} {hop.distance:<3}{white} | {red}* * * Request timed out.", reset)
+    except:
+        print(f"{ERROR} Traceroute failed!", reset)
 
     Continue()
     Reset()

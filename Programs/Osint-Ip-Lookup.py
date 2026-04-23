@@ -11,6 +11,7 @@ from Plugins.Config import *
 
 try:
     import requests
+    import socket
 except Exception as e:
     MissingModule(e)
 
@@ -20,39 +21,58 @@ Connection()
 Scroll(GradientBanner(osint_banner))
 
 try:
-    ip = input(f"{INPUT} Ip Address {red}->{reset} ").strip()
-    if not ip:
+    target = input(f"{INPUT} Host {red}->{reset} ").strip()
+
+    if not target:
         ErrorInput()
 
-    print(f"{LOADING} Looking Up Ip Address..", reset)
-
-    response = requests.get(f"http://ip-api.com/json/{ip}?fields=status,message,continent,country,countryCode,regionName,city,zip,lat,lon,timezone,isp,org,as,asname,reverse,mobile,proxy,hosting,query", timeout=10)
-    data = response.json()
-
-    if data.get("status") != "success":
-        print(f"{ERROR} Lookup failed!", reset)
+    try:
+        resolved = socket.gethostbyname(target)
+    except:
+        print(f"{ERROR} Could not resolve host!", reset)
         Continue()
         Reset()
 
-    Scroll(f"""
- {INFO} Ip Address               :{red} {data.get('query', 'N/A')}
- {INFO} Continent                :{red} {data.get('continent', 'N/A')}
- {INFO} Country                  :{red} {data.get('country', 'N/A')} ({data.get('countryCode', 'N/A')})
- {INFO} Region                   :{red} {data.get('regionName', 'N/A')}
- {INFO} City                     :{red} {data.get('city', 'N/A')}
- {INFO} Zip Code                 :{red} {data.get('zip', 'N/A')}
- {INFO} Latitude                 :{red} {data.get('lat', 'N/A')}
- {INFO} Longitude                :{red} {data.get('lon', 'N/A')}
- {INFO} Timezone                 :{red} {data.get('timezone', 'N/A')}
- {INFO} Isp                      :{red} {data.get('isp', 'N/A')}
- {INFO} Organization             :{red} {data.get('org', 'N/A')}
- {INFO} As Number                :{red} {data.get('as', 'N/A')}
- {INFO} As Name                  :{red} {data.get('asname', 'N/A')}
- {INFO} Reverse Dns              :{red} {data.get('reverse', 'N/A')}
- {INFO} Mobile Connection        :{red} {data.get('mobile', 'N/A')}
- {INFO} Proxy / Vpn              :{red} {data.get('proxy', 'N/A')}
- {INFO} Hosting / Datacenter     :{red} {data.get('hosting', 'N/A')}
+    print(f"{LOADING} Looking up..", reset)
+
+    try:
+        response = requests.get(
+            f"http://ip-api.com/json/{resolved}?fields=status,message,country,countryCode,region,regionName,city,zip,lat,lon,timezone,isp,org,as,asname,reverse,mobile,proxy,hosting,query",
+            timeout=10
+        )
+        data = response.json()
+
+        if data.get("status") == "success":
+            proxy_type = []
+            if data.get("proxy"):
+                proxy_type.append("Proxy")
+            if data.get("hosting"):
+                proxy_type.append("Hosting/VPN")
+            if data.get("mobile"):
+                proxy_type.append("Mobile")
+            proxy_str = ", ".join(proxy_type) if proxy_type else "None"
+
+            Scroll(f"""
+ {SUCCESS} Ip          :{red} {data.get('query',      'None')}{white}
+ {SUCCESS} Country     :{red} {data.get('country',    'None')} ({data.get('countryCode', 'None')}){white}
+ {SUCCESS} Region      :{red} {data.get('regionName', 'None')}{white}
+ {SUCCESS} City        :{red} {data.get('city',       'None')}{white}
+ {SUCCESS} Zip         :{red} {data.get('zip',        'None')}{white}
+ {SUCCESS} Latitude    :{red} {data.get('lat',        'None')}{white}
+ {SUCCESS} Longitude   :{red} {data.get('lon',        'None')}{white}
+ {SUCCESS} Timezone    :{red} {data.get('timezone',   'None')}{white}
+ {SUCCESS} Isp         :{red} {data.get('isp',        'None')}{white}
+ {SUCCESS} Org         :{red} {data.get('org',        'None')}{white}
+ {SUCCESS} As          :{red} {data.get('as',         'None')}{white}
+ {SUCCESS} As Name     :{red} {data.get('asname',     'None')}{white}
+ {SUCCESS} Reverse Dns :{red} {data.get('reverse',    'None')}{white}
+ {SUCCESS} Type        :{red} {proxy_str}{white}
 """)
+        else:
+            print(f"{ERROR} Ip not found!", reset)
+
+    except:
+        print(f"{ERROR} Could not fetch Ip information!", reset)
 
     Continue()
     Reset()

@@ -11,7 +11,8 @@ from Plugins.Config import *
 
 try:
     import requests
-    import json
+    import socket
+    import threading
 except Exception as e:
     MissingModule(e)
 
@@ -20,61 +21,74 @@ Connection()
 
 Scroll(GradientBanner(osint_banner))
 
+fallback_wordlist = [
+    "www", "mail", "ftp", "smtp", "pop", "imap", "webmail", "admin", "portal",
+    "api", "dev", "staging", "test", "beta", "app", "mobile", "m", "cdn",
+    "static", "media", "img", "images", "assets", "shop", "store", "blog",
+    "forum", "wiki", "docs", "support", "help", "kb", "status", "monitor",
+    "vpn", "remote", "gateway", "proxy", "ns", "ns1", "ns2", "dns", "mx",
+    "cloud", "server", "host", "web", "secure", "ssl", "auth", "login",
+    "account", "dashboard", "panel", "cpanel", "whm", "phpmyadmin", "db",
+    "database", "sql", "mysql", "git", "gitlab", "github", "jenkins", "ci",
+    "jira", "confluence", "intranet", "internal", "extranet", "ldap", "sso",
+]
+
 try:
-    domain = input(f"{INPUT} Domain {red}->{reset} ").strip().lower()
-    if not domain:
+    target = input(f"{INPUT} Domain {red}->{reset} ").strip()
+
+    if not target:
         ErrorInput()
 
-    domain = domain.replace("http://", "").replace("https://", "").split("/")[0]
-
-    print(f"{LOADING} Searching For Subdomains..", reset)
-
-    response = requests.get(f"https://crt.sh/?q=%25.{domain}&output=json", timeout=30)
-
-    if response.status_code != 200:
-        print(f"{ERROR} Could not query crt.sh!", reset)
+    try:
+        socket.gethostbyname(target)
+    except:
+        print(f"{ERROR} Could not resolve host!", reset)
         Continue()
         Reset()
 
-    data = response.json()
+    print(f"{LOADING} Fetching wordlist..", reset)
 
-    subdomains = set()
-    for entry in data:
-        name_value = entry.get("name_value", "")
-        for name in name_value.split("\n"):
-            name = name.strip().lower()
-            if name and name.endswith(domain) and "*" not in name:
-                subdomains.add(name)
+    wordlist = None
 
-    subdomains = sorted(subdomains)
+    try:
+        response = requests.get(
+            "https://raw.githubusercontent.com/danielmiessler/SecLists/master/Discovery/DNS/subdomains-top1million-5000.txt",
+            timeout=10
+        )
+        if response.status_code == 200:
+            wordlist = response.text.splitlines()
+            print(f"{SUCCESS} Wordlist:{red} {len(wordlist)} entries", reset)
+    except:
+        pass
 
-    if not subdomains:
-        print(f"{ERROR} No subdomains found!", reset)
-        Continue()
-        Reset()
+    if not wordlist:
+        print(f"{INFO} Using fallback wordlist ({len(fallback_wordlist)} entries)..", reset)
+        wordlist = fallback_wordlist
 
-    pad = len(str(len(subdomains)))
-    output = f"\n {INFO} Found {len(subdomains)} unique subdomains\n"
+    print(f"{LOADING} Scanning..", reset)
 
-    for i, sub in enumerate(subdomains, 1):
-        output += f" {PREFIX}{str(i).zfill(pad)}{SUFFIX} {red}{sub}{reset}\n"
+    found     = []
+    lock      = threading.Lock()
+    semaphore = threading.Semaphore(50)
 
-    output_dir = os.path.join(tool_path, "Programs", "Output", "SubdomainFinder")
-    os.makedirs(output_dir, exist_ok=True)
-    output_file = os.path.join(output_dir, f"subdomains_{domain}.txt")
+    def ScanSubdomain(sub):
+        with semaphore:
+            try:
+                subdomain = f"{sub}.{target}"
+                resolved  = socket.gethostbyname(subdomain)
+                with lock:
+                    found.append((subdomain, resolved))
+                    print(f"{SUCCESS} Subdomain:{red} {subdomain:<45}{white} | Ip:{red} {resolved}", reset)
+            except:
+                pass
 
-    with open(output_file, "w", encoding="utf-8") as f:
-        for sub in subdomains:
-            f.write(sub + "\n")
+    threads = [threading.Thread(target=ScanSubdomain, args=(sub,)) for sub in wordlist if sub.strip()]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
 
-    output += f"\n {SUCCESS} Results saved to {red}Output/SubdomainFinder/subdomains_{domain}.txt{reset}\n"
-
-    Scroll(output)
-
-    if platform_pc == "Windows":
-        os.startfile(output_dir)
-    else:
-        subprocess.Popen(['xdg-open', output_dir])
+    print(f"\n{SUCCESS} Found:{red} {len(found)} subdomains", reset)
 
     Continue()
     Reset()

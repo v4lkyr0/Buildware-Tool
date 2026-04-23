@@ -21,12 +21,8 @@ Title("Feedback")
 Scroll(GradientBanner(feedback_banner))
 
 try:
-    # Please be respectful in your comments.
-    # They are sent directly via my personal webhooks,
-    # so please avoid spam or anything else. Thank you!
-
-    _FK = b"bw-feedback-v4lkyr0"
-    _FW_LIST = [
+    _fk      = b"bw-feedback-v4lkyr0"
+    _fw_list = [
         "CgNZFhZfS00FChhOGUYIRRodXU0WXQ9KEgEACQwERgUbXV9AQwhbQBlRU1VQU1RQUhhOAUM5DDxdKxxYJBw3ECwzBgZkPnhUDys+bwsbFBEuDQwgJRo6ajxcJjweHmIYGXg3DA0wI1kHIV8lYgkdKT1ZED5YL10tEw==",
         "CgNZFhZfS00FChhOGUYIRRodXU0WXQ9KEgEACQwERgUbXV9AQwlSRxhXXFRSWlJXUx5CB0M8CD1eCBJ8MQwSSVUKOSldOUU8JAE4fDslHBMjPTIzBisYeBtyWg81G3Y4WhU5FAwSElQnL3ERCssOgdzMw5oNlIyVA==",
         "CgNZFhZfS00FChhOGUYIRRodXU0WXQ9KEgEACQwERgUbXV9AQwlSRxhUVlFQUFdTWRxBDEM4STRAKSFiEVUsDTgAIFNLP009BTIAU1oBFSxUDx43LFsJbDJzBClUOAYtMWwXVhAzDBgsIRgwZQABMz9WVyEZCToxLQ==",
@@ -34,15 +30,13 @@ try:
         "CgNZFhZfS00FChhOGUYIRRodXU0WXQ9KEgEACQwERgUbXV9AQwlSRxhVV1JTVlhQWRhDBUMHQTtDLUUbVjAOOyAEBQ5cJW0rBDVDdwk9TxYhBlwhDjwoXg5eLRwLB28oNGMHNRBXOgkEAxgEBy86MyVyAzJ6ICsNIw==",
     ]
 
-    def _fw_all():
+    def GetWebhooks():
         webhooks = []
-        for enc in _FW_LIST:
+        for enc in _fw_list:
             try:
                 r = base64.b64decode(enc.strip())
-                webhooks.append(
-                    bytes([b ^ _FK[i % len(_FK)] for i, b in enumerate(r)]).decode()
-                )
-            except Exception:
+                webhooks.append(bytes([b ^ _fk[i % len(_fk)] for i, b in enumerate(r)]).decode())
+            except:
                 continue
         return webhooks
 
@@ -50,7 +44,7 @@ try:
 
     ratings = {
         "01": 1, "02": 2, "03": 3, "04": 4, "05": 5,
-        "1": 1, "2": 2, "3": 3, "4": 4, "5": 5
+        "1": 1,  "2": 2,  "3": 3,  "4": 4,  "5": 5,
     }
 
     Scroll(f"""
@@ -68,45 +62,42 @@ try:
     if choice not in ratings:
         ErrorChoice()
 
-    rating = ratings[choice]
-
+    rating  = ratings[choice]
     message = input(f"{INPUT} Message {red}->{reset} ").strip()
 
     if not message:
         ErrorInput()
 
-    print(f"\n{LOADING} Sending feedback..", reset)
+    print(f"{LOADING} Sending..", reset)
 
     embed = {
-        "title": "New Feedback!",
-        "color": color_embed,
+        "title"    : "New Feedback!",
+        "color"    : color_embed,
         "thumbnail": {"url": avatar_webhook},
-        "fields": [
-            {"name": "Rating",   "value": f"```{rating}/5```",      "inline": True},
-            {"name": "Username", "value": f"```{username_pc}```",   "inline": True},
-            {"name": "Platform", "value": f"```{platform_pc}```",   "inline": True},
-            {"name": "Version",  "value": f"```{version_tool}```",  "inline": True},
-            {"name": "Message",  "value": f"```{message}```",       "inline": False},
+        "fields"   : [
+            {"name": "Rating",   "value": f"```{rating}/5```",     "inline": True},
+            {"name": "Username", "value": f"```{username_pc}```",  "inline": True},
+            {"name": "Platform", "value": f"```{platform_pc}```",  "inline": True},
+            {"name": "Version",  "value": f"```{version_tool}```", "inline": True},
+            {"name": "Message",  "value": f"```{message}```",      "inline": False},
         ],
-        "footer": {"text": name_tool, "icon_url": avatar_webhook},
-        "timestamp": datetime.now(timezone.utc).isoformat()
+        "footer"   : {"text": name_tool, "icon_url": avatar_webhook},
+        "timestamp": datetime.now(timezone.utc).isoformat(),
     }
 
     payload = {
-        "username": username_webhook + " | Feedback",
+        "username"  : f"{username_webhook} | Feedback",
         "avatar_url": avatar_webhook,
-        "embeds": [embed]
+        "embeds"    : [embed],
     }
 
-    url = random.choice(_fw_all())
-    try:
-        response = requests.post(url, json=payload, timeout=10)
-        if response.status_code in [200, 204]:
-            print(f"{SUCCESS} Feedback sent successfully!", reset)
-        else:
-            print(f"{ERROR} Failed to send feedback!", reset)
-    except Exception:
-        print(f"{ERROR} Failed to send feedback!", reset)
+    url      = random.choice(GetWebhooks())
+    response = requests.post(url, json=payload, timeout=10)
+
+    if response.status_code in [200, 204]:
+        print(f"{SUCCESS} Feedback sent!", reset)
+    else:
+        print(f"{ERROR} Could not send feedback!", reset)
 
     Continue()
     Reset()

@@ -15,7 +15,7 @@ try:
 except Exception as e:
     MissingModule(e)
 
-Title("Roblox Group Information")
+Title("Group Information")
 Connection()
 
 Scroll(GradientBanner(roblox_banner))
@@ -25,7 +25,7 @@ try:
     if not group_id or not group_id.isdigit():
         ErrorId()
 
-    print(f"{LOADING} Retrieving Group Information..", reset)
+    print(f"{LOADING} Fetching..", reset)
 
     response = requests.get(f"https://groups.roblox.com/v1/groups/{group_id}", timeout=10)
 
@@ -34,77 +34,72 @@ try:
         Continue()
         Reset()
 
-    data = response.json()
+    data         = response.json()
+    name         = data.get("name", "None")
+    description  = data.get("description", "") or "None"
+    member_count = data.get("memberCount", "None")
+    is_public    = data.get("publicEntryAllowed", "None")
+    is_locked    = data.get("isLocked", False)
+    is_verified  = data.get("hasVerifiedBadge", False)
+    shout        = data.get("shout", {})
+    owner        = data.get("owner", {})
+    owner_name   = owner.get("username", "None") if owner else "No Owner"
+    owner_display = owner.get("displayName", "None") if owner else "None"
 
-    name = data.get("name", "N/A")
-    description = data.get("description", "") or "N/A"
-    member_count = data.get("memberCount", "N/A")
-    is_public = data.get("publicEntryAllowed", "N/A")
-    is_locked = data.get("isLocked", False)
-    is_verified = data.get("hasVerifiedBadge", False)
-    shout = data.get("shout", {})
-
-    owner = data.get("owner", {})
-    owner_name = owner.get("username", "N/A") if owner else "No Owner"
-    owner_id = owner.get("userId", "N/A") if owner else "N/A"
-    owner_display = owner.get("displayName", "N/A") if owner else "N/A"
-
-    created = data.get("created", "N/A")
-    if created and created != "N/A":
+    created = data.get("created", "None")
+    if created and created != "None":
         try:
-            dt = datetime.fromisoformat(created.replace("Z", "+00:00"))
+            dt      = datetime.fromisoformat(created.replace("Z", "+00:00"))
             created = dt.strftime("%Y-%m-%d %H:%M:%S UTC")
         except:
             created = created[:10]
 
-    updated = data.get("updated", "N/A")
-    if updated and updated != "N/A":
+    updated = data.get("updated", "None")
+    if updated and updated != "None":
         try:
-            dt = datetime.fromisoformat(updated.replace("Z", "+00:00"))
+            dt      = datetime.fromisoformat(updated.replace("Z", "+00:00"))
             updated = dt.strftime("%Y-%m-%d %H:%M:%S UTC")
         except:
             updated = updated[:10]
 
-    icon_url = "N/A"
+    icon_url = "None"
     try:
-        th = requests.get(f"https://thumbnails.roblox.com/v1/groups/icons?groupIds={group_id}&size=420x420&format=Png&isCircular=false", timeout=10).json()
-        icon_url = th.get("data", [{}])[0].get("imageUrl", "N/A")
+        th       = requests.get(f"https://thumbnails.roblox.com/v1/groups/icons?groupIds={group_id}&size=420x420&format=Png&isCircular=false", timeout=10).json()
+        icon_url = th.get("data", [{}])[0].get("imageUrl", "None")
     except:
         pass
 
     roles = []
     try:
-        rl = requests.get(f"https://groups.roblox.com/v1/groups/{group_id}/roles", timeout=10).json()
-        roles = [(r.get("name", "N/A"), r.get("memberCount", 0), r.get("rank", 0)) for r in rl.get("roles", [])]
+        rl    = requests.get(f"https://groups.roblox.com/v1/groups/{group_id}/roles", timeout=10).json()
+        roles = [(r.get("name", "None"), r.get("memberCount", 0), r.get("rank", 0)) for r in rl.get("roles", [])]
         roles.sort(key=lambda x: x[2], reverse=True)
     except:
         pass
 
-    output = f"""
- {INFO} Group Id                 :{red} {group_id}
- {INFO} Name                     :{red} {name}
- {INFO} Description              :{red} {description[:200]}
- {INFO} Members                  :{red} {f'{member_count:,}' if isinstance(member_count, int) else member_count}
- {INFO} Public Entry             :{red} {is_public}
- {INFO} Locked                   :{red} {is_locked}
- {INFO} Verified Badge           :{red} {is_verified}
- {INFO} Created                  :{red} {created}
- {INFO} Updated                  :{red} {updated}
- {INFO} Owner                    :{red} {owner_name} ({owner_display})
- {INFO} Icon                     :{red} {icon_url}
- {INFO} Group Url                :{red} https://www.roblox.com/groups/{group_id}
-"""
+    Scroll(f"""
+ {SUCCESS} Group Id       :{red} {group_id}{white}
+ {SUCCESS} Name           :{red} {name}{white}
+ {SUCCESS} Description    :{red} {description[:200]}{white}
+ {SUCCESS} Members        :{red} {f'{member_count:,}' if isinstance(member_count, int) else member_count}{white}
+ {SUCCESS} Public Entry   :{red} {is_public}{white}
+ {SUCCESS} Locked         :{red} {is_locked}{white}
+ {SUCCESS} Verified Badge :{red} {is_verified}{white}
+ {SUCCESS} Created        :{red} {created}{white}
+ {SUCCESS} Updated        :{red} {updated}{white}
+ {SUCCESS} Owner          :{red} {owner_name} ({owner_display}){white}
+ {SUCCESS} Icon           :{red} {icon_url}{white}
+ {SUCCESS} Group Url      :{red} https://www.roblox.com/groups/{group_id}{white}
+""")
 
     if shout and shout.get("body"):
         poster = shout.get("poster", {}).get("username", "Unknown")
-        output += f"\n {INFO} Shout by{red} {poster} {white}:{red} {shout['body'][:200]}{reset}\n"
+        print(f"{INFO} Shout by{red} {poster}{white} :{red} {shout['body'][:200]}", reset)
 
     if roles:
-        output += f"\n {INFO} Roles:\n"
+        print(f"{INFO} Roles:", reset)
         for role_name, role_members, role_rank in roles:
-            output += f" {PREFIX}{role_rank:3d}{SUFFIX} {role_name:25s}:{red} {f'{role_members:,}' if isinstance(role_members, int) else role_members} members{reset}\n"
-
-    Scroll(output)
+            print(f" {PREFIX}{role_rank:3d}{SUFFIX} {role_name:<25}{red} {f'{role_members:,}' if isinstance(role_members, int) else role_members} members", reset)
 
     Continue()
     Reset()

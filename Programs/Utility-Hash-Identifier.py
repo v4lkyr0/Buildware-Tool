@@ -9,69 +9,109 @@
 from Plugins.Utils import *
 from Plugins.Config import *
 
-try:
-    import re
-except Exception as e:
-    MissingModule(e)
+import re
 
 Title("Hash Identifier")
-
-hash_patterns = [
-    (r'^[a-fA-F0-9]{32}$', ["MD5", "NTLM", "MD4"]),
-    (r'^[a-fA-F0-9]{40}$', ["SHA-1", "RIPEMD-160"]),
-    (r'^[a-fA-F0-9]{56}$', ["SHA-224", "SHA3-224"]),
-    (r'^[a-fA-F0-9]{64}$', ["SHA-256", "SHA3-256", "BLAKE2s"]),
-    (r'^[a-fA-F0-9]{96}$', ["SHA-384", "SHA3-384"]),
-    (r'^[a-fA-F0-9]{128}$', ["SHA-512", "SHA3-512", "BLAKE2b", "Whirlpool"]),
-    (r'^\$2[aby]?\$\d{1,2}\$.{53}$', ["bcrypt"]),
-    (r'^\$6\$.*\$[./a-zA-Z0-9]{86}$', ["SHA-512 Crypt (Unix)"]),
-    (r'^\$5\$.*\$[./a-zA-Z0-9]{43}$', ["SHA-256 Crypt (Unix)"]),
-    (r'^\$1\$.*\$[./a-zA-Z0-9]{22}$', ["MD5 Crypt (Unix)"]),
-    (r'^[a-fA-F0-9]{16}$', ["MySQL (old)", "Half MD5", "DES"]),
-    (r'^\*[a-fA-F0-9]{40}$', ["MySQL 4.1+"]),
-    (r'^[a-fA-F0-9]{8}$', ["CRC-32", "Adler-32"]),
-    (r'^pbkdf2', ["PBKDF2"]),
-    (r'^scrypt:', ["scrypt"]),
-    (r'^\$argon2', ["Argon2"]),
-]
 
 Scroll(GradientBanner(utilities_banner))
 
 try:
     hash_input = input(f"{INPUT} Hash {red}->{reset} ").strip()
+
     if not hash_input:
         ErrorInput()
 
-    output = ""
-    output += f"\n {INFO} Hash   :{red} {hash_input}{reset}\n"
-    output += f" {INFO} Length :{red} {len(hash_input)} characters{reset}\n"
+    print(f"{LOADING} Identifying..", reset)
 
-    matches = []
-    for pattern, algorithms in hash_patterns:
-        if re.match(pattern, hash_input):
-            matches.extend(algorithms)
+    def IdentifyHash(h):
+        length  = len(h)
+        results = []
+
+        only_hex    = bool(re.fullmatch(r'[0-9a-fA-F]+', h))
+        only_b64    = bool(re.fullmatch(r'[A-Za-z0-9+/=]+', h))
+        has_dollar  = h.startswith('$')
+        has_colon   = ':' in h
+
+        if has_dollar:
+            if h.startswith('$2a$') or h.startswith('$2b$') or h.startswith('$2y$'):
+                results.append(("Bcrypt",        "High"))
+            if h.startswith('$1$'):
+                results.append(("Md5 Crypt",     "Medium"))
+            if h.startswith('$5$'):
+                results.append(("Sha256 Crypt",  "Medium"))
+            if h.startswith('$6$'):
+                results.append(("Sha512 Crypt",  "High"))
+            if h.startswith('$apr1$'):
+                results.append(("Apr1 Md5",      "Medium"))
+            if h.startswith('$argon2'):
+                results.append(("Argon2",        "High"))
+            if h.startswith('$pbkdf2'):
+                results.append(("Pbkdf2",        "High"))
+            if results:
+                return results
+
+        if has_colon and only_hex:
+            results.append(("Ntlm (with username)", "Medium"))
+
+        if only_hex:
+            if length == 8:
+                results.append(("Crc32",         "Low"))
+            elif length == 13:
+                results.append(("Des",           "Low"))
+            elif length == 16:
+                results.append(("Md5 (half)",    "Low"))
+            elif length == 32:
+                results.append(("Md5",           "Low"))
+                results.append(("Ntlm",          "Low"))
+                results.append(("Md4",           "Low"))
+                results.append(("Ripemd128",     "Low"))
+            elif length == 40:
+                results.append(("Sha1",          "Low"))
+                results.append(("Sha0",          "Low"))
+                results.append(("Ripemd160",     "Low"))
+                results.append(("Haval160",      "Low"))
+            elif length == 48:
+                results.append(("Tiger192",      "Medium"))
+                results.append(("Haval192",      "Medium"))
+            elif length == 56:
+                results.append(("Sha224",        "Medium"))
+                results.append(("Haval224",      "Medium"))
+            elif length == 64:
+                results.append(("Sha256",        "Medium"))
+                results.append(("Ripemd256",     "Medium"))
+                results.append(("Haval256",      "Medium"))
+                results.append(("Blake2s",       "Medium"))
+                results.append(("Sha3-256",      "Medium"))
+            elif length == 96:
+                results.append(("Sha384",        "High"))
+                results.append(("Haval384",      "High"))
+                results.append(("Sha3-384",      "High"))
+            elif length == 128:
+                results.append(("Sha512",        "High"))
+                results.append(("Whirlpool",     "High"))
+                results.append(("Blake2b",       "High"))
+                results.append(("Sha3-512",      "High"))
+                results.append(("Ripemd512",     "High"))
+
+        if only_b64 and not only_hex:
+            if length == 44:
+                results.append(("Sha256 (base64)", "Medium"))
+            elif length == 88:
+                results.append(("Sha512 (base64)", "High"))
+            elif length == 24:
+                results.append(("Md5 (base64)",    "Low"))
+
+        return results
+
+    matches = IdentifyHash(hash_input)
+    length  = len(hash_input)
 
     if matches:
-        pad = len(str(len(matches)))
-        output += f" {INFO} Possible hash type(s):\n"
-        for i, algo in enumerate(matches, 1):
-            output += f" {PREFIX}{str(i).zfill(pad)}{SUFFIX} {red}{algo}{reset}\n"
+        print()
+        for name, confidence in matches:
+            print(f"{SUCCESS} Type:{red} {name:<22}{white} | Confidence:{red} {confidence:<8}{white} | Length:{red} {length}", reset)
     else:
-        output += f" {ERROR} Could not identify hash type!{reset}\n"
-        output += f" {INFO} The hash may be custom, encoded, or truncated.{reset}\n"
-
-    is_hex = all(c in '0123456789abcdefABCDEF' for c in hash_input.replace('$', '').replace('.', '').replace('/', '').replace('*', ''))
-    has_upper = any(c.isupper() for c in hash_input)
-    has_lower = any(c.islower() for c in hash_input)
-    has_special = any(c in '$./!*' for c in hash_input)
-
-    output += f"\n {INFO} Analysis:\n"
-    output += f" {INFO} Hex Characters Only :{red} {is_hex}{reset}\n"
-    output += f" {INFO} Contains Uppercase  :{red} {has_upper}{reset}\n"
-    output += f" {INFO} Contains Lowercase  :{red} {has_lower}{reset}\n"
-    output += f" {INFO} Contains Special    :{red} {has_special}{reset}\n"
-
-    Scroll(output)
+        print(f"{INFO} Type:{red} {'Unknown':<22}{white} | Length:{red} {length}", reset)
 
     Continue()
     Reset()

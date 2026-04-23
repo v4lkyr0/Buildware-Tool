@@ -16,7 +16,7 @@ try:
 except Exception as e:
     MissingModule(e)
 
-Title("Discord Webhook Spammer")
+Title("Webhook Spammer")
 Connection()
 
 Scroll(GradientBanner(discord_banner))
@@ -24,63 +24,51 @@ Scroll(GradientBanner(discord_banner))
 try:
     webhook = ChoiceWebhook()
 
-    print()
     message = input(f"{INPUT} Message {red}->{reset} ").strip()
     if not message:
         ErrorInput()
 
     try:
         amount = int(input(f"{INPUT} Amount {red}->{reset} ").strip())
-    except ValueError:
-        ErrorNumber()
-
-    if amount <= 0:
+        if amount <= 0:
+            ErrorNumber()
+    except:
         ErrorNumber()
 
     try:
-        threads = int(input(f"{INPUT} Threads {red}->{reset} ").strip())
-    except ValueError:
+        threads_number = int(input(f"{INPUT} Threads {red}->{reset} ").strip())
+        if threads_number <= 0:
+            ErrorNumber()
+    except:
         ErrorNumber()
 
-    if threads <= 0:
-        ErrorNumber()
-
-    print()
-
-    print(f"{LOADING} Starting Webhook Spammer..", reset)
+    print(f"{LOADING} Starting..", reset)
 
     success_count = 0
-    lock = threading.Lock()
+    lock          = threading.Lock()
 
     def Spam():
-        global success_count, lock
+        global success_count
 
         while success_count < amount:
-            try:
-                time.sleep(0.1)
+            time.sleep(0.1)
 
-                headers = {"Content-Type": "application/json", "User-Agent": RandomUserAgents()}
-                data = {"content": message}
+            headers  = {"Content-Type": "application/json", "User-Agent": RandomUserAgents()}
+            response = requests.post(webhook, json={"content": message}, headers=headers)
 
-                response = requests.post(webhook, json=data, headers=headers)
-                if response.status_code == 204:
-                    with lock:
-                        success_count += 1
-                        print(f"{SUCCESS} Status:{red} Sent         {white}| Message:{red} {message}", reset)
-                elif response.status_code == 429:
-                    try:
-                        retry_after = response.json().get("retry_after", 1)
-                    except:
-                        retry_after = 1
-                    print(f"{ERROR} Status:{red} Rate Limited {white}| Message:{red} {message}", reset)
-                    time.sleep(retry_after)
-                else:
-                    print(f"{ERROR} Status:{red} Not Sent     {white}| Message:{red} {message}", reset)
-            except:
-                print(f"{ERROR} Status:{red} Error        {white}| Message:{red} {message}", reset)
+            if response.status_code == 204:
+                with lock:
+                    success_count += 1
+                print(f"{SUCCESS} Status:{red} Sent         {white}| Messages:{red} {success_count}", reset)
+            elif response.status_code == 429:
+                retry_after = response.json().get("retry_after", 1)
+                print(f"{ERROR} Status:{red} Rate Limited {white}| Waiting:{red} {retry_after}s", reset)
+                time.sleep(retry_after)
+            else:
+                print(f"{ERROR} Status:{red} Failed       {white}| Code:{red} {response.status_code}", reset)
 
     thread_list = []
-    for i in range(threads):
+    for _ in range(threads_number):
         t = threading.Thread(target=Spam)
         thread_list.append(t)
         t.start()

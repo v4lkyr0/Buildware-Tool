@@ -11,6 +11,7 @@ from Plugins.Config import *
 
 try:
     import requests
+    import hashlib
 except Exception as e:
     MissingModule(e)
 
@@ -20,54 +21,92 @@ Connection()
 Scroll(GradientBanner(osint_banner))
 
 try:
-    email = input(f"{INPUT} Email Address {red}->{reset} ").strip()
-    if not email or "@" not in email:
-        ErrorInput()
+    email = input(f"{INPUT} Email {red}->{reset} ").strip()
 
-    print(f"{LOADING} Checking For Breaches..", reset)
+    if not email or "@" not in email or "." not in email:
+        print(f"{ERROR} Invalid email!", reset)
+        Continue()
+        Reset()
 
-    headers = {"User-Agent": RandomUserAgents()}
+    print(f"{LOADING} Checking..", reset)
 
-    output = ""
+    found    = False
+    sources  = []
 
     try:
-        response = requests.get(f"https://api.xposedornot.com/v1/check-email/{email}", headers=headers, timeout=15)
-
-        if response.status_code == 404:
-            output += f" {SUCCESS} No breaches found!{reset}\n"
-            output += f" {INFO} This email does not appear in known breach databases{reset}\n"
-
-        elif response.status_code == 200:
+        headers  = {"User-Agent": RandomUserAgents()}
+        response = requests.get(
+            f"https://leakcheck.io/api/public?check={email}",
+            headers=headers,
+            timeout=10
+        )
+        if response.status_code == 200:
             data = response.json()
-            breaches = data.get("breaches", [])
-
-            if not breaches:
-                breaches_str = data.get("Exposed in", "")
-                if breaches_str:
-                    breaches = [b.strip() for b in breaches_str.split(";") if b.strip()]
-
-            if breaches:
-                pad = len(str(len(breaches)))
-                output += f" {ERROR} Email found in{red} {len(breaches)} {white}Breaches!{reset}\n"
-                for i, breach in enumerate(breaches, 1):
-                    if isinstance(breach, dict):
-                        name = breach.get("name", breach.get("breach", "Unknown"))
-                    else:
-                        name = str(breach)
-                    output += f" {PREFIX}{str(i).zfill(pad)}{SUFFIX} {red}{name}{reset}\n"
-            else:
-                output += f" {SUCCESS} No breaches found!{reset}\n"
-        else:
-            output += f" {INFO} Could not determine breach status{reset}\n"
-            output += f" {INFO} Try again later or check manually at:{red} https://haveibeenpwned.com/{reset}\n"
-
-    except requests.exceptions.Timeout:
-        output += f" {ERROR} Request timed out!{reset}\n"
+            if data.get("success") and data.get("found", 0) > 0:
+                found = True
+                sources.append({
+                    "source" : "LeakCheck.io",
+                    "found"  : data.get("found", 0),
+                    "fields" : ", ".join(data.get("fields", [])) or "Unknown",
+                    "sources": ", ".join(data.get("sources", [])) or "Unknown",
+                })
     except:
-        output += f" {INFO} Breach check API unavailable{reset}\n"
-        output += f" {INFO} Check manually at:{red} https://haveibeenpwned.com/{reset}\n"
+        pass
 
-    Scroll(f"\n{output}")
+    try:
+        headers  = {"User-Agent": RandomUserAgents()}
+        response = requests.get(
+            f"https://intelx.io/phonebook/search?term={email}&k=&maxresults=1&media=0&terminate=[]&timeout=20",
+            headers=headers,
+            timeout=10
+        )
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("selectors") and len(data["selectors"]) > 0:
+                found = True
+                sources.append({
+                    "source" : "IntelX",
+                    "found"  : len(data["selectors"]),
+                    "fields" : "Email",
+                    "sources": "IntelX Database",
+                })
+    except:
+        pass
+
+    try:
+        headers  = {
+            "User-Agent"   : RandomUserAgents(),
+            "X-RapidAPI-Host": "breachdirectory.p.rapidapi.com",
+        }
+        response = requests.get(
+            f"https://breachdirectory.org/api?func=auto&term={email}",
+            headers=headers,
+            timeout=10
+        )
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and data.get("result"):
+                found = True
+                sources.append({
+                    "source" : "BreachDirectory",
+                    "found"  : len(data["result"]),
+                    "fields" : "Password hash",
+                    "sources": "BreachDirectory Database",
+                })
+    except:
+        pass
+
+    if found:
+        total = sum(s["found"] for s in sources)
+        print(f"{ERROR} Found in{red} {total}{white} breach(es) across{red} {len(sources)}{white} source(s)!\n", reset)
+        for s in sources:
+            Scroll(f"""
+ {SUCCESS} Source  :{red} {s['source']}{white}
+ {SUCCESS} Found   :{red} {s['found']}{white}
+ {SUCCESS} Fields  :{red} {s['fields']}{white}
+ {SUCCESS} Sources :{red} {s['sources']}{white}""")
+    else:
+        print(f"{SUCCESS} No breaches found!", reset)
 
     Continue()
     Reset()

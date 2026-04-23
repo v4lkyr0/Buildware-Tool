@@ -14,33 +14,24 @@ try:
 except Exception as e:
     MissingModule(e)
 
-Title("Discord Token Bio Changer")
+Title("Token Bio Changer")
 Connection()
 
 Scroll(GradientBanner(discord_banner))
 
 try:
-    token = ChoiceToken()
+    token   = ChoiceToken()
     new_bio = input(f"{INPUT} Bio {red}->{reset} ").strip()
 
-    print(f"{LOADING} Changing Bio..", reset)
+    print(f"{LOADING} Changing..", reset)
 
-    headers = {
-        "Authorization": token,
-        "Content-Type": "application/json",
-        "User-Agent": RandomUserAgents()
-    }
+    headers  = {"Authorization": token, "Content-Type": "application/json", "User-Agent": RandomUserAgents()}
+    response = requests.patch("https://discord.com/api/v9/users/@me/profile", headers=headers, json={"bio": new_bio})
 
-    payload = {"bio": new_bio}
-
-    try:
-        response = requests.patch("https://discord.com/api/v9/users/@me/profile", headers=headers, json=payload)
-        if response.status_code == 200:
-            print(f"{SUCCESS} Bio changed!", reset)
-        else:
-            print(f"{ERROR} Failed to change Bio!", reset)
-    except:
-        print(f"{ERROR} Error while trying to change Bio!", reset)
+    if response.status_code == 200:
+        print(f"{SUCCESS} Bio changed!", reset)
+    else:
+        print(f"{ERROR} Could not change bio!", reset)
 
     Continue()
     Reset()

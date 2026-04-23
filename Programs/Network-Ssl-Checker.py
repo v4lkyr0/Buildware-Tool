@@ -22,66 +22,72 @@ Connection()
 Scroll(GradientBanner(network_banner))
 
 try:
-    domain = input(f"{INPUT} Domain {red}->{reset} ").strip()
-    if not domain:
+    target = input(f"{INPUT} Domain {red}->{reset} ").strip()
+
+    if not target:
         ErrorInput()
 
-    domain = domain.replace("http://", "").replace("https://", "").split("/")[0].split(":")[0]
+    try:
+        resolved = socket.gethostbyname(target)
+    except:
+        print(f"{ERROR} Could not resolve domain!", reset)
+        Continue()
+        Reset()
 
-    print(f"{LOADING} Checking Ssl Certificate..", reset)
-
-    context = ssl.create_default_context()
-    conn = context.wrap_socket(socket.socket(socket.AF_INET), server_hostname=domain)
-    conn.settimeout(10)
-    conn.connect((domain, 443))
-    cert = conn.getpeercert()
-    cipher = conn.cipher()
-    version = conn.version()
-    conn.close()
-
-    subject = dict(x[0] for x in cert.get('subject', []))
-    issuer = dict(x[0] for x in cert.get('issuer', []))
-
-    not_before = cert.get('notBefore', 'N/A')
-    not_after = cert.get('notAfter', 'N/A')
+    print(f"{LOADING} Checking..", reset)
 
     try:
-        expire_date = datetime.strptime(not_after, "%b %d %H:%M:%S %Y %Z")
-        days_left = (expire_date - datetime.now()).days
-        if days_left > 30:
-            expiry_status = f"{days_left} days remaining"
-        elif days_left > 0:
-            expiry_status = f"{days_left} days remaining (expiring soon)"
+        context = ssl.create_default_context()
+        conn    = context.wrap_socket(socket.socket(socket.AF_INET), server_hostname=target)
+        conn.settimeout(10)
+        conn.connect((resolved, 443))
+        cert        = conn.getpeercert()
+        cipher      = conn.cipher()
+        tls_version = conn.version()
+        conn.close()
+
+        subject     = dict(x[0] for x in cert["subject"])
+        issuer      = dict(x[0] for x in cert["issuer"])
+        valid_from  = cert["notBefore"]
+        valid_to    = cert["notAfter"]
+        version     = cert["version"]
+        serial      = cert.get("serialNumber", "None")
+        san         = cert.get("subjectAltName", [])
+        san_list    = ", ".join([v for _, v in san]) if san else "None"
+
+        try:
+            valid_to_dt  = datetime.strptime(valid_to, "%b %d %H:%M:%S %Y %Z")
+            days_left    = (valid_to_dt - datetime.utcnow()).days
+            expiry_str   = f"{valid_to} ({days_left} days left)"
+        except:
+            expiry_str   = valid_to
+            days_left    = -1
+
+        if days_left < 0:
+            expiry_status = "Expired"
+        elif days_left < 30:
+            expiry_status = "Expiring soon"
         else:
-            expiry_status = f"EXPIRED ({abs(days_left)} days ago)"
-    except:
-        days_left = "N/A"
-        expiry_status = "Could not calculate"
+            expiry_status = "Valid"
 
-    san_list = []
-    for san_type, san_value in cert.get('subjectAltName', []):
-        san_list.append(san_value)
-
-    serial = cert.get('serialNumber', 'N/A')
-
-    Scroll(f"""
- {INFO} Domain                   :{red} {domain}
- {INFO} Common Name              :{red} {subject.get('commonName', 'N/A')}
- {INFO} Organization             :{red} {subject.get('organizationName', 'N/A')}
- {INFO} Issuer                   :{red} {issuer.get('organizationName', 'N/A')}
- {INFO} Issuer CN                :{red} {issuer.get('commonName', 'N/A')}
- {INFO} Serial Number            :{red} {serial}
- {INFO} Valid From               :{red} {not_before}
- {INFO} Valid Until              :{red} {not_after}
- {INFO} Expiry Status            :{red} {expiry_status}
- {INFO} Tls Version              :{red} {version}
- {INFO} Cipher Suite             :{red} {cipher[0] if cipher else 'N/A'}
- {INFO} Cipher Bits              :{red} {cipher[2] if cipher else 'N/A'}
- {INFO} Subject Alt Names        :{red} {', '.join(san_list[:10]) if san_list else 'N/A'}
+        Scroll(f"""
+ {SUCCESS} Common Name  :{red} {subject.get('commonName', 'None')}{white}
+ {SUCCESS} Organization :{red} {subject.get('organizationName', 'None')}{white}
+ {SUCCESS} Issuer       :{red} {issuer.get('organizationName', 'None')}{white}
+ {SUCCESS} Issuer CN    :{red} {issuer.get('commonName', 'None')}{white}
+ {SUCCESS} Valid From   :{red} {valid_from}{white}
+ {SUCCESS} Valid To     :{red} {expiry_str}{white}
+ {SUCCESS} Status       :{red} {expiry_status}{white}
+ {SUCCESS} Version      :{red} {version}{white}
+ {SUCCESS} Serial       :{red} {serial}{white}
+ {SUCCESS} Tls Version  :{red} {tls_version}{white}
+ {SUCCESS} Cipher       :{red} {cipher[0] if cipher else 'None'}{white}
+ {SUCCESS} San          :{red} {san_list[:150]}{white}
 """)
-
-    if len(san_list) > 10:
-        print(f" {INFO} ... and {len(san_list) - 10} more Sans", reset)
+    except ssl.SSLCertVerificationError:
+        print(f"{ERROR} Certificate verification failed!", reset)
+    except:
+        print(f"{ERROR} Could not retrieve SSL certificate!", reset)
 
     Continue()
     Reset()

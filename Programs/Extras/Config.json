@@ -1,4 +1,6 @@
 {
+    "first_run": true,
+    "auto_update": false,
     "webhooks": [],
     "tokens": [],
     "bots": [],

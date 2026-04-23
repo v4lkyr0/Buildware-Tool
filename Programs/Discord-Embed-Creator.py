@@ -11,49 +11,49 @@ from Plugins.Config import *
 
 try:
     import requests
+    from datetime import datetime, timezone
 except Exception as e:
     MissingModule(e)
 
-Title("Discord Embed Creator")
+Title("Embed Creator")
 Connection()
 
 Scroll(GradientBanner(discord_banner))
 
 try:
     webhook = ChoiceWebhook()
-    
-    print()
-    embed_title = input(f"{INPUT} Embed Title {red}->{reset} ").strip()
-    embed_description = input(f"{INPUT} Embed Description {red}->{reset} ").strip()
-    embed_color = input(f"{INPUT} Embed Color {red}->{reset} ").strip()
-    embed_footer = input(f"{INPUT} Footer Text {red}->{reset} ").strip()
-    embed_footer_icon = input(f"{INPUT} Footer Icon URL {red}->{reset} ").strip()
-    embed_image = input(f"{INPUT} Image URL {red}->{reset} ").strip()
-    embed_thumbnail = input(f"{INPUT} Thumbnail URL {red}->{reset} ").strip()
-    embed_author = input(f"{INPUT} Author Name {red}->{reset} ").strip()
-    embed_author_url = input(f"{INPUT} Author URL {red}->{reset} ").strip()
-    embed_author_icon = input(f"{INPUT} Author Icon URL {red}->{reset} ").strip()
-    embed_url = input(f"{INPUT} Title URL {red}->{reset} ").strip()
-    
-    use_timestamp = input(f"{INPUT} Add Current Timestamp? {YESORNO} {red}->{reset} ").strip().lower()
-    
-    add_fields = input(f"{INPUT} Add Embed Fields? {YESORNO} {red}->{reset} ").strip().lower()
+
+    embed_title       = input(f"{INPUT} Title {red}->{reset} ").strip()
+    embed_description = input(f"{INPUT} Description {red}->{reset} ").strip()
+    embed_color       = input(f"{INPUT} Color {red}->{reset} ").strip()
+    embed_footer      = input(f"{INPUT} Footer {red}->{reset} ").strip()
+    embed_footer_icon = input(f"{INPUT} Footer Icon Url {red}->{reset} ").strip()
+    embed_image       = input(f"{INPUT} Image Url {red}->{reset} ").strip()
+    embed_thumbnail   = input(f"{INPUT} Thumbnail Url {red}->{reset} ").strip()
+    embed_author      = input(f"{INPUT} Author Name {red}->{reset} ").strip()
+    embed_author_url  = input(f"{INPUT} Author Url {red}->{reset} ").strip()
+    embed_author_icon = input(f"{INPUT} Author Icon Url {red}->{reset} ").strip()
+    embed_url         = input(f"{INPUT} Title Url {red}->{reset} ").strip()
+    use_timestamp     = input(f"{INPUT} Timestamp {YESORNO} {red}->{reset} ").strip().lower()
+    add_fields        = input(f"{INPUT} Fields {YESORNO} {red}->{reset} ").strip().lower()
+
     fields = []
+
     if add_fields in ['y', 'yes']:
         while True:
             field_name = input(f"{INPUT} Field Name {red}->{reset} ").strip()
             if not field_name:
                 break
-            field_value = input(f"{INPUT} Field Value {red}->{reset} ").strip()
-            field_inline = input(f"{INPUT} Inline? {YESORNO} {red}->{reset} ").strip().lower()
+            field_value  = input(f"{INPUT} Field Value {red}->{reset} ").strip()
+            field_inline = input(f"{INPUT} Inline {YESORNO} {red}->{reset} ").strip().lower()
             fields.append({
-                "name": field_name,
-                "value": field_value if field_value else "No value",
+                "name"  : field_name,
+                "value" : field_value if field_value else "No value",
                 "inline": field_inline in ['y', 'yes']
             })
-    
+
     embed = {}
-    
+
     if embed_title:
         embed["title"] = embed_title[:256]
     if embed_description:
@@ -80,27 +80,24 @@ try:
     if embed_url:
         embed["url"] = embed_url
     if use_timestamp in ['y', 'yes']:
-        from datetime import datetime, timezone
         embed["timestamp"] = datetime.now(timezone.utc).isoformat()
     if fields:
         embed["fields"] = fields[:25]
-    
+
     if not embed:
         print(f"{ERROR} No embed data provided!", reset)
         Continue()
         Reset()
-    
-    print(f"{LOADING} Sending Embed..", reset)
-    
-    payload = {"embeds": [embed]}
-    
-    response = requests.post(webhook, json=payload)
-    
+
+    print(f"{LOADING} Sending..", reset)
+
+    response = requests.post(webhook, json={"embeds": [embed]})
+
     if response.status_code in [200, 204]:
         print(f"{SUCCESS} Embed sent!", reset)
     else:
-        print(f"{ERROR} Failed to send Embed!", reset)
-    
+        print(f"{ERROR} Could not send embed!", reset)
+
     Continue()
     Reset()
 

@@ -10,7 +10,8 @@ from Plugins.Utils import *
 from Plugins.Config import *
 
 try:
-    from icmplib import ping as icmp_ping
+    from icmplib import ping
+    import socket
 except Exception as e:
     MissingModule(e)
 
@@ -20,44 +21,36 @@ Connection()
 Scroll(GradientBanner(network_banner))
 
 try:
-    target = input(f"{INPUT} Target {red}->{reset} ").strip()
+    target = input(f"{INPUT} Host {red}->{reset} ").strip()
+
     if not target:
         ErrorInput()
 
-    target = target.replace("http://", "").replace("https://", "").split("/")[0]
-
-    count_input = input(f"{INPUT} Number of Pings {red}->{reset} ").strip()
     try:
-        count = int(count_input) if count_input else 4
-    except ValueError:
-        count = 4
+        resolved = socket.gethostbyname(target)
+    except:
+        print(f"{ERROR} Could not resolve host!", reset)
+        Continue()
+        Reset()
 
-    if count < 1 or count > 100:
+    try:
+        count = int(input(f"{INPUT} Number of Ping {red}->{reset} ").strip())
+        if count < 1:
+            ErrorNumber()
+    except ValueError:
         ErrorNumber()
 
-    print(f"{LOADING} Pinging Target..", reset)
+    print(f"{LOADING} Pinging..", reset)
 
-    try:
-        result = icmp_ping(target, count=count, timeout=2, privileged=False)
-
-        Scroll(f"""
- {INFO} Target                   :{red} {result.address}
- {INFO} Packets Sent             :{red} {result.packets_sent}
- {INFO} Packets Received         :{red} {result.packets_received}
- {INFO} Packet Loss              :{red} {result.packet_loss * 100:.1f}%
- {INFO} Min RTT                  :{red} {result.min_rtt:.2f} ms
- {INFO} Avg RTT                  :{red} {result.avg_rtt:.2f} ms
- {INFO} Max RTT                  :{red} {result.max_rtt:.2f} ms
- {INFO} Jitter                   :{red} {result.jitter:.2f} ms
-""")
-
-        if result.is_alive:
-            print(f"{SUCCESS} Host is reachable!", reset)
-        else:
-            print(f"{ERROR} Host is unreachable!", reset)
-
-    except Exception as e:
-        print(f"{ERROR} Ping failed:{red} {e}", reset)
+    for i in range(count):
+        try:
+            result = ping(resolved, count=1, timeout=2, privileged=False)
+            if result.is_alive:
+                print(f"{SUCCESS} Reply from:{red} {resolved}{white} | Time:{red} {result.avg_rtt}ms", reset)
+            else:
+                print(f"{ERROR} Request timed out!", reset)
+        except:
+            print(f"{ERROR} Request timed out!", reset)
 
     Continue()
     Reset()

@@ -15,21 +15,23 @@ try:
 except Exception as e:
     MissingModule(e)
 
-Title("Discord Server Information")
+Title("Server Information")
 Connection()
 
 Scroll(GradientBanner(discord_banner))
 
 try:
-    invite = input(f"{INPUT} Server Invitation {red}->{reset} ").strip()
+    invite = input(f"{INPUT} Invite {red}->{reset} ").strip()
+
     if not invite:
         ErrorInput()
 
     invite_code = invite.split("/")[-1]
 
-    print(f"{LOADING} Retrieving Information..", reset)
+    print(f"{LOADING} Fetching..", reset)
 
     response = requests.get(f"https://discord.com/api/v9/invites/{invite_code}")
+
     if response.status_code != 200:
         ErrorUrl()
 
@@ -54,7 +56,7 @@ try:
     server_nsfw        = server_info.get("nsfw", "None")
     server_flags       = server_info.get("flags", "None")
     server_verif_level = server_info.get("verification_level", "None")
-    server_premium_subscription_count = server_info.get("premium_subscription_count", "None")
+    server_premium     = server_info.get("premium_subscription_count", "None")
 
     inviter_id           = inviter_info.get("id", "None")
     inviter_username     = inviter_info.get("username", "None")
@@ -66,13 +68,11 @@ try:
     inviter_accent_color = inviter_info.get("accent_color", "None")
     inviter_banner_color = inviter_info.get("banner_color", "None")
 
-    type_map = {0: "Standard Server", 1: "Group Dm", 2: "Community Server", 3: "Scheduled Event"}
+    type_map   = {0: "Standard Server", 1: "Group Dm", 2: "Community Server", 3: "Scheduled Event"}
     type_value = type_map.get(type_value, str(type_value))
 
-    invite_type = "Permanent" if expires_at is None and max_uses in (0, None) else "Temporary"
-
     try:
-        dt = datetime.fromisoformat(expires_at.replace("Z", "+00:00"))
+        dt         = datetime.fromisoformat(expires_at.replace("Z", "+00:00"))
         expires_at = dt.strftime("%Y-%m-%d %H:%M:%S UTC")
     except:
         expires_at = "Unlimited"
@@ -99,36 +99,37 @@ try:
     channel_type = channel_type_map.get(channel_type, "None")
 
     Scroll(f"""
- {INFO} Server Invitation                 :{red} {invite}
- {INFO} Server Type                       :{red} {type_value}
- {INFO} Server Code                       :{red} {code_value}
- {INFO} Invitation Expiration             :{red} {expires_at}
- {INFO} Invitation Max Uses               :{red} {max_uses}
- {INFO} Invitation Uses                   :{red} {uses}
- {INFO} Server Id                         :{red} {server_id}
- {INFO} Server Name                       :{red} {server_name}
- {INFO} Channel Id                        :{red} {channel_id}
- {INFO} Channel Name                      :{red} {channel_name}
- {INFO} Channel Type                      :{red} {channel_type}
- {INFO} Server Description                :{red} {server_description}
- {INFO} Server Icon Url                   :{red} {server_icon_url}
- {INFO} Server Features                   :{red} {', '.join(server_features)}
- {INFO} Server NSFW Level                 :{red} {server_nsfw_level}
- {INFO} Server NSFW                       :{red} {server_nsfw}
- {INFO} Server Flags                      :{red} {server_flags}
- {INFO} Server Verification Level         :{red} {server_verif_level}
- {INFO} Server Premium Subscription Count :{red} {server_premium_subscription_count}
+ {SUCCESS} Invite                      :{red} {invite}{white}
+ {SUCCESS} Type                        :{red} {type_value}{white}
+ {SUCCESS} Code                        :{red} {code_value}{white}
+ {SUCCESS} Expires At                  :{red} {expires_at}{white}
+ {SUCCESS} Max Uses                    :{red} {max_uses}{white}
+ {SUCCESS} Uses                        :{red} {uses}{white}
+ {SUCCESS} Server Id                   :{red} {server_id}{white}
+ {SUCCESS} Server Name                 :{red} {server_name}{white}
+ {SUCCESS} Channel Id                  :{red} {channel_id}{white}
+ {SUCCESS} Channel Name                :{red} {channel_name}{white}
+ {SUCCESS} Channel Type                :{red} {channel_type}{white}
+ {SUCCESS} Server Description          :{red} {server_description}{white}
+ {SUCCESS} Server Icon Url             :{red} {server_icon_url}{white}
+ {SUCCESS} Server Features             :{red} {', '.join(server_features)}{white}
+ {SUCCESS} Server Nsfw Level           :{red} {server_nsfw_level}{white}
+ {SUCCESS} Server Nsfw                 :{red} {server_nsfw}{white}
+ {SUCCESS} Server Flags                :{red} {server_flags}{white}
+ {SUCCESS} Server Verification Level   :{red} {server_verif_level}{white}
+ {SUCCESS} Server Premium Subscription :{red} {server_premium}{white}
 
- {INFO} Inviter Id           :{red} {inviter_id}
- {INFO} Inviter Username     :{red} {inviter_username}
- {INFO} Inviter Display Name :{red} {inviter_display_name}
- {INFO} Inviter Avatar       :{red} {inviter_avatar}
- {INFO} Inviter Public Flags :{red} {inviter_public_flags}
- {INFO} Inviter Flags        :{red} {inviter_flags}
- {INFO} Inviter Banner       :{red} {inviter_banner}
- {INFO} Inviter Accent Color :{red} {inviter_accent_color}
- {INFO} Inviter Banner Color :{red} {inviter_banner_color}
+ {SUCCESS} Inviter Id                  :{red} {inviter_id}{white}
+ {SUCCESS} Inviter Username            :{red} {inviter_username}{white}
+ {SUCCESS} Inviter Display Name        :{red} {inviter_display_name}{white}
+ {SUCCESS} Inviter Avatar              :{red} {inviter_avatar}{white}
+ {SUCCESS} Inviter Public Flags        :{red} {inviter_public_flags}{white}
+ {SUCCESS} Inviter Flags               :{red} {inviter_flags}{white}
+ {SUCCESS} Inviter Banner              :{red} {inviter_banner}{white}
+ {SUCCESS} Inviter Accent Color        :{red} {inviter_accent_color}{white}
+ {SUCCESS} Inviter Banner Color        :{red} {inviter_banner_color}{white}
 """)
+
     Continue()
     Reset()
 

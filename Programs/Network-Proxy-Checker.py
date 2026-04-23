@@ -21,51 +21,63 @@ Connection()
 Scroll(GradientBanner(network_banner))
 
 try:
-    proxies_list = []
-    while True:
-        proxy = input(f"{INPUT} Proxy {red}->{reset} ").strip()
-        if not proxy:
-            break
-        proxies_list.append(proxy)
+    proxy = input(f"{INPUT} Proxy {red}->{reset} ").strip()
 
-    if not proxies_list:
+    if not proxy:
         ErrorInput()
 
-    test_url = "http://httpbin.org/ip"
+    Scroll(f"""
+ {PREFIX}01{SUFFIX} Http
+ {PREFIX}02{SUFFIX} Https
+ {PREFIX}03{SUFFIX} Socks4
+ {PREFIX}04{SUFFIX} Socks5
+""")
 
-    print(f"{LOADING} Checking Proxies..", reset)
+    choice = input(f"{INPUT} Choice {red}->{reset} ").strip().lstrip("0")
 
-    working = 0
-    output = ""
+    protocols = {
+        "1": "http",
+        "2": "https",
+        "3": "socks4",
+        "4": "socks5",
+    }
 
-    for proxy in proxies_list:
-        if "://" not in proxy:
-            proxy_dict = {"http": f"http://{proxy}", "https": f"http://{proxy}"}
+    if choice not in protocols:
+        ErrorChoice()
+
+    protocol = protocols[choice]
+
+    print(f"{LOADING} Checking..", reset)
+
+    try:
+        proxies  = {protocol: f"{protocol}://{proxy}"}
+        start    = time.time()
+        response = requests.get("https://api.ipify.org?format=json", proxies=proxies, timeout=10)
+        latency  = round((time.time() - start) * 1000)
+
+        if response.status_code == 200:
+            ip       = response.json().get("ip", "None")
+
+            geo = {}
+            try:
+                geo = requests.get(f"http://ip-api.com/json/{ip}", timeout=5).json()
+            except:
+                pass
+
+            Scroll(f"""
+ {SUCCESS} Status   :{red} Valid{white}
+ {SUCCESS} Protocol :{red} {protocol.capitalize()}{white}
+ {SUCCESS} Proxy    :{red} {proxy}{white}
+ {SUCCESS} Ip       :{red} {ip}{white}
+ {SUCCESS} Latency  :{red} {latency} ms{white}
+ {SUCCESS} Country  :{red} {geo.get('country', 'None')}{white}
+ {SUCCESS} City     :{red} {geo.get('city', 'None')}{white}
+ {SUCCESS} Isp      :{red} {geo.get('isp', 'None')}{white}
+""")
         else:
-            proxy_dict = {"http": proxy, "https": proxy}
-
-        try:
-            start = time.time()
-            response = requests.get(test_url, proxies=proxy_dict, timeout=10)
-            elapsed = time.time() - start
-
-            if response.status_code == 200:
-                external_ip = response.json().get("origin", "Unknown")
-                output += f"{SUCCESS} Status:{red} Working {white}| Ip:{red} {external_ip:15s}{white}| Speed:{red} {elapsed:.2f}s {white}| Proxy:{red} {proxy}{reset}\n"
-                working += 1
-            else:
-                output += f"{ERROR} Status:{red} Failed  {white}| Proxy:{red} {proxy}{reset}\n"
-
-        except requests.exceptions.ProxyError:
-            output += f"{ERROR} Status:{red} Error   {white}| Proxy:{red} {proxy}{reset}\n"
-        except requests.exceptions.Timeout:
-            output += f"{ERROR} Status:{red} Timeout {white}| Proxy:{red} {proxy}{reset}\n"
-        except Exception:
-            output += f"{ERROR} Status:{red} Error   {white}| Proxy:{red} {proxy}{reset}\n"
-
-    output += f"\n{INFO} Total working:{red} {working}/{len(proxies_list)}{reset}\n"
-
-    Scroll(f"\n{output}")
+            print(f"{ERROR} Proxy:{red} Invalid", reset)
+    except:
+        print(f"{ERROR} Proxy:{red} Invalid", reset)
 
     Continue()
     Reset()

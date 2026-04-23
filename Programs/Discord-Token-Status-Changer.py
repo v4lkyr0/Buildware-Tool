@@ -14,28 +14,24 @@ try:
 except Exception as e:
     MissingModule(e)
 
-Title("Discord Token Status Changer")
+Title("Token Status Changer")
 Connection()
 
 Scroll(GradientBanner(discord_banner))
 
 try:
-    token = ChoiceToken()
+    token      = ChoiceToken()
     new_status = input(f"{INPUT} Status {red}->{reset} ").strip()
 
-    print(f"{LOADING} Changing Status..", reset)
+    print(f"{LOADING} Changing..", reset)
 
-    headers = {"Authorization": token, "Content-Type": "application/json", "User-Agent": RandomUserAgents()}
-    custom = {"custom_status": {"text": new_status}}
+    headers  = {"Authorization": token, "Content-Type": "application/json", "User-Agent": RandomUserAgents()}
+    response = requests.patch("https://discord.com/api/v9/users/@me/settings", headers=headers, json={"custom_status": {"text": new_status}})
 
-    try:
-        response = requests.patch("https://discord.com/api/v9/users/@me/settings", headers=headers, json=custom)
-        if response.status_code == 200:
-            print(f"{SUCCESS} Status changed!", reset)
-        else:
-            print(f"{ERROR} Failed to change Status!", reset)
-    except:
-        print(f"{ERROR} Error while trying to change Status!", reset)
+    if response.status_code == 200:
+        print(f"{SUCCESS} Status changed!", reset)
+    else:
+        print(f"{ERROR} Could not change status!", reset)
 
     Continue()
     Reset()

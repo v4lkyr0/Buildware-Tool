@@ -12,8 +12,8 @@ from Plugins.Config import *
 Title("Coming Soon")
 
 try:
-    print(f"\n{INFO} This feature is coming soon. Stay tuned for updates!\n")
-    
+    print(f"{INFO} This feature is coming soon!", reset)
+
     Continue()
     Reset()
 

@@ -4,6 +4,10 @@ selenium
 websocket-client
 icmplib
 psutil
-customtkinter
-pynput
-py7zr
+dnspython
+phonenumbers
+pillow
+qrcode
+beautifulsoup4
+whois
+pyspeedtest

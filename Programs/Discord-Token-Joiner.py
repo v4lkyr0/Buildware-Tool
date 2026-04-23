@@ -14,7 +14,7 @@ try:
 except Exception as e:
     MissingModule(e)
 
-Title("Discord Token Joiner")
+Title("Token Joiner")
 Connection()
 
 Scroll(GradientBanner(discord_banner))
@@ -22,21 +22,21 @@ Scroll(GradientBanner(discord_banner))
 try:
     token = ChoiceToken()
 
-    invite_input = input(f"{INPUT} Server Invitation {red}->{reset} ").strip()
-    if not invite_input:
+    invite = input(f"{INPUT} Invite {red}->{reset} ").strip()
+    if not invite:
         ErrorInput()
 
-    invite_code = invite_input.split("/")[-1]
+    invite_code = invite.split("/")[-1]
 
-    print(f"{LOADING} Joining Server..", reset)
+    print(f"{LOADING} Joining..", reset)
 
-    headers = {"Authorization": token, "User-Agent": RandomUserAgents()}
+    headers  = {"Authorization": token, "User-Agent": RandomUserAgents()}
     response = requests.post(f"https://discord.com/api/v9/invites/{invite_code}", headers=headers)
 
     if response.status_code == 200:
-        print(f"{SUCCESS} Token joined Server!", reset)
+        print(f"{SUCCESS} Joined!", reset)
     else:
-        print(f"{ERROR} Failed to join Server!", reset)
+        print(f"{ERROR} Could not join server!", reset)
 
     Continue()
     Reset()

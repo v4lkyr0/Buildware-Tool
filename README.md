@@ -24,6 +24,7 @@
 </div>
 
 <br>
+
 ---
 
 ## 💖 Support
@@ -35,6 +36,7 @@ If you like **Buildware-Tools** and want to support the project, you can leave a
 </div>
 
 <br>
+
 ---
 
 ## ⚠️ Warning
@@ -42,6 +44,7 @@ If you like **Buildware-Tools** and want to support the project, you can leave a
 **DO NOT** download Buildware-Tools from unofficial sources. **Only use** this official GitHub repository to avoid malware, scams, or compromised versions.
 
 <br>
+
 ---
 
 ## 📌 About
@@ -49,6 +52,7 @@ If you like **Buildware-Tools** and want to support the project, you can leave a
 **Buildware-Tools** is a powerful multitool built by **v4lkyr0 (myself)**, designed to handle everything from **Discord automation** and **OSINT reconnaissance** to **network diagnostics**, **cryptography utilities**, and **Roblox lookups** — all from a single terminal interface. It works natively on **Windows & Linux**, requires no external setup beyond Python, and is **regularly updated** with new features and improvements.
 
 <br>
+
 ---
 
 ## ✨ Features
@@ -61,6 +65,7 @@ If you like **Buildware-Tools** and want to support the project, you can leave a
 🛠️ Buildware-Tools
 │
 ├── 🗺️ Navigation (6)
+│   │
 │   ├── Changelog                       : Displays the change history
 │   ├── Feedback                        : Send feedback to the developer
 │   ├── Tool Information                : Displays information about the tool
@@ -70,43 +75,42 @@ If you like **Buildware-Tools** and want to support the project, you can leave a
 │
 ├── 🌐 Network (10)
 │   │
-│   ├── Port Scanner                    : [⭐] Scans a target for open ports and services
-│   ├── Ip Pinger                       : Pings a target with detailed RTT statistics
-│   ├── Traceroute                      : Traces the network route to a target
-│   ├── Reverse Dns                     : Performs reverse DNS lookup on an IP address
-│   ├── Mac Lookup                      : Identifies the vendor of a MAC address
-│   ├── Interface Information           : Lists all network interfaces with detailed stats
-│   ├── Website Status                  : Checks if a website is online and responsive
-│   ├── Ssl Checker                     : Inspects SSL/TLS certificate details
-│   ├── Proxy Checker                   : Tests if a proxy is working and anonymous
-│   └── Wifi Passwords                  : [⭐] Retrieves saved Wi-Fi passwords from the system
+│   ├── Ip Port Scanner                 : Scans open ports on a target host
+│   ├── Ip Pinger                       : Pings a target host and measures response time
+│   ├── Traceroute                      : Traces the route packets take to a target host
+│   ├── Dns Lookup                      : Retrieves DNS records for a domain
+│   ├── Mac Lookup                      : Identifies the vendor of a Mac address
+│   ├── Ssl Checker                     : [⭐] Retrieves and displays SSL certificate information
+│   ├── Proxy Checker                   : Tests if a proxy is valid and retrieves its IP
+│   ├── Network Scanner                 : [⭐] Scans all active hosts on a local network
+│   ├── Bandwidth Tester                : Tests download speed and bandwidth
+│   └── Http Headers                    : [⭐] Retrieves and displays HTTP headers of a website
 │
 ├── 🔍 Osint (10)
 │   │
-│   ├── Ip Lookup                       : Geolocates an IP address with ISP and AS details
-│   ├── Dns Lookup                      : Resolves DNS records for a domain
-│   ├── Whois Lookup                    : Retrieves WHOIS registration data for a domain
-│   ├── Subdomain Finder                : [⭐] Discovers subdomains using certificate transparency
-│   ├── Header Analyzer                 : Inspects HTTP response headers of a website
-│   ├── Website Detector                : Detects technologies used by a website
-│   ├── Username Lookup                 : [⭐] Searches a username across multiple platforms
-│   ├── Email Checker                   : Validates an email address
-│   ├── Email Breach Checker            : [⭐] Checks if an email has been in data breaches
-│   └── Phone Lookup                    : Retrieves carrier and location data for a phone number
-│
+│   ├── Ip Lookup                       : Retrieves geolocation and ISP information for an IP
+│   ├── Whois Lookup                    : Retrieves Whois registration data for a domain
+│   ├── Subdomain Finder                : [⭐] Discovers subdomains of a target domain
+│   ├── Username Tracker                : [⭐] Searches for a username across 30+ platforms
+│   ├── Reverse Image Search            : [⭐] Searches for an image across Google, Yandex and TinEye
+│   ├── Email Breach Checker            : [⭐] Checks if an email has been found in data breaches
+│   ├── Phone Number Lookup             : [⭐] Retrieves carrier, country and timezone for a phone number
+│   ├── Ip Reputation Checker           : [⭐] Checks if an IP is blacklisted across 10 DNS blacklists
+│   ├── Google Dork Builder             : [⭐] Builds and executes advanced Google search queries
+│   └── Domain Age Checker              : Retrieves creation date, expiry and age of a domain
 │
 ├── 🧰 Utilities (10)
 │   │
-│   ├── Password Generator              : Generates secure random passwords with options
-│   ├── Temp Mail                       : [⭐] Creates disposable email addresses on the fly
-│   ├── System Information              : Displays detailed hardware and software info
-│   ├── Hash Generator                  : Generates hashes using multiple algorithms
-│   ├── Hash Identifier                 : Identifies the algorithm of an unknown hash
-│   ├── File Hasher                     : Computes the hash of any local file
-│   ├── Base64 Converter                : Encodes and decodes Base64 strings
-│   ├── Caesar Cipher                   : Encrypts and decrypts text with Caesar shift
-│   ├── Text Converter                  : Converts text between various formats
-│   └── Url Analyzer                    : Analyzes URLs for headers, redirects and content
+│   ├── Password Generator              : Generates a secure random password
+│   ├── Temporary Mail                  : Creates a temporary email and checks its inbox
+│   ├── System Information              : Displays detailed system and hardware information
+│   ├── Hash Identifier                 : Identifies the type of a hash based on its length
+│   ├── File Hasher                     : Computes MD5, SHA1, SHA256 and SHA512 hashes of a file
+│   ├── Text Encoder/Decoder            : Encodes and decodes text in Base64, Url, Html and Hex
+│   ├── Regex Tester                    : Tests a regex pattern against a text and displays matches
+│   ├── Jwt Decoder                     : [⭐] Decodes and displays the header and payload of a JWT token
+│   ├── Qr Code Generator               : Generates a QR code image from any data
+│   └── Python Obfuscator               : [⭐] Obfuscates Python code to make it harder to read and reverse-engineer
 │
 ├── 🔐 Stealer (1)
 │   │
@@ -115,7 +119,7 @@ If you like **Buildware-Tools** and want to support the project, you can leave a
 │           ├── System Information      : Detailed system information
 │           ├── Wallets Sessions Files  : Crypto wallet sessions/files
 │           ├── Games Sessions Files    : Game launcher sessions
-│           ├── Telegram Sessions Files : Telegram Desktop sessions (tdata)
+│           ├── Telegram Sessions Files : Telegram Desktop sessions
 │           ├── Discord Tokens          : Discord tokens from clients & browsers
 │           ├── Discord Injection       : Persistent injection into Discord clients
 │           ├── Browser Passwords       : Saved passwords
@@ -128,36 +132,34 @@ If you like **Buildware-Tools** and want to support the project, you can leave a
 │           ├── Screenshot              : Full-screen screenshot
 │           └── Ping On Discord         : Ping @everyone in the webhook on report
 │
-├── ⚔️ Attacks (5)
-│   ├── Email Bomber                    : [🔧] Sends a large number of emails to a target address
-│   ├── Sms Bomber                      : [🔧] Sends multiple SMS messages to a target number
-│   ├── Phishing Attack                 : [🔧] Generates phishing pages
-│   ├── Password Zip Cracker            : [🔧] Attempts to crack password-protected ZIP archives
-│   └── Password Hash Cracker           : [🔧] Attempts to recover passwords from hash values
+├── 💸 Paid (1)
+│   │
+│   └── Soon..
 │
 ├── 🎮 Roblox (6)
+│   │
 │   ├── Cookie Login                    : [⭐] Log in to Roblox using a cookie via browser
-│   ├── Cookie Information              : [⭐] Displays detailed account info from a cookie
+│   ├── Cookie Information              : Displays detailed account info from a cookie
 │   ├── Id Information                  : Looks up a Roblox user by their ID
 │   ├── Username Information            : Looks up a Roblox user by their username
-│   ├── Group Information               : Shows detailed information about a Roblox group
+│   ├── Group Information               : [⭐] Shows detailed information about a Roblox group
 │   └── Game Information                : Shows detailed information about a Roblox game
 │
 └── 👾 Discord (30)
     │
     ├── Server
     │   ├── Server Information          : Shows detailed information about a server
-    │   ├── Server Editor               : Edits server settings and configuration
+    │   ├── Server Editor               : [⭐] Edits server settings and configuration
     │   ├── Server Scraper              : [⭐] Scrapes members from a server
     │   ├── Server Cloner               : [⭐] Clones a server's structure, channels and roles
-    │   ├── Server Ban All              : [⭐] Bans all members from a server
+    │   ├── Server Ban All              : Bans all members from a server
     │   ├── Server Kick All             : Kicks all members from a server
-    │   ├── Server Unban All            : Unbans all banned members from a server
-    │   └── Server Mute All             : Mutes all members in a server
+    │   ├── Server Unban All            : [⭐] Unbans all banned members from a server
+    │   └── Server Mute All             : [⭐] Mutes all members in a server
     │
     ├── Bot
     │   ├── Bot Nuker                   : [⭐] Performs destructive actions on a server via a bot
-    │   └── Bot Raider                  : Spams messages across all channels via a bot
+    │   └── Bot Raider                  : [⭐] Spams messages across all channels via a bot
     │
     ├── Token
     │   ├── Token Information           : Displays sensitive information about a token
@@ -165,10 +167,10 @@ If you like **Buildware-Tools** and want to support the project, you can leave a
     │   ├── Token Joiner                : Makes a token join a server
     │   ├── Token Leaver                : Makes a token leave a server
     │   ├── Token Mass Dm               : [⭐] Sends mass private messages to all DMs
-    │   ├── Token Spammer               : Sends mass messages in a channel
-    │   ├── Token Ghost Pinger          : Sends mentions and deletes them instantly
+    │   ├── Token Spammer               : [⭐] Sends mass messages in a channel
+    │   ├── Token Ghost Pinger          : [⭐] Sends mentions and deletes them instantly
     │   ├── Token Nuker                 : [⭐] Performs destructive actions on the account
-    │   ├── Token Disabler              : Disables a token permanently
+    │   ├── Token Disabler              : [⭐] Disables a token permanently
     │   ├── Token Onliner               : Sets a token's status to online via gateway
     │   ├── Token Image Changer         : Changes the account's profile picture or banner
     │   ├── Token Bio Changer           : Changes the account's bio
@@ -176,17 +178,18 @@ If you like **Buildware-Tools** and want to support the project, you can leave a
     │   └── Token Generator             : Generates and checks random tokens
     │
     ├── Webhook
-    │   ├── Webhook Spammer             : Spams a webhook with messages
+    │   ├── Webhook Spammer             : [⭐] Spams a webhook with messages
     │   └── Webhook Information         : Shows detailed information about a webhook
     │
     └── Other
         ├── Embed Creator               : Creates and sends custom Discord embeds
         ├── Injection Cleaner           : Detects and removes Discord client injections
-        ├── Vanity Url Sniper           : Monitors and snipes custom vanity URLs
+        ├── Vanity Url Sniper           : [⭐] Monitors and snipes custom vanity URLs
         └── Snowflake Decoder           : Decodes any Discord snowflake ID
 ```
 
 <br>
+
 ---
 
 ## 📦 Installation
@@ -209,6 +212,7 @@ python Setup.py
 ```
 
 <br>
+
 ---
 
 ## 📋 Requirements
@@ -218,11 +222,12 @@ python Setup.py
 - **Internet connection.**
 
 <br>
+
 ---
 
 ## 📈 Star History
 
-[![Star History Chart](https://api.star-history.com/chart?repos=v4lkyr0/Buildware-Tools&type=date&legend=top-left)](https://www.star-history.com/?repos=v4lkyr0%2FBuildware-Tools&type=date&legend=top-left)
+<img src="https://api.star-history.com/svg?repos=v4lkyr0/Buildware-Tools&type=Date&theme=dark">
 
 ---
 
@@ -234,6 +239,7 @@ python Setup.py
 ```
 
 <br>
+
 ---
 
 ## ⚖️ Disclaimer
@@ -243,6 +249,8 @@ python Setup.py
 > - Use this tool **only on yourself**.
 > - Any malicious or unauthorized use is **prohibited & illegal**.
 > - I am **not responsible** for misuse.
+
+<br>
 
 ---
 

@@ -14,11 +14,11 @@ try:
 except Exception as e:
     MissingModule(e)
 
-Title("Discord Snowflake Decoder")
+Title("Snowflake Decoder")
 
 Scroll(GradientBanner(discord_banner))
 
-def decode_snowflake(snowflake):
+def DecodeSnowflake(snowflake):
     try:
         snowflake_int = int(snowflake)
         timestamp_ms  = (snowflake_int >> 22) + 1420070400000
@@ -26,60 +26,50 @@ def decode_snowflake(snowflake):
         worker_id     = (snowflake_int & 0x3E0000) >> 17
         process_id    = (snowflake_int & 0x1F000) >> 12
         increment     = snowflake_int & 0xFFF
-        
+
         return {
-            'valid': True,
-            'snowflake': snowflake,
-            'timestamp': timestamp,
+            'valid'       : True,
+            'snowflake'   : snowflake,
+            'timestamp'   : timestamp,
             'timestamp_ms': timestamp_ms,
-            'worker_id': worker_id,
-            'process_id': process_id,
-            'increment': increment,
-            'binary': bin(snowflake_int)[2:].zfill(64)
+            'worker_id'   : worker_id,
+            'process_id'  : process_id,
+            'increment'   : increment,
+            'binary'      : bin(snowflake_int)[2:].zfill(64),
         }
-    except Exception as e:
-        return {'valid': False, 'error': str(e)}
+    except:
+        return {'valid': False}
 
 try:
     snowflake = input(f"{INPUT} Snowflake Id {red}->{reset} ").strip()
-    
+
     if not snowflake:
-        print(f"{ERROR} No Snowflake provided!", reset)
-        Continue()
-        Reset()
-
-    print(f"{LOADING} Decoding Snowflake..", reset)
-
-    result = decode_snowflake(snowflake)
-    
-    if result['valid']:
-        now = datetime.now()
-        age = now - result['timestamp']
-        days = age.days
-        years = days // 365
-        remaining_days = days % 365
-
-        snowflake_id = snowflake
-        created_at = result['timestamp'].strftime("%Y-%m-%d %H:%M:%S")
-        timestamps_ms = result['timestamp_ms']
-        worker_id = result['worker_id']
-        process_id = result['process_id']
-        increment = result['increment']
-        binary = result['binary']
-
-        Scroll(f"""
- {INFO} Snowflake Id    :{red} {snowflake_id}
- {INFO} Created At      :{red} {created_at}
- {INFO} Timestamps {red}({white}MS{red}){white} :{red} {timestamps_ms}
- {INFO} Worker Id       :{red} {worker_id}
- {INFO} Process Id      :{red} {process_id}
- {INFO} Increment       :{red} {increment}
- {INFO} Binary          :{red} {binary}
- {INFO} Age             :{red} {years} years, {remaining_days} days
-""")
-    else:
         ErrorId()
-    
+
+    print(f"{LOADING} Decoding..", reset)
+
+    result = DecodeSnowflake(snowflake)
+
+    if not result['valid']:
+        ErrorId()
+
+    now            = datetime.now()
+    age            = now - result['timestamp']
+    days           = age.days
+    years          = days // 365
+    remaining_days = days % 365
+
+    Scroll(f"""
+ {SUCCESS} Snowflake Id    :{red} {snowflake}{white}
+ {SUCCESS} Created At      :{red} {result['timestamp'].strftime('%Y-%m-%d %H:%M:%S')}{white}
+ {SUCCESS} Timestamp {red}({white}ms{red}){white}  :{red} {result['timestamp_ms']}{white}
+ {SUCCESS} Worker Id       :{red} {result['worker_id']}{white}
+ {SUCCESS} Process Id      :{red} {result['process_id']}{white}
+ {SUCCESS} Increment       :{red} {result['increment']}{white}
+ {SUCCESS} Binary          :{red} {result['binary']}{white}
+ {SUCCESS} Age             :{red} {years} years, {remaining_days} days{white}
+""")
+
     Continue()
     Reset()
 

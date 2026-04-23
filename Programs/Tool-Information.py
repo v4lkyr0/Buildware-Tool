@@ -15,14 +15,15 @@ Scroll(GradientBanner(information_banner))
 
 try:
     Scroll(f"""
- {INFO} Tool Name :{red} {name_tool}
- {INFO} Version   :{red} {version_tool}
- {INFO} Type      :{red} {type_tool}
- {INFO} Author    :{red} {author_tool}
- {INFO} GitHub    :{red} {github_url}
- {INFO} Guns.lol  :{red} {gunslol_url}
- {INFO} License   :{red} {license} ({license_url})
+ {INFO} Tool Name :{red} {name_tool}{white}
+ {INFO} Version   :{red} {version_tool}{white}
+ {INFO} Type      :{red} {type_tool}{white}
+ {INFO} Author    :{red} {author_tool}{white}
+ {INFO} GitHub    :{red} {github_url}{white}
+ {INFO} Guns.lol  :{red} {gunslol_url}{white}
+ {INFO} License   :{red} {license} ({license_url}){white}
 """)
+
     Continue()
     Reset()
 

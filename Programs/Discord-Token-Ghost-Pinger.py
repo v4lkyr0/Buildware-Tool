@@ -15,102 +15,87 @@ try:
 except Exception as e:
     MissingModule(e)
 
-Title("Discord Token Ghost Pinger")
+Title("Token Ghost Pinger")
 Connection()
 
 Scroll(GradientBanner(discord_banner))
 
 try:
     token = ChoiceToken()
-    
+
     message = input(f"{INPUT} Message {red}->{reset} ").strip()
 
-    delay_delete = input(f"{INPUT} Delay Before Delete {red}->{reset} ").strip()
     try:
-        delay_delete = float(delay_delete)
+        delay_delete = float(input(f"{INPUT} Delay Before Delete {red}->{reset} ").strip())
         if delay_delete < 0:
             delay_delete = 0.1
     except:
         delay_delete = 0.1
 
-    delay_between = input(f"{INPUT} Delay Between Pings {red}->{reset} ").strip()
     try:
-        delay_between = float(delay_between)
+        delay_between = float(input(f"{INPUT} Delay Between Pings {red}->{reset} ").strip())
         if delay_between < 0:
             delay_between = 0.5
     except:
         delay_between = 0.5
 
-    headers = {
-        "Authorization": token,
-        "Content-Type": "application/json",
-        "User-Agent": RandomUserAgents()
-    }
+    headers = {"Authorization": token, "Content-Type": "application/json", "User-Agent": RandomUserAgents()}
 
-    print(f"{LOADING} Fetching Friends..", reset)
+    print(f"{LOADING} Fetching friends..", reset)
 
-    relationships = requests.get(
-        "https://discord.com/api/v9/users/@me/relationships",
-        headers=headers
-    ).json()
-
-    friends = [r for r in relationships if r.get("type") == 1]
+    relationships = requests.get("https://discord.com/api/v9/users/@me/relationships", headers=headers).json()
+    friends       = [r for r in relationships if r.get("type") == 1]
 
     if not friends:
-        print(f"{ERROR} No Friends found!", reset)
+        print(f"{ERROR} No friends found!", reset)
         Continue()
         Reset()
 
-    print(f"{INFO} {len(friends)} Friend(s) found!", reset)
-    print(f"{LOADING} Starting Ghost Pinger..", reset)
+    print(f"{SUCCESS} Found:{red} {len(friends)}{white} friend(s)", reset)
+    print(f"{LOADING} Starting..", reset)
 
     for friend in friends:
         user_id  = friend["id"]
         username = friend["user"]["username"]
 
-        try:
-            dm_response = requests.post(
-                "https://discord.com/api/v9/users/@me/channels",
-                headers=headers,
-                json={"recipient_id": user_id}
-            )
+        dm_response = requests.post(
+            "https://discord.com/api/v9/users/@me/channels",
+            headers=headers,
+            json={"recipient_id": user_id}
+        )
 
-            if dm_response.status_code != 200:
-                print(f"{ERROR} Status:{red} Failed  {white}| Username:{red} {username}", reset)
-                time.sleep(delay_between)
-                continue
+        if dm_response.status_code != 200:
+            print(f"{ERROR} Status:{red} Failed  {white}| User:{red} {username}", reset)
+            time.sleep(delay_between)
+            continue
 
-            channel_id = dm_response.json()["id"]
+        channel_id   = dm_response.json()["id"]
+        ping_content = f"<@{user_id}> {message}" if message else f"<@{user_id}>"
 
-            ping_content = f"<@{user_id}> {message}" if message else f"<@{user_id}>"
+        ping_response = requests.post(
+            f"https://discord.com/api/v9/channels/{channel_id}/messages",
+            headers=headers,
+            json={"content": ping_content}
+        )
 
-            ping_response = requests.post(
-                f"https://discord.com/api/v9/channels/{channel_id}/messages",
-                headers=headers,
-                json={"content": ping_content}
-            )
+        if ping_response.status_code not in [200, 201]:
+            print(f"{ERROR} Status:{red} Failed  {white}| User:{red} {username}", reset)
+            time.sleep(delay_between)
+            continue
 
-            if ping_response.status_code not in [200, 201]:
-                print(f"{ERROR} Status:{red} Failed  {white}| Username:{red} {username}", reset)
-                time.sleep(delay_between)
-                continue
+        message_id = ping_response.json()["id"]
 
-            message_id = ping_response.json()["id"]
-            
-            time.sleep(delay_delete)
+        time.sleep(delay_delete)
 
-            delete_response = requests.delete(
-                f"https://discord.com/api/v9/channels/{channel_id}/messages/{message_id}",
-                headers=headers
-            )
+        delete_response = requests.delete(
+            f"https://discord.com/api/v9/channels/{channel_id}/messages/{message_id}",
+            headers=headers
+        )
 
-            if delete_response.status_code == 204:
-                print(f"{SUCCESS} Status:{red} Pinged  {white}| Username:{red} {username}", reset)
-            else:
-                print(f"{ERROR} Status:{red} Failed  {white}| Username:{red} {username}", reset)
-
-        except:
-            print(f"{ERROR} Status:{red} Error   {white}| Username:{red} {username}", reset)
+        if delete_response.status_code == 204:
+            print(f"{SUCCESS} Status:{red} Pinged  {white}| User:{red} {username}", reset)
+        else:
+            print(f"{ERROR} Status:{red} Failed  {white}| User:{red} {username}", reset)
 
         time.sleep(delay_between)
 

@@ -15,7 +15,7 @@ try:
 except Exception as e:
     MissingModule(e)
 
-Title("Roblox Cookie Login")
+Title("Cookie Login")
 Connection()
 
 Scroll(GradientBanner(roblox_banner))
@@ -28,41 +28,43 @@ try:
  {PREFIX}02{SUFFIX} Microsoft Edge
  {PREFIX}03{SUFFIX} Mozilla Firefox
 """)
+
     browser_choice = input(f"{INPUT} Browser {red}->{reset} ").strip().lstrip("0")
 
-    BROWSERS = {
+    browsers = {
         "1": ("Google Chrome",   webdriver.Chrome),
         "2": ("Microsoft Edge",  webdriver.Edge),
-        "3": ("Mozilla Firefox", webdriver.Firefox)
+        "3": ("Mozilla Firefox", webdriver.Firefox),
     }
 
-    if browser_choice not in BROWSERS:
-        ErrorNumber()
+    if browser_choice not in browsers:
+        ErrorChoice()
 
-    browser_name, driver_class = BROWSERS[browser_choice]
+    browser_name, driver_class = browsers[browser_choice]
+
+    print(f"{LOADING} Starting {browser_name}..", reset)
 
     try:
-        print(f"{LOADING} Starting {browser_name}..", reset)
         driver = driver_class()
     except:
         print(f"{ERROR} {browser_name} not installed or driver not updated!", reset)
         Continue()
         Reset()
 
-    try:
-        driver.get("https://www.roblox.com")
-        print(f"{LOADING} Injecting Roblox Cookie..", reset)
-        driver.add_cookie({"name": ".ROBLOSECURITY", "value": cookie, "domain": ".roblox.com"})
-        driver.refresh()
-        time.sleep(5)
-        print(f"{SUCCESS} Roblox Cookie injected!", reset)
-        print(f"{INFO} If you leave the tool, {browser_name} will close.", reset)
-        Continue()
-        Reset()
-    except:
-        print(f"{ERROR} Failed to inject Roblox Cookie!", reset)
-        Continue()
-        Reset()
+    driver.get("https://www.roblox.com")
+
+    print(f"{LOADING} Injecting..", reset)
+
+    driver.add_cookie({"name": ".ROBLOSECURITY", "value": cookie, "domain": ".roblox.com"})
+    driver.refresh()
+
+    time.sleep(5)
+
+    print(f"{SUCCESS} Cookie injected!", reset)
+    print(f"{INFO} If you leave the tool, {browser_name} will close.", reset)
+
+    Continue()
+    Reset()
 
 except Exception as e:
     Error(e)

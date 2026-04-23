@@ -15,80 +15,71 @@ try:
 except Exception as e:
     MissingModule(e)
 
-Title("Discord Vanity Url Sniper")
+Title("Vanity Url Sniper")
 Connection()
 
 Scroll(GradientBanner(discord_banner))
 
 try:
     token = ChoiceToken()
-    
-    server_id = input(f"{INPUT} Server ID {red}->{reset} ").strip()
+
+    server_id = input(f"{INPUT} Server Id {red}->{reset} ").strip()
     if not server_id:
-        ErrorInput()
-    
+        ErrorId()
+
     vanity_code = input(f"{INPUT} Vanity Code {red}->{reset} ").strip()
     if not vanity_code:
         ErrorInput()
-    
-    DEFAULT_CHECK_DELAY = 0.5
-    MIN_CHECK_DELAY = 0.1
-    
-    delay = input(f"{INPUT} Check Delay {red}->{reset} ").strip()
+
     try:
-        delay = float(delay)
-        if delay < MIN_CHECK_DELAY:
-            delay = MIN_CHECK_DELAY
-    except ValueError:
-        delay = DEFAULT_CHECK_DELAY
-    
+        delay = float(input(f"{INPUT} Delay {red}->{reset} ").strip())
+        if delay < 0.1:
+            delay = 0.1
+    except:
+        delay = 0.5
+
     headers = {"Authorization": token, "Content-Type": "application/json", "User-Agent": RandomUserAgents()}
-    
-    print(f"{LOADING} Verifying Server access..", reset)
-    
+
+    print(f"{LOADING} Fetching server..", reset)
+
     guild_response = requests.get(f"https://discord.com/api/v9/guilds/{server_id}", headers=headers)
-    
+
     if guild_response.status_code != 200:
-        print(f"{ERROR} Cannot access Server!", reset)
+        print(f"{ERROR} Could not access server!", reset)
         Continue()
         Reset()
-    
+
     guild_name = guild_response.json().get("name", "Unknown")
-    
-    print(f"{INFO} Server:{red} {guild_name}", reset)
-    print(f"{INFO} Vanity:{red} {vanity_code}", reset)
-    print(f"{LOADING} Sniping Vanity Url..", reset)
-    
+
+    print(f"{SUCCESS} Server:{red} {guild_name}", reset)
+    print(f"{SUCCESS} Vanity:{red} {vanity_code}", reset)
+    print(f"{LOADING} Sniping..", reset)
+
     attempt = 0
-    
+
     while True:
-        attempt += 1
-        
-        try:
-            check_response = requests.get(f"https://discord.com/api/v9/invites/{vanity_code}", headers=headers)
-            
-            if check_response.status_code == 404:
-                print(f"{LOADING} Attempt:{red} {attempt:<6} {white}| Status:{red} Available {white}| Claiming..", reset)
-                
-                claim_response = requests.patch(
-                    f"https://discord.com/api/v9/guilds/{server_id}/vanity-url",
-                    headers=headers,
-                    json={"code": vanity_code}
-                )
-                
-                if claim_response.status_code == 200:
-                    print(f"{SUCCESS} Vanity Url claimed!", reset)
-                    break
-                else:
-                    print(f"{ERROR} Failed to claim Vanity Url!", reset)
+        attempt      += 1
+        check_response = requests.get(f"https://discord.com/api/v9/invites/{vanity_code}", headers=headers)
+
+        if check_response.status_code == 404:
+            print(f"{LOADING} Attempt:{red} {attempt:<6}{white} | Status:{red} Available {white}| Claiming..", reset)
+
+            claim_response = requests.patch(
+                f"https://discord.com/api/v9/guilds/{server_id}/vanity-url",
+                headers=headers,
+                json={"code": vanity_code}
+            )
+
+            if claim_response.status_code == 200:
+                print(f"{SUCCESS} Vanity url claimed!", reset)
+                break
             else:
-                print(f"{LOADING} Attempt:{red} {attempt:<6} {white}| Status:{red} Taken    {white}| Waiting..", reset)
-        
-        except Exception as e:
-            print(f"{ERROR} Attempt:{red} {attempt:<6} {white}| Status:{red} Error    {white}| {e}", reset)
-        
+                print(f"{ERROR} Could not claim vanity url!", reset)
+        else:
+            print(f"{LOADING} Attempt:{red} {attempt:<6}{white} | Status:{red} Taken", reset)
+
         time.sleep(delay)
-    
+
     Continue()
     Reset()
 

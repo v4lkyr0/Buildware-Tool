@@ -16,6 +16,12 @@ try:
 except Exception as e:
     MissingModule(e)
 
+config = LoadData()
+if config.get("first_run", True):
+    StartProgram("Setup-Configuration.py")
+else:
+    pass
+
 def Connection():
     try:
         requests.get("https://www.google.com", timeout=5)
@@ -27,25 +33,24 @@ def Connection():
 def ShowBanner():
     if os.environ.get("skip_banner") == "1":
         return
-        
     Title("Banner")
     Clear()
     print("\n" * 6)
     Scroll(Gradient(buildware_banner))
     print("                                              - Coded by v4lkyr0 with <3 -")
-    time.sleep(3)
+    time.sleep(2)
 
 def SavePage(page):
     try:
-        data = load_data()
+        data        = LoadData()
         data["page"] = page
-        save_data(data)
+        SaveData(data)
     except:
         pass
 
 def LoadPage():
     try:
-        data = load_data()
+        data = LoadData()
         return int(data.get("page", 1))
     except:
         return 1
@@ -55,33 +60,33 @@ def Menu(page=1):
     Title(f"Page {page}")
 
     if page == 1:
-        nav = f"{red}> {PREFIX}?{SUFFIX} {version_tool} Changelog            ░                       ░                                                  {white}Feedback {PREFIX}F{SUFFIX} {red}<\n{red}> {PREFIX}!{SUFFIX} Tool Information                                                                                Extras Files {PREFIX}E{SUFFIX} {red}<\n                                                                                                         Next Page {PREFIX}N{SUFFIX} {red}<"
+        nav     = f"{red}> {PREFIX}?{SUFFIX} {version_tool} Changelog            ░                       ░                                                  {white}Feedback {PREFIX}F{SUFFIX} {red}<\n{red}> {PREFIX}!{SUFFIX} Tool Information                                                                                Extras Files {PREFIX}E{SUFFIX} {red}<\n                                                                                                         Next Page {PREFIX}N{SUFFIX} {red}<"
         content = f"""
 ╓──────────────────────────────────────╖╓──────────────────────────────────────╖╓──────────────────────────────────────╖
                 Network                                  Osint                                 Utilities               
 ╙┬─────────────────────────────────────╜╙┬─────────────────────────────────────╜╙┬─────────────────────────────────────╜
- ├─ {PREFIX1}01{SUFFIXP} Ip Port Scanner                 ├─ {PREFIX1}11{SUFFIX1} Ip Lookup                       ├─ {PREFIX1}21{SUFFIX1} Password Generator
- ├─ {PREFIX1}02{SUFFIX1} Ip Pinger                       ├─ {PREFIX1}12{SUFFIX1} Dns Lookup                      ├─ {PREFIX1}22{SUFFIXP} Temp Mail
- ├─ {PREFIX1}03{SUFFIX1} Traceroute                      ├─ {PREFIX1}13{SUFFIX1} Whois Lookup                    ├─ {PREFIX1}23{SUFFIX1} System Information
- ├─ {PREFIX1}04{SUFFIX1} Reverse Dns                     ├─ {PREFIX1}14{SUFFIXP} Subdomain Finder                ├─ {PREFIX1}24{SUFFIX1} Hash Generator
- ├─ {PREFIX1}05{SUFFIX1} Mac Lookup                      ├─ {PREFIX1}15{SUFFIX1} Header Analyzer                 ├─ {PREFIX1}25{SUFFIX1} Hash Identifier
- ├─ {PREFIX1}06{SUFFIX1} Interface Information           ├─ {PREFIX1}16{SUFFIX1} Website Detector                ├─ {PREFIX1}26{SUFFIX1} File Hasher
- ├─ {PREFIX1}07{SUFFIX1} Website Status                  ├─ {PREFIX1}17{SUFFIXP} Username Lookup                 ├─ {PREFIX1}27{SUFFIX1} Base64 Converter
- ├─ {PREFIX1}08{SUFFIX1} Ssl Checker                     ├─ {PREFIX1}18{SUFFIX1} Email Checker                   ├─ {PREFIX1}28{SUFFIX1} Caesar Cipher
- ├─ {PREFIX1}09{SUFFIX1} Proxy Checker                   ├─ {PREFIX1}19{SUFFIXP} Email Breach Checker            ├─ {PREFIX1}29{SUFFIX1} Text Converter
- └─ {PREFIX1}10{SUFFIXP} Wifi Passwords                  └─ {PREFIX1}20{SUFFIX1} Phone Lookup                    └─ {PREFIX1}30{SUFFIX1} Url Analyzer"""
+ ├─ {PREFIX1}01{SUFFIX1} Ip Port Scanner                 ├─ {PREFIX1}11{SUFFIX1} Ip Lookup                       ├─ {PREFIX1}21{SUFFIX1} Password Generator
+ ├─ {PREFIX1}02{SUFFIX1} Ip Pinger                       ├─ {PREFIX1}12{SUFFIX1} Whois Lookup                    ├─ {PREFIX1}22{SUFFIX1} Temporary Mail
+ ├─ {PREFIX1}03{SUFFIX1} Traceroute                      ├─ {PREFIX1}13{SUFFIX1} {StarRequired("Subdomain Finder")}                ├─ {PREFIX1}23{SUFFIX1} System Information
+ ├─ {PREFIX1}04{SUFFIX1} Dns Lookup                      ├─ {PREFIX1}14{SUFFIX1} {StarRequired("Username Tracker")}                ├─ {PREFIX1}24{SUFFIX1} Hash Identifier
+ ├─ {PREFIX1}05{SUFFIX1} Mac Lookup                      ├─ {PREFIX1}15{SUFFIX1} {StarRequired("Reverse Image Search")}            ├─ {PREFIX1}25{SUFFIX1} File Hasher
+ ├─ {PREFIX1}06{SUFFIX1} {StarRequired("Ssl Checker")}                     ├─ {PREFIX1}16{SUFFIX1} {StarRequired("Email Breach Checker")}            ├─ {PREFIX1}26{SUFFIX1} Text Encoder/Decoder
+ ├─ {PREFIX1}07{SUFFIX1} Proxy Checker                   ├─ {PREFIX1}17{SUFFIX1} {StarRequired("Phone Number Lookup")}             ├─ {PREFIX1}27{SUFFIX1} Regex Tester
+ ├─ {PREFIX1}08{SUFFIX1} {StarRequired("Network Scanner")}                 ├─ {PREFIX1}18{SUFFIX1} {StarRequired("Ip Reputation Checker")}           ├─ {PREFIX1}28{SUFFIX1} {StarRequired("Jwt Decoder")}
+ ├─ {PREFIX1}09{SUFFIX1} Bandwidth Tester                ├─ {PREFIX1}19{SUFFIX1} {StarRequired("Google Dork Builder")}             ├─ {PREFIX1}29{SUFFIX1} Qr Code Generator
+ └─ {PREFIX1}10{SUFFIX1} {StarRequired("Http Headers")}                    └─ {PREFIX1}20{SUFFIX1} Domain Age Checker              └─ {PREFIX1}30{SUFFIX1} {StarRequired("Python Obfuscator")}"""
 
     elif page == 2:
-        nav = f"{red}> {PREFIX}?{SUFFIX} {version_tool} Changelog            ░                       ░                                                  {white}Feedback {PREFIX}F{SUFFIX} {red}<\n{red}> {PREFIX}!{SUFFIX} Tool Information                                                                                Extras Files {PREFIX}E{SUFFIX} {red}<\n{red}> {PREFIX}B{SUFFIX} Back Page                                                                                          Next Page {PREFIX}N{SUFFIX} {red}<"
+        nav     = f"{red}> {PREFIX}?{SUFFIX} {version_tool} Changelog            ░                       ░                                                  {white}Feedback {PREFIX}F{SUFFIX} {red}<\n{red}> {PREFIX}!{SUFFIX} Tool Information                                                                                Extras Files {PREFIX}E{SUFFIX} {red}<\n{red}> {PREFIX}B{SUFFIX} Back Page                                                                                          Next Page {PREFIX}N{SUFFIX} {red}<"
         content = f"""
 ╓──────────────────────────────────────╖╓──────────────────────────────────────╖╓──────────────────────────────────────╖
-            Stealer Builder                             Attacks                                  Roblox                
+            Stealer Builder                               Paid                                  Roblox                
 ╙┬─────────────────────────────────────╜╙┬─────────────────────────────────────╜╙┬─────────────────────────────────────╜
- └─ {PREFIX1}31{SUFFIXP} Stealer Builder                 ├─ {PREFIX1}41{SUFFIXT} Email Bomber                    ├─ {PREFIX1}51{SUFFIXP} Roblox Cookie Login
-      ├─ {white}System Information              ├─ {PREFIX1}42{SUFFIXT} Sms Bomber                      ├─ {PREFIX1}52{SUFFIXP} Roblox Cookie Information
-      ├─ {white}Wallets Sessions Files          ├─ {PREFIX1}43{SUFFIXT} Phishing Attack                 ├─ {PREFIX1}53{SUFFIX1} Roblox Id Information
-      ├─ {white}Games/Telegram Sessions Files   ├─ {PREFIX1}44{SUFFIXT} Password Zip Cracker            ├─ {PREFIX1}54{SUFFIX1} Roblox Username Information
-      ├─ {white}Discord Tokens                  └─ {PREFIX1}45{SUFFIXT} Password Hash Cracker           ├─ {PREFIX1}55{SUFFIX1} Roblox Group Information
+ └─ {PREFIX1}31{SUFFIX1} {StarRequired("Stealer Builder")}                 └─ {PREFIX1}41{SUFFIX1} {Prenium("Soon")}                            ├─ {PREFIX1}51{SUFFIX1} {StarRequired("Roblox Cookie Login")}
+      ├─ {white}System Information                                                      ├─ {PREFIX1}52{SUFFIX1} Roblox Cookie Information
+      ├─ {white}Wallets Sessions Files                                                  ├─ {PREFIX1}53{SUFFIX1} Roblox Id Information
+      ├─ {white}Games/Telegram Sessions Files                                           ├─ {PREFIX1}54{SUFFIX1} Roblox Username Information
+      ├─ {white}Discord Tokens                                                          ├─ {PREFIX1}55{SUFFIX1} {StarRequired("Roblox Group Information")}
       ├─ {white}Discord Injection                                                       └─ {PREFIX1}56{SUFFIX1} Roblox Game Information
       ├─ {white}Browsers Data
       ├─ {white}Interesting Files                                                   
@@ -89,21 +94,21 @@ def Menu(page=1):
       └─ {white}Screenshots"""
 
     elif page == 3:
-        nav = f"{red}> {PREFIX}?{SUFFIX} {version_tool} Changelog            ░                       ░                                                  {white}Feedback {PREFIX}F{SUFFIX} {red}<\n{red}> {PREFIX}!{SUFFIX} Tool Information                                                                                Extras Files {PREFIX}E{SUFFIX} {red}<\n{red}> {PREFIX}B{SUFFIX} Back Page"
+        nav     = f"{red}> {PREFIX}?{SUFFIX} {version_tool} Changelog            ░                       ░                                                  {white}Feedback {PREFIX}F{SUFFIX} {red}<\n{red}> {PREFIX}!{SUFFIX} Tool Information                                                                                Extras Files {PREFIX}E{SUFFIX} {red}<\n{red}> {PREFIX}B{SUFFIX} Back Page                                                                                          Next Page {PREFIX}N{SUFFIX} {red}<"
         content = f"""
 ╓──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╖
                                                          Discord                                                        
 ╙┬───────────────────────────────────────┬───────────────────────────────────────┬─────────────────────────────────────╜
  ├─ {PREFIX1}61{SUFFIX1} Discord Server Information      ├─ {PREFIX1}71{SUFFIX1} Discord Token Information       ├─ {PREFIX1}81{SUFFIX1} Discord Token Image Changer
- ├─ {PREFIX1}62{SUFFIX1} Discord Server Editor           ├─ {PREFIX1}72{SUFFIX1} Discord Token Login             ├─ {PREFIX1}82{SUFFIX1} Discord Token Bio Changer
- ├─ {PREFIX1}63{SUFFIXP} Discord Server Scraper          ├─ {PREFIX1}73{SUFFIX1} Discord Token Joiner            ├─ {PREFIX1}83{SUFFIX1} Discord Token Status Changer
- ├─ {PREFIX1}64{SUFFIXP} Discord Server Cloner           ├─ {PREFIX1}74{SUFFIX1} Discord Token Leaver            ├─ {PREFIX1}84{SUFFIX1} Discord Token Generator
- ├─ {PREFIX1}65{SUFFIXP} Discord Server Ban All          ├─ {PREFIX1}75{SUFFIXP} Discord Token Mass Dm           ├─ {PREFIX1}85{SUFFIX1} Discord Embed Creator
- ├─ {PREFIX1}66{SUFFIX1} Discord Server Kick All         ├─ {PREFIX1}76{SUFFIX1} Discord Token Spammer           ├─ {PREFIX1}86{SUFFIX1} Discord Injection Cleaner
- ├─ {PREFIX1}67{SUFFIX1} Discord Server Unban All        ├─ {PREFIX1}77{SUFFIX1} Discord Token Ghost Pinger      ├─ {PREFIX1}87{SUFFIX1} Discord Webhook Spammer
- ├─ {PREFIX1}68{SUFFIX1} Discord Server Mute All         ├─ {PREFIX1}78{SUFFIXP} Discord Token Nuker             ├─ {PREFIX1}88{SUFFIX1} Discord Webhook Information
- ├─ {PREFIX1}69{SUFFIXP} Discord Bot Nuker               ├─ {PREFIX1}79{SUFFIX1} Discord Token Disabler          ├─ {PREFIX1}89{SUFFIXP} Discord Vanity Url Sniper
- └─ {PREFIX1}70{SUFFIXP} Discord Bot Raider              └─ {PREFIX1}80{SUFFIX1} Discord Token Onliner           └─ {PREFIX1}90{SUFFIX1} Discord Snowflake Decoder"""
+ ├─ {PREFIX1}62{SUFFIX1} {StarRequired("Discord Server Editor")}           ├─ {PREFIX1}72{SUFFIX1} Discord Token Login             ├─ {PREFIX1}82{SUFFIX1} Discord Token Bio Changer
+ ├─ {PREFIX1}63{SUFFIX1} {StarRequired("Discord Server Scraper")}          ├─ {PREFIX1}73{SUFFIX1} Discord Token Joiner            ├─ {PREFIX1}83{SUFFIX1} Discord Token Status Changer
+ ├─ {PREFIX1}64{SUFFIX1} {StarRequired("Discord Server Cloner")}           ├─ {PREFIX1}74{SUFFIX1} Discord Token Leaver            ├─ {PREFIX1}84{SUFFIX1} Discord Token Generator
+ ├─ {PREFIX1}65{SUFFIX1} {StarRequired("Discord Server Ban All")}          ├─ {PREFIX1}75{SUFFIX1} {StarRequired("Discord Token Mass Dm")}           ├─ {PREFIX1}85{SUFFIX1} Discord Embed Creator
+ ├─ {PREFIX1}66{SUFFIX1} {StarRequired("Discord Server Kick All")}         ├─ {PREFIX1}76{SUFFIX1} {StarRequired("Discord Token Spammer")}           ├─ {PREFIX1}86{SUFFIX1} Discord Injection Cleaner
+ ├─ {PREFIX1}67{SUFFIX1} Discord Server Unban All        ├─ {PREFIX1}77{SUFFIX1} {StarRequired("Discord Token Ghost Pinger")}      ├─ {PREFIX1}87{SUFFIX1} {StarRequired("Discord Webhook Spammer")}
+ ├─ {PREFIX1}68{SUFFIX1} Discord Server Mute All         ├─ {PREFIX1}78{SUFFIX1} {StarRequired("Discord Token Nuker")}             ├─ {PREFIX1}88{SUFFIX1} Discord Webhook Information
+ ├─ {PREFIX1}69{SUFFIX1} {StarRequired("Discord Bot Nuker")}               ├─ {PREFIX1}79{SUFFIX1} {StarRequired("Discord Token Disabler")}          ├─ {PREFIX1}89{SUFFIX1} {StarRequired("Discord Vanity Url Sniper")}
+ └─ {PREFIX1}70{SUFFIX1} {StarRequired("Discord Bot Raider")}              └─ {PREFIX1}80{SUFFIX1} Discord Token Onliner           └─ {PREFIX1}90{SUFFIX1} Discord Snowflake Decoder"""
 
     return f"""{update}{buildware_banner}
 {nav}
@@ -111,26 +116,22 @@ def Menu(page=1):
 
 options = {
     "01": "Network-Ip-Port-Scanner",             "11": "Osint-Ip-Lookup",                          "21": "Utility-Password-Generator",
-    "02": "Network-Ip-Pinger",                   "12": "Osint-Dns-Lookup",                         "22": "Utility-Temp-Mail",
-    "03": "Network-Traceroute",                  "13": "Osint-Whois-Lookup",                       "23": "Utility-System-Information",
-    "04": "Network-Reverse-Dns",                 "14": "Osint-Subdomain-Finder",                   "24": "Utility-Hash-Generator",
-    "05": "Network-Mac-Lookup",                  "15": "Osint-Header-Analyzer",                    "25": "Utility-Hash-Identifier",
-    "06": "Network-Interface-Information",       "16": "Osint-Website-Detector",                   "26": "Utility-File-Hasher",
-    "07": "Network-Website-Status",              "17": "Osint-Username-Lookup",                    "27": "Utility-Base64-Converter",
-    "08": "Network-Ssl-Checker",                 "18": "Osint-Email-Checker",                      "28": "Utility-Caesar-Cipher",
-    "09": "Network-Proxy-Checker",               "19": "Osint-Email-Breach-Checker",               "29": "Utility-Text-Converter",
-    "10": "Network-Wifi-Passwords",              "20": "Osint-Phone-Lookup",                       "30": "Utility-Url-Analyzer",
+    "02": "Network-Ip-Pinger",                   "12": "Osint-Whois-Lookup",                       "22": "Utility-Temporary-Mail",
+    "03": "Network-Traceroute",                  "13": "Osint-Subdomain-Finder",                   "23": "Utility-System-Information",
+    "04": "Network-Dns-Lookup",                  "14": "Osint-Username-Tracker",                   "24": "Utility-Hash-Identifier",
+    "05": "Network-Mac-Lookup",                  "15": "Osint-Reverse-Image-Search",               "25": "Utility-File-Hasher",
+    "06": "Network-Ssl-Checker",                 "16": "Osint-Email-Breach-Checker",               "26": "Utility-Text-Encoder-Decoder",
+    "07": "Network-Proxy-Checker",               "17": "Osint-Phone-Number-Lookup",                "27": "Utility-Regex-Tester",
+    "08": "Network-Network-Scanner",             "18": "Osint-Ip-Reputation-Checker",              "28": "Utility-Jwt-Decoder",
+    "09": "Network-Bandwidth-Tester",            "19": "Osint-Google-Dork-Builder",                "29": "Utility-Qr-Code-Generator",
+    "10": "Network-Http-Headers",                "20": "Osint-Domain-Age-Checker",                 "30": "Utility-Python-Obfuscator",
 
     "31": "Stealer-Builder",                     "41": "Soon",                                     "51": "Roblox-Cookie-Login",
-                                                 "42": "Soon",                                     "52": "Roblox-Cookie-Information",
-                                                 "43": "Soon",                                     "53": "Roblox-Id-Information",
-                                                 "44": "Soon",                                     "54": "Roblox-Username-Information",
-                                                 "45": "Not-Available",                            "55": "Roblox-Group-Information",
-                                                 "46": "Not-Available",                            "56": "Roblox-Game-Information",
-                                                 "47": "Not-Available",                            "57": "Not-Available",
-                                                 "48": "Not-Available",                            "58": "Not-Available",
-                                                 "49": "Not-Available",                            "59": "Not-Available",
-                                                 "50": "Not-Available",                            "60": "Not-Available",
+                                                                                                   "52": "Roblox-Cookie-Information",
+                                                                                                   "53": "Roblox-Id-Information",
+                                                                                                   "54": "Roblox-Username-Information",
+                                                                                                   "55": "Roblox-Group-Information",
+                                                                                                   "56": "Roblox-Game-Information",
 
     "61": "Discord-Server-Information",          "71": "Discord-Token-Information",                "81": "Discord-Token-Image-Changer",
     "62": "Discord-Server-Editor",               "72": "Discord-Token-Login",                      "82": "Discord-Token-Bio-Changer",
@@ -144,7 +145,7 @@ options = {
     "70": "Discord-Bot-Raider",                  "80": "Discord-Token-Onliner",                    "90": "Discord-Snowflake-Decoder",
 }
 
-star_required = {"01", "10", "14", "17", "19", "22", "31", "45", "55", "63", "64", "65", "69", "70", "75", "78", "89"}
+star_required = {"06", "08", "10", "13", "14", "15", "16", "17", "18", "19", "28", "30", "31", "51", "55", "62", "63", "64", "65", "66", "69", "70", "75", "76", "77", "78", "79", "87", "89"}
 
 Connection()
 page = LoadPage()
@@ -160,11 +161,9 @@ while True:
         if choice in ['f', 'feedback']:
             StartProgram('Feedback.py')
         elif choice in ['n', 'next']:
-            if page < 3:
-                page += 1
+            page = 1 if page == 3 else page + 1
         elif choice in ['b', 'back']:
-            if page > 1:
-                page -= 1
+            page = 3 if page == 1 else page - 1
         elif choice in ['?', 'changelog']:
             StartProgram('Changelog-Version.py')
         elif choice in ['!', 'tool', 'info']:
@@ -181,7 +180,7 @@ while True:
                 continue
             StartProgram(options[padded] + '.py')
         else:
-            StartProgram('Not-Available.py')
+            ErrorFeature()
 
         SavePage(page)
 
