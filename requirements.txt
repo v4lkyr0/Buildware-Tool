@@ -1,0 +1,13 @@
+colorama
+requests
+selenium
+websocket-client
+icmplib
+psutil
+dnspython
+phonenumbers
+pillow
+qrcode
+beautifulsoup4
+whois
+pyspeedtest
