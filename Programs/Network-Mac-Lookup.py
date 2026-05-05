@@ -11,11 +11,11 @@ from Plugins.Config import *
 
 try:
     import requests
+    import re
 except Exception as e:
     MissingModule(e)
 
 Title("Mac Lookup")
-Connection()
 
 Scroll(GradientBanner(network_banner))
 
@@ -25,16 +25,37 @@ try:
     if not mac:
         ErrorInput()
 
+    mac_clean = re.sub(r"[^0-9a-fA-F]", "", mac)
+    if len(mac_clean) < 6:
+        print(f"{ERROR} Invalid Mac Address!", reset)
+        Continue()
+        Reset()
+
     print(f"{LOADING} Looking up..", reset)
 
     try:
-        response = requests.get(f"https://api.macvendors.com/{mac}", timeout=5)
+        response = requests.get(
+            f"https://api.macvendors.com/{mac}",
+            headers={"User-Agent": RandomUserAgents()},
+            timeout=10
+        )
+
         if response.status_code == 200:
-            print(f"{SUCCESS} Vendor:{red} {response.text}", reset)
-        else:
+            Scroll(f"""
+ {SUCCESS} Mac Address :{red} {mac}{white}
+ {SUCCESS} Vendor      :{red} {response.text.strip()}{white}
+""")
+        elif response.status_code == 404:
             print(f"{ERROR} Mac Address not found!", reset)
-    except:
-        print(f"{ERROR} Mac Address not found!", reset)
+        elif response.status_code == 429:
+            print(f"{ERROR} Rate limited!", reset)
+        else:
+            print(f"{ERROR} Could not look up Mac Address!", reset)
+
+    except requests.exceptions.Timeout:
+        print(f"{ERROR} Request timed out!", reset)
+    except Exception:
+        print(f"{ERROR} Could not look up Mac Address!", reset)
 
     Continue()
     Reset()

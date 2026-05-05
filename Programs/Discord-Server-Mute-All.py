@@ -17,7 +17,6 @@ except Exception as e:
     MissingModule(e)
 
 Title("Server Mute All")
-Connection()
 
 Scroll(GradientBanner(discord_banner))
 
@@ -25,13 +24,13 @@ try:
     token = ChoiceToken()
 
     server_id = input(f"{INPUT} Server Id {red}->{reset} ").strip()
-    if not server_id:
+    if not server_id or not server_id.isdigit():
         ErrorId()
 
     try:
-        duration = input(f"{INPUT} Duration {red}({white}minutes{red}) ->{reset} ")
+        duration = int(input(f"{INPUT} Duration {red}({white}minutes{red}) ->{reset} ").strip())
         if duration < 0:
-            duration = 0
+            duration = 60
     except:
         duration = 60
 
@@ -42,25 +41,51 @@ try:
     except:
         delay = 0.5
 
-    headers = {"Authorization": token, "Content-Type": "application/json", "User-Agent": RandomUserAgents()}
+    headers = {
+        "Authorization": token,
+        "Content-Type" : "application/json",
+        "User-Agent"   : RandomUserAgents(),
+    }
+
+    def ApiGet(url):
+        while True:
+            try:
+                r = requests.get(url, headers=headers, timeout=10)
+                if r.status_code == 429:
+                    time.sleep(r.json().get("retry_after", 1))
+                    continue
+                return r
+            except Exception:
+                return None
+
+    def ApiPatch(url, json=None):
+        while True:
+            try:
+                r = requests.patch(url, headers=headers, json=json or {}, timeout=10)
+                if r.status_code == 429:
+                    time.sleep(r.json().get("retry_after", 1))
+                    continue
+                return r
+            except Exception:
+                return None
 
     print(f"{LOADING} Fetching members..", reset)
 
     members = []
-    limit   = 1000
     after   = 0
 
     while True:
-        members_response = requests.get(f"https://discord.com/api/v9/guilds/{server_id}/members?limit={limit}&after={after}", headers=headers)
-        if members_response.status_code != 200:
+        r = ApiGet(f"https://discord.com/api/v9/guilds/{server_id}/members?limit=1000&after={after}")
+        if not r or r.status_code != 200:
             break
-        batch = members_response.json()
+        batch = r.json()
         if not batch:
             break
         members.extend(batch)
         after = int(batch[-1]["user"]["id"])
-        if len(batch) < limit:
+        if len(batch) < 1000:
             break
+        time.sleep(0.5)
 
     if not members:
         print(f"{ERROR} No members found!", reset)
@@ -75,27 +100,33 @@ try:
     else:
         timeout_until = (datetime.now(timezone.utc) + timedelta(days=28)).isoformat()
 
-    muted_count = 0
+    muted_count  = 0
+    failed_count = 0
 
     for member in members:
-        user_id  = member.get("user", {}).get("id")
-        username = member.get("user", {}).get("username", "Unknown")
+        user     = member.get("user", {})
+        user_id  = user.get("id")
+        username = user.get("username", "None")
 
-        response = requests.patch(
+        if not user_id or user.get("bot"):
+            continue
+
+        resp = ApiPatch(
             f"https://discord.com/api/v9/guilds/{server_id}/members/{user_id}",
-            headers=headers,
             json={"communication_disabled_until": timeout_until}
         )
 
-        if response.status_code == 200:
+        if resp and resp.status_code == 200:
             muted_count += 1
             print(f"{SUCCESS} Muted:{red} {muted_count:<6}{white} | User:{red} {username}", reset)
         else:
-            print(f"{ERROR} Status:{red} Failed  {white}| User:{red} {username}", reset)
+            failed_count += 1
+            code = resp.status_code if resp else "None"
+            print(f"{ERROR} Failed | User:{red} {username}{white} | Code:{red} {code}", reset)
 
         time.sleep(delay)
 
-    print(f"{INFO} Total muted:{red} {muted_count}/{len(members)}", reset)
+    print(f"\n{SUCCESS} Completed!", reset)
 
     Continue()
     Reset()

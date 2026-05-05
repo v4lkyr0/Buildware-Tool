@@ -12,7 +12,7 @@ from Plugins.Config import *
 Title("Coming Soon")
 
 try:
-    print(f"{INFO} This feature is coming soon!", reset)
+    print(f"{INFO} This feature is coming soon.", reset)
 
     Continue()
     Reset()

@@ -11,11 +11,11 @@ from Plugins.Config import *
 
 try:
     import requests
+    import time
 except Exception as e:
     MissingModule(e)
 
 Title("Token Joiner")
-Connection()
 
 Scroll(GradientBanner(discord_banner))
 
@@ -26,16 +26,42 @@ try:
     if not invite:
         ErrorInput()
 
-    invite_code = invite.split("/")[-1]
+    invite_code = invite.split("/")[-1].strip()
 
     print(f"{LOADING} Joining..", reset)
 
-    headers  = {"Authorization": token, "User-Agent": RandomUserAgents()}
-    response = requests.post(f"https://discord.com/api/v9/invites/{invite_code}", headers=headers)
+    headers = {
+        "Authorization": token,
+        "Content-Type" : "application/json",
+        "User-Agent"   : RandomUserAgents(),
+    }
 
-    if response.status_code == 200:
-        print(f"{SUCCESS} Joined!", reset)
-    else:
+    try:
+        response = requests.post(
+            f"https://discord.com/api/v9/invites/{invite_code}",
+            headers=headers,
+            json={},
+            timeout=10
+        )
+
+        if response.status_code == 200:
+            guild = response.json().get("guild", {})
+            print(f"{SUCCESS} Joined:{red} {guild.get('name', 'None')}", reset)
+        elif response.status_code == 401:
+            print(f"{ERROR} Invalid token!", reset)
+        elif response.status_code == 404:
+            print(f"{ERROR} Invalid invite!", reset)
+        elif response.status_code == 429:
+            retry = response.json().get("retry_after", 1)
+            print(f"{ERROR} Rate limited!", reset)
+        elif response.status_code == 403:
+            print(f"{ERROR} Cannot join server!", reset)
+        else:
+            print(f"{ERROR} Could not join server!", reset)
+
+    except requests.exceptions.Timeout:
+        print(f"{ERROR} Request timed out!", reset)
+    except Exception:
         print(f"{ERROR} Could not join server!", reset)
 
     Continue()

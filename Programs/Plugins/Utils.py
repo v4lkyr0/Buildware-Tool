@@ -9,6 +9,7 @@
 from .Config import *
 
 try:
+    import inspect
     from colorama import Fore
     import ctypes
     import json
@@ -29,12 +30,12 @@ except Exception as e:
 try:
     import tkinter as tk
     from tkinter import filedialog
-except:
+except Exception:
     tk = None
     filedialog = None
 
 username_webhook = name_tool
-avatar_webhook   = "https://i.imgur.com/7Gu71Gc.png"
+avatar_webhook   = "https://i.imgur.com/G8QR0f7.png"
 color_embed      = 0x880000
 
 red    = Fore.RED
@@ -61,7 +62,7 @@ tool_path = os.path.dirname(os.path.abspath(__file__)).split("Programs\\")[0].sp
 
 try:
     username_pc = os.getlogin()
-except:
+except Exception:
     username_pc = "user"
 
 try:
@@ -71,15 +72,16 @@ try:
         platform_pc = "Linux"
     else:
         platform_pc = "Unknown"
-except:
+except Exception:
     platform_pc = "None"
 
 def Connection():
     try:
         requests.get("https://www.google.com", timeout=5)
-    except:
+    except Exception:
         print(f"{ERROR} An internet connection is required to use this feature!", reset)
         Continue()
+        Reset()
 
 data_file         = os.path.join(tool_path, "Programs", "Extras", "Config.json")
 github_repo_owner = "v4lkyr0"
@@ -90,9 +92,9 @@ def LoadData():
         try:
             with open(data_file, "r", encoding="utf-8") as f:
                 return json.load(f)
-        except:
+        except Exception:
             pass
-    return {"first_run": True, "auto_update": False, "webhooks": [], "tokens": [], "bots": [], "cookies": [], "github_star": "", "page": 1}
+    return {"auto_update": False, "webhooks": [], "tokens": [], "bots": [], "cookies": [], "github_star": "", "page": 1}
 
 def SaveData(data):
     with open(data_file, "w", encoding="utf-8") as f:
@@ -121,7 +123,7 @@ def CheckGithubStar():
             r = requests.get("https://api.github.com/user", headers=headers, timeout=10)
             if r.status_code == 200:
                 username = r.json().get("login", "")
-                if _is_stargazer(username.lower(), headers):
+                if IsStargazer(username.lower(), headers):
                     print(f"{SUCCESS} Verified as:{red} {username}{reset}", reset)
                     os.environ["star_verified"] = "1"
                     time.sleep(1)
@@ -162,7 +164,7 @@ def CheckGithubStar():
         print(f"{SUCCESS} Authenticated as:{red} {username}{reset}", reset)
 
         print(f"{LOADING} Checking star..", reset)
-        if _is_stargazer(username.lower(), headers):
+        if IsStargazer(username.lower(), headers):
             data                = LoadData()
             data["github_star"] = EncodePat(pat)
             SaveData(data)
@@ -180,7 +182,7 @@ def CheckGithubStar():
         time.sleep(2)
         sys.exit()
 
-def _is_stargazer(username, headers):
+def IsStargazer(username, headers):
     page = 1
     while True:
         r = requests.get(
@@ -202,7 +204,7 @@ def _is_stargazer(username, headers):
 def ParseVersion(v):
     try:
         return tuple(int(x) for x in v.strip("v").split("."))
-    except:
+    except Exception:
         return (0,)
 
 def Update():
@@ -286,6 +288,10 @@ def Update():
     except Exception as e:
         print(f"{ERROR} Auto-update failed! |{white} Link:{red} {github_url}/releases/latest", reset)
 
+def CheckLaunch():
+    if not os.environ.get("bkey"):
+        sys.exit()
+
 def Clear():
     if platform_pc == "Windows":
         os.system("cls")
@@ -299,14 +305,12 @@ def Title(title):
         sys.stdout.write(f"\x1b]2;{name_tool} v{version_tool} - [{title}]\x07")
 
 def Reset():
-    env              = os.environ.copy()
-    env["skip_banner"] = "1"
     if platform_pc == "Windows":
         file = ['python', os.path.join(tool_path, 'Buildware.py')]
-        subprocess.run(file, env=env)
+        subprocess.run(file)
     elif platform_pc == "Linux":
         file = ['python3', os.path.join(tool_path, 'Buildware.py')]
-        subprocess.run(file, env=env)
+        subprocess.run(file)
 
 def StartProgram(program):
     if platform_pc == "Windows":
@@ -403,7 +407,7 @@ def BrowseFile(title="Select File", file_types=None):
     root.withdraw()
     try:
         root.iconbitmap(os.path.join(tool_path, 'Programs', 'Images', 'BuildwareIcon.ico'))
-    except:
+    except Exception:
         pass
     file_path = filedialog.askopenfilename(
         title=f"{name_tool} v{version_tool} - [{title}]",
@@ -443,7 +447,7 @@ def StarRequired(text):
     result.append('\033[0m')
     return ''.join(result)
 
-def Prenium(text):
+def Premium(text):
     start_color = (186, 85, 211)
     end_color   = (123, 31, 162)
     num_steps   = 3
@@ -512,14 +516,15 @@ def GradientBanner(text):
     return Gradient(text, include_zero=True)
 
 def RandomUserAgents():
-    file = os.path.join(tool_path, 'Programs', 'Extras', 'UserAgents.txt')
-    with open(file, 'r', encoding='utf-8') as f:
-        lines = f.readlines()
-    if lines:
-        user_agent = random.choice(lines).strip()
-    else:
-        user_agent = "Mozilla/5.0 (Linux; Android 4.4.4; Nexus 7 Build/KTU84P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.84 Safari/537.36"
-    return user_agent
+    file = os.path.join(tool_path, "Programs", "Extras", "UserAgents.txt")
+    try:
+        with open(file, "r", encoding="utf-8") as f:
+            lines = [l.strip() for l in f.readlines() if l.strip()]
+        if lines:
+            return random.choice(lines)
+    except Exception:
+        pass
+    return "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 
 def CheckWebhook(webhook):
     try:
@@ -528,7 +533,7 @@ def CheckWebhook(webhook):
             return True
         else:
             return False
-    except:
+    except Exception:
         return None
 
 def CheckToken(token):
@@ -540,7 +545,7 @@ def CheckToken(token):
             return True
         else:
             return False
-    except:
+    except Exception:
         return None
 
 def SaveWebhook(webhook):
@@ -572,7 +577,7 @@ def CheckBot(bot_token):
             return True
         else:
             return False
-    except:
+    except Exception:
         return None
 
 def SaveBot(bot_token):
@@ -594,7 +599,7 @@ def CheckCookie(cookie):
             return True
         else:
             return False
-    except:
+    except Exception:
         return None
 
 def SaveCookie(cookie):
@@ -1149,6 +1154,8 @@ def ChoiceMultiCookie():
 
     return selected_cookies
 
+CheckLaunch()
+
 buildware_banner = f"""
                           ▄▄▄▄    █    ██  ██▓ ██▓    ▓█████▄  █     █░ ▄▄▄       ██▀███  ▓█████  
                          ▓█████▄  ██  ▓██▒▓██▒▓██▒    ▒██▀ ██▌▓█░ █ ░█░▒████▄    ▓██ ▒ ██▒▓█   ▀  
@@ -1193,8 +1200,7 @@ feedback_banner = f"""
                                      00000000                                            
                                      0000000                                             
                                      00000                                               
-                                      000
-"""
+                                      000"""
 
 information_banner = f"""
                                                 000000000000000000000                    
@@ -1229,8 +1235,7 @@ information_banner = f"""
                                       0000000000000               0000000000000          
                                          00000000000000000000000000000000000             
                                             00000000000000000000000000000                
-                                                000000000000000000000                    
-"""
+                                                000000000000000000000"""
 
 extras_banner = f"""
                                     0000000000000000                                     
@@ -1257,8 +1262,7 @@ extras_banner = f"""
                                000000                                           000000   
                                0000000000000000000000000000000000000000000000000000000   
                                  000000000000000000000000000000000000000000000000000     
-                                    000000000000000000000000000000000000000000000        
-"""
+                                    000000000000000000000000000000000000000000000"""
 
 network_banner = f"""                                                             
                                                  0000000000000000000                     
@@ -1291,8 +1295,7 @@ network_banner = f"""
                                        0000000000000000       0000000000000000           
                                          00000000000000000 00000000000000000             
                                             00000000000000000000000000000                
-                                                 0000000000000000000
-"""
+                                                 0000000000000000000"""
 
 osint_banner = f"""
                                            000000000000000000                            
@@ -1327,8 +1330,7 @@ osint_banner = f"""
                                                                            00000     0000
                                                                             000000    000
                                                                               00000000000
-                                                                                00000000 
-"""
+                                                                                00000000"""
 
 utilities_banner = f"""
                                                     0000000000000                        
@@ -1363,8 +1365,7 @@ utilities_banner = f"""
                                       00000000    00000       00000    00000000          
                                                    00000     000000                      
                                                    000000000000000                       
-                                                    0000000000000                        
-"""
+                                                    0000000000000"""
 
 stealer_banner = f"""                                                             
                                               000                   000                  
@@ -1397,8 +1398,7 @@ stealer_banner = f"""
                                    00000          00000       00000          00000       
                                      0000000000000000           0000000000000000         
                                        000000000000               000000000000           
-                                           0000                       0000               
-"""
+                                           0000                       0000"""
 
 attacks_banner = f"""
                                                                              0           
@@ -1431,8 +1431,7 @@ attacks_banner = f"""
                                     0000000       000000   0000000                       
                                       00000000000000000000000000                         
                                          00000000000000000000                            
-                                                000000                                   
-"""
+                                                000000"""
 
 roblox_banner = f"""
                                               00000                                      
@@ -1461,8 +1460,7 @@ roblox_banner = f"""
                                                    000000000000      0000                
                                                         0000000000000000                 
                                                              0000000000                  
-                                                                  00000                  
-"""
+                                                                  00000"""
 
 discord_banner = f"""
                                               000000             000000                  
@@ -1489,5 +1487,4 @@ discord_banner = f"""
                                00000         000000000000000000000000000         000000  
                                  0000000      0000 000000000000000 0000      0000000     
                                     0000000000000                   0000000000000        
-                                         0000000                     0000000             
-"""
+                                         0000000                     0000000"""

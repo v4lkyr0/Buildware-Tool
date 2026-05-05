@@ -16,7 +16,6 @@ except Exception as e:
     MissingModule(e)
 
 Title("Ip Lookup")
-Connection()
 
 Scroll(GradientBanner(osint_banner))
 
@@ -26,9 +25,11 @@ try:
     if not target:
         ErrorInput()
 
+    target = target.removeprefix("https://").removeprefix("http://").rstrip("/")
+
     try:
         resolved = socket.gethostbyname(target)
-    except:
+    except Exception:
         print(f"{ERROR} Could not resolve host!", reset)
         Continue()
         Reset()
@@ -69,9 +70,12 @@ try:
  {SUCCESS} Type        :{red} {proxy_str}{white}
 """)
         else:
+            msg = data.get("message", "None")
             print(f"{ERROR} Ip not found!", reset)
 
-    except:
+    except requests.exceptions.Timeout:
+        print(f"{ERROR} Request timed out!", reset)
+    except Exception:
         print(f"{ERROR} Could not fetch Ip information!", reset)
 
     Continue()

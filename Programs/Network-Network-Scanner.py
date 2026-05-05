@@ -17,7 +17,6 @@ except Exception as e:
     MissingModule(e)
 
 Title("Network Scanner")
-Connection()
 
 Scroll(GradientBanner(network_banner))
 
@@ -27,17 +26,20 @@ try:
     if not target:
         ErrorInput()
 
+    target = target.removeprefix("https://").removeprefix("http://").rstrip("/")
+
     try:
-        base = ".".join(socket.gethostbyname(target).split(".")[:3])
-    except:
+        resolved = socket.gethostbyname(target)
+        base     = ".".join(resolved.split(".")[:3])
+    except Exception:
         print(f"{ERROR} Could not resolve host!", reset)
         Continue()
         Reset()
 
     print(f"{LOADING} Scanning..", reset)
 
-    hosts  = []
-    lock   = threading.Lock()
+    hosts     = []
+    lock      = threading.Lock()
     semaphore = threading.Semaphore(50)
 
     def ScanHost(ip):
@@ -47,23 +49,21 @@ try:
                 if result.is_alive:
                     try:
                         hostname = socket.gethostbyaddr(ip)[0]
-                    except:
-                        hostname = "Unknown"
+                    except Exception:
+                        hostname = "None"
                     with lock:
                         hosts.append(ip)
-                        print(f"{SUCCESS} Host:{red} {ip:<16}{white} | Hostname:{red} {hostname}", reset)
-            except:
+                        print(f"{SUCCESS} Host:{red} {ip:<16}{white} | Rtt:{red} {round(result.avg_rtt, 2)}ms{white} | Hostname:{red} {hostname}", reset)
+            except Exception:
                 pass
 
-    threads = []
-    for i in range(1, 255):
-        ip = f"{base}.{i}"
-        t  = threading.Thread(target=ScanHost, args=(ip,))
-        threads.append(t)
+    threads = [threading.Thread(target=ScanHost, args=(f"{base}.{i}",), daemon=True) for i in range(1, 255)]
+    for t in threads:
         t.start()
-
     for t in threads:
         t.join()
+
+    print(f"\n{SUCCESS} Found:{red} {len(hosts)}{white} host(s)", reset)
 
     Continue()
     Reset()

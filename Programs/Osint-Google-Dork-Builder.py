@@ -11,11 +11,11 @@ from Plugins.Config import *
 
 try:
     import webbrowser
+    from urllib.parse import quote_plus
 except Exception as e:
     MissingModule(e)
 
 Title("Google Dork Builder")
-Connection()
 
 Scroll(GradientBanner(osint_banner))
 
@@ -33,34 +33,58 @@ try:
 
     choice = input(f"{INPUT} Choice {red}->{reset} ").strip().lstrip("0")
 
+    dork = ""
+
     if choice == "1":
         site    = input(f"{INPUT} Site {red}->{reset} ").strip()
         keyword = input(f"{INPUT} Keyword {red}->{reset} ").strip()
-        dork    = f"site:{site} {keyword}"
+        if not site:
+            ErrorInput()
+        dork = f"site:{site} {keyword}".strip()
+
     elif choice == "2":
         site     = input(f"{INPUT} Site {red}->{reset} ").strip()
         filetype = input(f"{INPUT} File Type {red}->{reset} ").strip()
         keyword  = input(f"{INPUT} Keyword {red}->{reset} ").strip()
-        dork     = f"site:{site} filetype:{filetype} {keyword}"
+        if not site or not filetype:
+            ErrorInput()
+        dork = f"site:{site} filetype:{filetype} {keyword}".strip()
+
     elif choice == "3":
         keyword = input(f"{INPUT} Keyword {red}->{reset} ").strip()
-        dork    = f"intitle:{keyword}"
+        if not keyword:
+            ErrorInput()
+        dork = f"intitle:{keyword}"
+
     elif choice == "4":
         keyword = input(f"{INPUT} Keyword {red}->{reset} ").strip()
-        dork    = f"inurl:{keyword}"
+        if not keyword:
+            ErrorInput()
+        dork = f"inurl:{keyword}"
+
     elif choice == "5":
         keyword = input(f"{INPUT} Keyword {red}->{reset} ").strip()
-        dork    = f"intext:{keyword}"
+        if not keyword:
+            ErrorInput()
+        dork = f"intext:{keyword}"
+
     elif choice == "6":
         site = input(f"{INPUT} Site {red}->{reset} ").strip()
+        if not site:
+            ErrorInput()
         dork = f"cache:{site}"
+
     elif choice == "7":
         site = input(f"{INPUT} Site {red}->{reset} ").strip()
+        if not site:
+            ErrorInput()
         dork = f"related:{site}"
+
     elif choice == "8":
         dork = input(f"{INPUT} Dork {red}->{reset} ").strip()
         if not dork:
             ErrorInput()
+
     else:
         ErrorChoice()
 
@@ -69,10 +93,15 @@ try:
 
     print(f"{LOADING} Opening..", reset)
 
-    url = f"https://www.google.com/search?q={dork.replace(' ', '+')}"
-    webbrowser.open(url)
+    url = f"https://www.google.com/search?q={quote_plus(dork)}"
 
-    print(f"{SUCCESS} Dork:{red} {dork}", reset)
+    try:
+        webbrowser.open(url)
+        print(f"{SUCCESS} Dork:{red} {dork}", reset)
+        print(f"{SUCCESS} Url:{red} {url}", reset)
+    except Exception:
+        print(f"{ERROR} Could not open browser!", reset)
+        print(f"{INFO} Url:{red} {url}", reset)
 
     Continue()
     Reset()

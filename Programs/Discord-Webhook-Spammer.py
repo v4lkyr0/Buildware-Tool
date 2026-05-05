@@ -17,7 +17,6 @@ except Exception as e:
     MissingModule(e)
 
 Title("Webhook Spammer")
-Connection()
 
 Scroll(GradientBanner(discord_banner))
 
@@ -39,42 +38,67 @@ try:
         threads_number = int(input(f"{INPUT} Threads {red}->{reset} ").strip())
         if threads_number <= 0:
             ErrorNumber()
+        if threads_number > 50:
+            threads_number = 50
     except:
         ErrorNumber()
 
     print(f"{LOADING} Starting..", reset)
 
-    success_count = 0
-    lock          = threading.Lock()
+    stats = {"sent": 0, "failed": 0}
+    lock  = threading.Lock()
+    stop  = threading.Event()
 
     def Spam():
-        global success_count
+        while not stop.is_set():
+            with lock:
+                if stats["sent"] >= amount:
+                    break
 
-        while success_count < amount:
+            try:
+                response = requests.post(
+                    webhook,
+                    json={"content": message},
+                    headers={"Content-Type": "application/json", "User-Agent": RandomUserAgents()},
+                    timeout=10
+                )
+
+                if response.status_code == 204:
+                    with lock:
+                        stats["sent"] += 1
+                    print(f"{SUCCESS} Sent | Messages:{red} {stats['sent']}", reset)
+
+                elif response.status_code == 429:
+                    retry = response.json().get("retry_after", 1)
+                    print(f"{ERROR} Rate limited!", reset)
+                    time.sleep(retry)
+
+                else:
+                    with lock:
+                        stats["failed"] += 1
+                    print(f"{ERROR} Failed | Code:{red} {response.status_code}", reset)
+
+            except requests.exceptions.Timeout:
+                with lock:
+                    stats["failed"] += 1
+                print(f"{ERROR} Timeout!", reset)
+            except Exception:
+                with lock:
+                    stats["failed"] += 1
+                print(f"{ERROR} Error!", reset)
+
             time.sleep(0.1)
 
-            headers  = {"Content-Type": "application/json", "User-Agent": RandomUserAgents()}
-            response = requests.post(webhook, json={"content": message}, headers=headers)
+    try:
+        threads = [threading.Thread(target=Spam, daemon=True) for _ in range(threads_number)]
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join()
+    except KeyboardInterrupt:
+        stop.set()
 
-            if response.status_code == 204:
-                with lock:
-                    success_count += 1
-                print(f"{SUCCESS} Status:{red} Sent         {white}| Messages:{red} {success_count}", reset)
-            elif response.status_code == 429:
-                retry_after = response.json().get("retry_after", 1)
-                print(f"{ERROR} Status:{red} Rate Limited {white}| Waiting:{red} {retry_after}s", reset)
-                time.sleep(retry_after)
-            else:
-                print(f"{ERROR} Status:{red} Failed       {white}| Code:{red} {response.status_code}", reset)
-
-    thread_list = []
-    for _ in range(threads_number):
-        t = threading.Thread(target=Spam)
-        thread_list.append(t)
-        t.start()
-
-    for t in thread_list:
-        t.join()
+    print(f"\n{SUCCESS} Completed!", reset)
 
     Continue()
     Reset()

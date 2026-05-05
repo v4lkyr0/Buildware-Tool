@@ -17,7 +17,6 @@ except Exception as e:
     MissingModule(e)
 
 Title("Subdomain Finder")
-Connection()
 
 Scroll(GradientBanner(osint_banner))
 
@@ -39,9 +38,11 @@ try:
     if not target:
         ErrorInput()
 
+    target = target.removeprefix("https://").removeprefix("http://").rstrip("/")
+
     try:
         socket.gethostbyname(target)
-    except:
+    except Exception:
         print(f"{ERROR} Could not resolve host!", reset)
         Continue()
         Reset()
@@ -56,13 +57,13 @@ try:
             timeout=10
         )
         if response.status_code == 200:
-            wordlist = response.text.splitlines()
+            wordlist = [w for w in response.text.splitlines() if w.strip()]
             print(f"{SUCCESS} Wordlist:{red} {len(wordlist)} entries", reset)
-    except:
+    except Exception:
         pass
 
     if not wordlist:
-        print(f"{INFO} Using fallback wordlist ({len(fallback_wordlist)} entries)..", reset)
+        print(f"{LOADING} Using fallback wordlist..", reset)
         wordlist = fallback_wordlist
 
     print(f"{LOADING} Scanning..", reset)
@@ -79,16 +80,16 @@ try:
                 with lock:
                     found.append((subdomain, resolved))
                     print(f"{SUCCESS} Subdomain:{red} {subdomain:<45}{white} | Ip:{red} {resolved}", reset)
-            except:
+            except Exception:
                 pass
 
-    threads = [threading.Thread(target=ScanSubdomain, args=(sub,)) for sub in wordlist if sub.strip()]
+    threads = [threading.Thread(target=ScanSubdomain, args=(sub,), daemon=True) for sub in wordlist]
     for t in threads:
         t.start()
     for t in threads:
         t.join()
 
-    print(f"\n{SUCCESS} Found:{red} {len(found)} subdomains", reset)
+    print(f"\n{SUCCESS} Found:{red} {len(found)}{white} subdomain(s)", reset)
 
     Continue()
     Reset()

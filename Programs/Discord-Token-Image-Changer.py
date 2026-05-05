@@ -17,43 +17,65 @@ except Exception as e:
     MissingModule(e)
 
 Title("Token Image Changer")
-Connection()
 
 Scroll(GradientBanner(discord_banner))
 
 def HasNitro(token):
     try:
         headers  = {"Authorization": token, "User-Agent": RandomUserAgents()}
-        response = requests.get("https://discord.com/api/v9/users/@me", headers=headers)
+        response = requests.get("https://discord.com/api/v9/users/@me", headers=headers, timeout=10)
         if response.status_code == 200:
             return response.json().get("premium_type", 0) in [1, 2]
-    except:
+    except Exception:
         pass
     return False
-
-def ChoiceImage(token, title_text):
-    if HasNitro(token):
-        file_types = [("Image Files", "*.png;*.jpg;*.jpeg;*.gif")]
-    else:
-        file_types = [("Image Files", "*.png;*.jpg;*.jpeg")]
-    return BrowseFile(title_text, file_types)
 
 def ChangeImage(token, image_path, field, label):
     print(f"{LOADING} Changing..", reset)
 
-    headers   = {"Authorization": token, "Content-Type": "application/json", "User-Agent": RandomUserAgents()}
-    mime_types = {".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".gif": "image/gif"}
+    headers    = {
+        "Authorization": token,
+        "Content-Type" : "application/json",
+        "User-Agent"   : RandomUserAgents(),
+    }
+    mime_types = {
+        ".png" : "image/png",
+        ".jpg" : "image/jpeg",
+        ".jpeg": "image/jpeg",
+        ".gif" : "image/gif",
+    }
 
-    with open(image_path, "rb") as image_file:
-        image_data = base64.b64encode(image_file.read()).decode('utf-8')
+    try:
+        with open(image_path, "rb") as f:
+            image_data = base64.b64encode(f.read()).decode("utf-8")
+    except Exception:
+        print(f"{ERROR} Could not read image file!", reset)
+        return
 
     ext       = Path(image_path).suffix.lower()
     mime_type = mime_types.get(ext, "image/png")
-    response  = requests.patch("https://discord.com/api/v9/users/@me", headers=headers, json={field: f"data:{mime_type};base64,{image_data}"})
 
-    if response.status_code == 200:
-        print(f"{SUCCESS} {label} changed!", reset)
-    else:
+    try:
+        response = requests.patch(
+            "https://discord.com/api/v9/users/@me",
+            headers=headers,
+            json={field: f"data:{mime_type};base64,{image_data}"},
+            timeout=10
+        )
+
+        if response.status_code == 200:
+            print(f"{SUCCESS} {label} changed!", reset)
+        elif response.status_code == 401:
+            print(f"{ERROR} Invalid token!", reset)
+        elif response.status_code == 429:
+            retry = response.json().get("retry_after", 1)
+            print(f"{ERROR} Rate limited!", reset)
+        else:
+            print(f"{ERROR} Could not change {label}!", reset)
+
+    except requests.exceptions.Timeout:
+        print(f"{ERROR} Request timed out!", reset)
+    except Exception:
         print(f"{ERROR} Could not change {label}!", reset)
 
 try:
@@ -77,7 +99,15 @@ try:
     else:
         ErrorChoice()
 
-    image_path = ChoiceImage(token, title_text)
+    has_nitro  = HasNitro(token)
+    file_types = [("Image Files", "*.png;*.jpg;*.jpeg;*.gif")] if has_nitro else [("Image Files", "*.png;*.jpg;*.jpeg")]
+
+    if not has_nitro and field == "banner":
+        print(f"{ERROR} Banner requires Nitro!", reset)
+        Continue()
+        Reset()
+
+    image_path = BrowseFile(title_text, file_types)
 
     if not image_path:
         print(f"{ERROR} No image selected!", reset)

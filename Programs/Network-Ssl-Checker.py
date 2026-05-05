@@ -12,12 +12,11 @@ from Plugins.Config import *
 try:
     import ssl
     import socket
-    from datetime import datetime
+    from datetime import datetime, timezone
 except Exception as e:
     MissingModule(e)
 
 Title("Ssl Checker")
-Connection()
 
 Scroll(GradientBanner(network_banner))
 
@@ -27,9 +26,11 @@ try:
     if not target:
         ErrorInput()
 
+    target = target.removeprefix("https://").removeprefix("http://").rstrip("/")
+
     try:
         resolved = socket.gethostbyname(target)
-    except:
+    except Exception:
         print(f"{ERROR} Could not resolve domain!", reset)
         Continue()
         Reset()
@@ -44,49 +45,50 @@ try:
         cert        = conn.getpeercert()
         cipher      = conn.cipher()
         tls_version = conn.version()
-        conn.close()
-
-        subject     = dict(x[0] for x in cert["subject"])
-        issuer      = dict(x[0] for x in cert["issuer"])
-        valid_from  = cert["notBefore"]
-        valid_to    = cert["notAfter"]
-        version     = cert["version"]
-        serial      = cert.get("serialNumber", "None")
-        san         = cert.get("subjectAltName", [])
-        san_list    = ", ".join([v for _, v in san]) if san else "None"
 
         try:
-            valid_to_dt  = datetime.strptime(valid_to, "%b %d %H:%M:%S %Y %Z")
-            days_left    = (valid_to_dt - datetime.utcnow()).days
-            expiry_str   = f"{valid_to} ({days_left} days left)"
-        except:
-            expiry_str   = valid_to
-            days_left    = -1
+            conn.close()
+        except Exception:
+            pass
 
-        if days_left < 0:
-            expiry_status = "Expired"
-        elif days_left < 30:
-            expiry_status = "Expiring soon"
-        else:
-            expiry_status = "Valid"
+        subject    = dict(x[0] for x in cert["subject"])
+        issuer     = dict(x[0] for x in cert["issuer"])
+        valid_from = cert["notBefore"]
+        valid_to   = cert["notAfter"]
+        version    = cert["version"]
+        serial     = cert.get("serialNumber", "None")
+        san        = cert.get("subjectAltName", [])
+        san_list   = ", ".join([v for _, v in san]) if san else "None"
+
+        try:
+            valid_to_dt = datetime.strptime(valid_to, "%b %d %H:%M:%S %Y %Z").replace(tzinfo=timezone.utc)
+            days_left   = (valid_to_dt - datetime.now(timezone.utc)).days
+            expiry_str  = f"{valid_to} ({days_left} days left)"
+        except Exception:
+            expiry_str = valid_to
+            days_left  = -1
 
         Scroll(f"""
- {SUCCESS} Common Name  :{red} {subject.get('commonName', 'None')}{white}
+ {SUCCESS} Common Name  :{red} {subject.get('commonName',    'None')}{white}
  {SUCCESS} Organization :{red} {subject.get('organizationName', 'None')}{white}
- {SUCCESS} Issuer       :{red} {issuer.get('organizationName', 'None')}{white}
- {SUCCESS} Issuer CN    :{red} {issuer.get('commonName', 'None')}{white}
+ {SUCCESS} Issuer       :{red} {issuer.get('organizationName',  'None')}{white}
+ {SUCCESS} Issuer CN    :{red} {issuer.get('commonName',     'None')}{white}
  {SUCCESS} Valid From   :{red} {valid_from}{white}
  {SUCCESS} Valid To     :{red} {expiry_str}{white}
- {SUCCESS} Status       :{red} {expiry_status}{white}
  {SUCCESS} Version      :{red} {version}{white}
  {SUCCESS} Serial       :{red} {serial}{white}
  {SUCCESS} Tls Version  :{red} {tls_version}{white}
  {SUCCESS} Cipher       :{red} {cipher[0] if cipher else 'None'}{white}
  {SUCCESS} San          :{red} {san_list[:150]}{white}
 """)
+
     except ssl.SSLCertVerificationError:
         print(f"{ERROR} Certificate verification failed!", reset)
-    except:
+    except ssl.SSLError as e:
+        print(f"{ERROR} SSL error:{red} {e}", reset)
+    except ConnectionRefusedError:
+        print(f"{ERROR} Port 443 is closed!", reset)
+    except Exception:
         print(f"{ERROR} Could not retrieve SSL certificate!", reset)
 
     Continue()

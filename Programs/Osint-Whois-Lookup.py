@@ -15,7 +15,6 @@ except Exception as e:
     MissingModule(e)
 
 Title("Whois Lookup")
-Connection()
 
 Scroll(GradientBanner(osint_banner))
 
@@ -25,18 +24,25 @@ try:
     if not target:
         ErrorInput()
 
+    target = target.removeprefix("https://").removeprefix("http://").rstrip("/")
+
     print(f"{LOADING} Looking up..", reset)
+
+    def Clean(value):
+        if not value:
+            return "None"
+        if isinstance(value, list):
+            unique = list(dict.fromkeys([str(v).strip() for v in value if v]))
+            return ", ".join(unique[:3]) + (" ..." if len(unique) > 3 else "")
+        return str(value).strip() or "None"
 
     try:
         data = whois.whois(target)
 
-        def Clean(value):
-            if not value:
-                return "None"
-            if isinstance(value, list):
-                unique = list(dict.fromkeys([str(v).strip() for v in value if v]))
-                return ", ".join(unique[:3]) + (" ..." if len(unique) > 3 else "")
-            return str(value).strip() or "None"
+        if not data or not data.domain_name:
+            print(f"{ERROR} Could not fetch Whois information!", reset)
+            Continue()
+            Reset()
 
         name_servers = data.name_servers
         if isinstance(name_servers, (list, set)):
@@ -62,7 +68,8 @@ try:
  {SUCCESS} Dnssec       :{red} {Clean(data.dnssec)}{white}
  {SUCCESS} Whois Server :{red} {Clean(data.whois_server)}{white}
 """)
-    except:
+
+    except Exception:
         print(f"{ERROR} Could not fetch Whois information!", reset)
 
     Continue()

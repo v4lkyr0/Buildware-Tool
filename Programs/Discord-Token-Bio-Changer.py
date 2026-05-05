@@ -11,11 +11,11 @@ from Plugins.Config import *
 
 try:
     import requests
+    import time
 except Exception as e:
     MissingModule(e)
 
 Title("Token Bio Changer")
-Connection()
 
 Scroll(GradientBanner(discord_banner))
 
@@ -23,14 +23,40 @@ try:
     token   = ChoiceToken()
     new_bio = input(f"{INPUT} Bio {red}->{reset} ").strip()
 
+    if len(new_bio) > 190:
+        print(f"{ERROR} Bio too long! Max:{red} 190{white} characters.", reset)
+        Continue()
+        Reset()
+
     print(f"{LOADING} Changing..", reset)
 
-    headers  = {"Authorization": token, "Content-Type": "application/json", "User-Agent": RandomUserAgents()}
-    response = requests.patch("https://discord.com/api/v9/users/@me/profile", headers=headers, json={"bio": new_bio})
+    headers = {
+        "Authorization": token,
+        "Content-Type" : "application/json",
+        "User-Agent"   : RandomUserAgents(),
+    }
 
-    if response.status_code == 200:
-        print(f"{SUCCESS} Bio changed!", reset)
-    else:
+    try:
+        response = requests.patch(
+            "https://discord.com/api/v9/users/@me/profile",
+            headers=headers,
+            json={"bio": new_bio},
+            timeout=10
+        )
+
+        if response.status_code == 200:
+            print(f"{SUCCESS} Bio changed!", reset)
+        elif response.status_code == 429:
+            retry = response.json().get("retry_after", 1)
+            print(f"{ERROR} Rate limited!", reset)
+        elif response.status_code == 401:
+            print(f"{ERROR} Invalid token!", reset)
+        else:
+            print(f"{ERROR} Could not change bio!", reset)
+
+    except requests.exceptions.Timeout:
+        print(f"{ERROR} Request timed out!", reset)
+    except Exception:
         print(f"{ERROR} Could not change bio!", reset)
 
     Continue()

@@ -11,3 +11,5 @@ qrcode
 beautifulsoup4
 whois
 pyspeedtest
+pycryptodome
+pyzipper

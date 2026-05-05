@@ -16,7 +16,6 @@ except Exception as e:
     MissingModule(e)
 
 Title("Dns Lookup")
-Connection()
 
 Scroll(GradientBanner(network_banner))
 
@@ -26,9 +25,11 @@ try:
     if not target:
         ErrorInput()
 
+    target = target.removeprefix("https://").removeprefix("http://").rstrip("/")
+
     try:
         socket.gethostbyname(target)
-    except:
+    except Exception:
         print(f"{ERROR} Could not resolve domain!", reset)
         Continue()
         Reset()
@@ -50,7 +51,7 @@ try:
                     continue
                 print(f"{SUCCESS} {record_type:<8}{red}|{white} {text}", reset)
                 found = True
-        except:
+        except Exception:
             pass
 
     if not found:

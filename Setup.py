@@ -7,32 +7,31 @@
 #     les crédits ou redistribuer sans autorisation écrite.
 
 from Programs.Plugins.Config import *
-from Programs.Plugins.Utils import Title
 
 import os
 import sys
+import subprocess
+import webbrowser
 
-Title("Setup")
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 def OpenLinks():
     try:
-        import webbrowser
         webbrowser.open(github_url)
         webbrowser.open(gunslol_url)
-    except:
+    except Exception:
         pass
 
 if sys.platform.startswith("win"):
     os.system("cls")
-    print(f"Installing required modules for {name_tool}:")
-    os.system("python -m pip install --upgrade pip")
-    os.system("pip install -r requirements.txt")
-    OpenLinks()
-    os.system("python Buildware.py")
 elif sys.platform.startswith("linux"):
     os.system("clear")
-    print(f"Installing required modules for {name_tool}:")
-    os.system("python3 -m pip install --upgrade pip")
-    os.system("pip3 install -r requirements.txt")
-    OpenLinks()
-    os.system("python3 Buildware.py")
+
+print(f"Installing required modules for {name_tool}..")
+
+subprocess.run([sys.executable, "-m", "pip", "install", "--upgrade", "pip"])
+subprocess.run([sys.executable, "-m", "pip", "install", "-r", os.path.join(os.path.dirname(os.path.abspath(__file__)), "requirements.txt")])
+
+OpenLinks()
+
+subprocess.run([sys.executable, os.path.join(os.path.dirname(os.path.abspath(__file__)), "Buildware.py")])

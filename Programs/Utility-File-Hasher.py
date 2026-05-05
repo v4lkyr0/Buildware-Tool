@@ -16,16 +16,10 @@ except Exception as e:
     MissingModule(e)
 
 Title("File Hasher")
-Connection()
 
 Scroll(GradientBanner(utilities_banner))
 
 try:
-    if tk is None:
-        print(f"{ERROR} Tkinter is not available!", reset)
-        Continue()
-        Reset()
-
     file_path = BrowseFile("Select File")
 
     if not file_path:
@@ -38,17 +32,25 @@ try:
 
     print(f"{LOADING} Hashing..", reset)
 
-    with open(file_path, "rb") as f:
-        data = f.read()
+    try:
+        with open(file_path, "rb") as f:
+            data = f.read()
+    except Exception:
+        print(f"{ERROR} Could not read file!", reset)
+        Continue()
+        Reset()
 
     md5    = hashlib.md5(data).hexdigest()
     sha1   = hashlib.sha1(data).hexdigest()
     sha256 = hashlib.sha256(data).hexdigest()
     sha512 = hashlib.sha512(data).hexdigest()
 
+    size   = os.path.getsize(file_path)
+    size_str = f"{round(size / 1024 / 1024, 2)} MB" if size >= 1024 * 1024 else f"{round(size / 1024, 2)} KB"
+
     Scroll(f"""
  {SUCCESS} File   :{red} {os.path.basename(file_path)}{white}
- {SUCCESS} Size   :{red} {round(os.path.getsize(file_path) / 1024, 2)} Kb{white}
+ {SUCCESS} Size   :{red} {size_str}{white}
  {SUCCESS} Md5    :{red} {md5}{white}
  {SUCCESS} Sha1   :{red} {sha1}{white}
  {SUCCESS} Sha256 :{red} {sha256}{white}

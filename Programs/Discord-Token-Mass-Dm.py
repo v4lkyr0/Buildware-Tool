@@ -17,7 +17,6 @@ except Exception as e:
     MissingModule(e)
 
 Title("Token Mass Dm")
-Connection()
 
 Scroll(GradientBanner(discord_banner))
 
@@ -35,50 +34,83 @@ try:
     except:
         ErrorNumber()
 
-    headers  = {"Authorization": token, "Content-Type": "application/json", "User-Agent": RandomUserAgents()}
-    channels = requests.get("https://discord.com/api/v9/users/@me/channels", headers=headers).json()
+    headers = {
+        "Authorization": token,
+        "Content-Type" : "application/json",
+        "User-Agent"   : RandomUserAgents(),
+    }
 
-    if not channels:
-        print(f"{ERROR} No dms found!", reset)
+    print(f"{LOADING} Fetching DMs..", reset)
+
+    try:
+        r = requests.get("https://discord.com/api/v9/users/@me/channels", headers=headers, timeout=10)
+        if r.status_code != 200:
+            print(f"{ERROR} Could not fetch DMs!", reset)
+            Continue()
+            Reset()
+        channels = r.json()
+    except Exception:
+        print(f"{ERROR} Could not connect!", reset)
         Continue()
         Reset()
 
+    dm_channels = [c for c in channels if c.get("type") == 1]
+
+    if not dm_channels:
+        print(f"{ERROR} No DMs found!", reset)
+        Continue()
+        Reset()
+
+    print(f"{SUCCESS} Found:{red} {len(dm_channels)}{white} DM(s)", reset)
     print(f"{LOADING} Sending..", reset)
 
     sent_count   = 0
     failed_count = 0
+    lock         = threading.Lock()
 
-    def MassDm(token, chunk, message):
-        global sent_count, failed_count
-        for channel in chunk:
-            for user in [x["username"] for x in channel.get("recipients", [])]:
-                response = requests.post(
-                    f"https://discord.com/api/v9/channels/{channel['id']}/messages",
-                    headers={"Authorization": token, "Content-Type": "application/json", "User-Agent": RandomUserAgents()},
-                    json={"content": message}
-                )
-                if response.status_code in [200, 201]:
-                    sent_count += 1
-                    print(f"{SUCCESS} Status:{red} Sent    {white}| User:{red} {user}{white} | Total:{red} {sent_count}", reset)
-                else:
-                    failed_count += 1
-                    print(f"{ERROR} Status:{red} Failed  {white}| User:{red} {user}", reset)
-                time.sleep(0.1)
+    stats = {"sent": 0, "failed": 0}
 
-    threads    = []
-    chunk_size = 3
+    def SendDm(channel):
+        recipients = channel.get("recipients", [])
+        username   = recipients[0].get("username", "None") if recipients else "None"
+
+        try:
+            response = requests.post(
+                f"https://discord.com/api/v9/channels/{channel['id']}/messages",
+                headers=headers,
+                json={"content": message},
+                timeout=10
+            )
+
+            if response.status_code == 429:
+                retry = response.json().get("retry_after", 1)
+                time.sleep(retry)
+                return
+
+            if response.status_code in [200, 201]:
+                with lock:
+                    stats["sent"] += 1
+                print(f"{SUCCESS} Sent | User:{red} {username}{white} | Total:{red} {stats['sent']}", reset)
+            else:
+                with lock:
+                    stats["failed"] += 1
+                print(f"{ERROR} Failed | User:{red} {username}{white} | Code:{red} {response.status_code}", reset)
+
+        except Exception:
+            with lock:
+                stats["failed"] += 1
+            print(f"{ERROR} Error | User:{red} {username}", reset)
+
+        time.sleep(0.5)
 
     for _ in range(repetitions):
-        for chunk in [channels[j:j + chunk_size] for j in range(0, len(channels), chunk_size)]:
-            t = threading.Thread(target=MassDm, args=(token, chunk, message))
+        threads = [threading.Thread(target=SendDm, args=(channel,), daemon=True) for channel in dm_channels]
+        for t in threads:
             t.start()
-            threads.append(t)
-            time.sleep(0.1)
+        for t in threads:
+            t.join()
 
-    for thread in threads:
-        thread.join()
-
-    print(f"{SUCCESS} Sent:{red} {sent_count}{white} | Failed:{red} {failed_count}", reset)
+    print(f"\n{SUCCESS} Completed!", reset)
 
     Continue()
     Reset()

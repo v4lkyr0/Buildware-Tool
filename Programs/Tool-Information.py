@@ -17,11 +17,13 @@ try:
     Scroll(f"""
  {INFO} Tool Name :{red} {name_tool}{white}
  {INFO} Version   :{red} {version_tool}{white}
- {INFO} Type      :{red} {type_tool}{white}
  {INFO} Author    :{red} {author_tool}{white}
- {INFO} GitHub    :{red} {github_url}{white}
- {INFO} Guns.lol  :{red} {gunslol_url}{white}
+ {INFO} Type      :{red} {type_tool}{white}
  {INFO} License   :{red} {license} ({license_url}){white}
+ {INFO} GitHub    :{red} {github_url}{white}
+ {INFO} Discord   :{red} {discord_url}{white}
+ {INFO} Website   :{red} {website_url}{white}
+ {INFO} Guns.lol  :{red} {gunslol_url}{white}
 """)
 
     Continue()

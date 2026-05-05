@@ -15,20 +15,19 @@ except Exception as e:
     MissingModule(e)
 
 Title("Http Headers")
-Connection()
 
 Scroll(GradientBanner(network_banner))
 
 security_headers = {
-    "Strict-Transport-Security" : "HSTS",
-    "Content-Security-Policy"   : "CSP",
-    "X-Frame-Options"           : "Clickjacking",
-    "X-Content-Type-Options"    : "MIME Sniffing",
-    "Referrer-Policy"           : "Referrer",
-    "Permissions-Policy"        : "Permissions",
-    "X-XSS-Protection"          : "XSS Protection",
-    "Cross-Origin-Opener-Policy": "COOP",
-    "Cross-Origin-Embedder-Policy": "COEP",
+    "Strict-Transport-Security"    : "HSTS",
+    "Content-Security-Policy"      : "CSP",
+    "X-Frame-Options"              : "Clickjacking",
+    "X-Content-Type-Options"       : "MIME Sniffing",
+    "Referrer-Policy"              : "Referrer",
+    "Permissions-Policy"           : "Permissions",
+    "X-XSS-Protection"             : "XSS Protection",
+    "Cross-Origin-Opener-Policy"   : "COOP",
+    "Cross-Origin-Embedder-Policy" : "COEP",
 }
 
 try:
@@ -43,12 +42,31 @@ try:
     print(f"{LOADING} Fetching..", reset)
 
     try:
-        response = requests.get(target, timeout=10, allow_redirects=True)
-        headers  = response.headers
+        response = requests.get(
+            target,
+            headers={"User-Agent": RandomUserAgents()},
+            timeout=10,
+            allow_redirects=True
+        )
+        headers = response.headers
 
+        print(f"\n{INFO} All Headers:\n", reset)
         for key, value in headers.items():
             print(f"{SUCCESS} {key:<40}{red}:{white} {value}", reset)
-    except:
+
+        print(f"\n{INFO} Security Analysis:\n", reset)
+        for header, label in security_headers.items():
+            if header.lower() in [h.lower() for h in headers.keys()]:
+                value = headers.get(header, "")
+                print(f"{SUCCESS} {label:<20}{red}:{white} Present", reset)
+            else:
+                print(f"{ERROR} {label:<20}{red}:{white} Missing", reset)
+
+    except requests.exceptions.Timeout:
+        print(f"{ERROR} Request timed out!", reset)
+    except requests.exceptions.ConnectionError:
+        print(f"{ERROR} Could not connect to host!", reset)
+    except Exception:
         print(f"{ERROR} Could not fetch headers!", reset)
 
     Continue()

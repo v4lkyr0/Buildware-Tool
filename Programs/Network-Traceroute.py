@@ -16,7 +16,6 @@ except Exception as e:
     MissingModule(e)
 
 Title("Traceroute")
-Connection()
 
 Scroll(GradientBanner(network_banner))
 
@@ -26,9 +25,11 @@ try:
     if not target:
         ErrorInput()
 
+    target = target.removeprefix("https://").removeprefix("http://").rstrip("/")
+
     try:
         resolved = socket.gethostbyname(target)
-    except:
+    except Exception:
         print(f"{ERROR} Could not resolve host!", reset)
         Continue()
         Reset()
@@ -37,12 +38,23 @@ try:
 
     try:
         hops = traceroute(resolved, max_hops=30, timeout=2, privileged=False)
+
+        if not hops:
+            print(f"{ERROR} No hops found!", reset)
+            Continue()
+            Reset()
+
         for hop in hops:
             if hop.is_alive:
-                print(f"{SUCCESS} Hop:{red} {hop.distance:<3}{white} | IP:{red} {hop.address:<16}{white} | Time:{red} {hop.avg_rtt}ms", reset)
+                try:
+                    hostname = socket.gethostbyaddr(hop.address)[0]
+                except Exception:
+                    hostname = "None"
+                print(f"{SUCCESS} Hop:{red} {hop.distance:<3}{white} | Ip:{red} {hop.address:<16}{white} | Time:{red} {round(hop.avg_rtt, 2)}ms{white} | Host:{red} {hostname}", reset)
             else:
-                print(f"{ERROR} Hop:{red} {hop.distance:<3}{white} | {red}* * * Request timed out.", reset)
-    except:
+                print(f"{ERROR} Hop:{red} {hop.distance:<3}{white} | * * * Request timed out.", reset)
+
+    except Exception:
         print(f"{ERROR} Traceroute failed!", reset)
 
     Continue()

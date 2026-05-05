@@ -16,7 +16,6 @@ except Exception as e:
     MissingModule(e)
 
 Title("Bot Raider")
-Connection()
 
 Scroll(GradientBanner(discord_banner))
 
@@ -24,7 +23,7 @@ try:
     bot_token = ChoiceBot()
 
     server_id = input(f"{INPUT} Server Id {red}->{reset} ").strip()
-    if not server_id:
+    if not server_id or not server_id.isdigit():
         ErrorId()
 
     message = input(f"{INPUT} Message {red}->{reset} ").strip()
@@ -45,11 +44,24 @@ try:
     except:
         delay = 0.5
 
-    headers = {"Authorization": f"Bot {bot_token}", "Content-Type": "application/json", "User-Agent": RandomUserAgents()}
+    headers = {
+        "Authorization": f"Bot {bot_token}",
+        "Content-Type" : "application/json",
+        "User-Agent"   : RandomUserAgents(),
+    }
 
     print(f"{LOADING} Fetching channels..", reset)
 
-    channels_response = requests.get(f"https://discord.com/api/v9/guilds/{server_id}/channels", headers=headers)
+    try:
+        channels_response = requests.get(
+            f"https://discord.com/api/v9/guilds/{server_id}/channels",
+            headers=headers,
+            timeout=10
+        )
+    except Exception:
+        print(f"{ERROR} Could not connect!", reset)
+        Continue()
+        Reset()
 
     if channels_response.status_code != 200:
         print(f"{ERROR} Could not fetch channels!", reset)
@@ -68,36 +80,54 @@ try:
     print(f"{LOADING} Starting raid..", reset)
 
     message_count = 0
+    failed_count  = 0
 
-    while True:
-        if message_limit > 0 and message_count >= message_limit:
-            break
+    try:
+        while True:
+            if message_limit > 0 and message_count >= message_limit:
+                break
 
-        for channel in text_channels:
-            try:
+            for channel in text_channels:
+                if message_limit > 0 and message_count >= message_limit:
+                    break
+
                 channel_id   = channel.get("id")
-                channel_name = channel.get("name", "Unknown")
+                channel_name = channel.get("name", "None")
 
-                response = requests.post(
-                    f"https://discord.com/api/v9/channels/{channel_id}/messages",
-                    headers=headers,
-                    json={"content": message}
-                )
+                try:
+                    response = requests.post(
+                        f"https://discord.com/api/v9/channels/{channel_id}/messages",
+                        headers=headers,
+                        json={"content": message},
+                        timeout=10
+                    )
 
-                if response.status_code in [200, 201]:
-                    message_count += 1
-                    print(f"{SUCCESS} Messages:{red} {message_count:<6}{white} | Channel:{red} {channel_name}", reset)
-                else:
-                    print(f"{ERROR} Status:{red} Failed  {white}| Channel:{red} {channel_name}", reset)
+                    if response.status_code == 429:
+                        retry = response.json().get("retry_after", 1)
+                        print(f"{LOADING} Rate limited, waiting {round(retry, 1)}s..", reset)
+                        time.sleep(retry)
+                        continue
+
+                    if response.status_code in [200, 201]:
+                        message_count += 1
+                        print(f"{SUCCESS} Sent:{red} {message_count:<6}{white} | Channel:{red} {channel_name}", reset)
+                    else:
+                        failed_count += 1
+                        print(f"{ERROR} Failed | Channel:{red} {channel_name}{white} | Code:{red} {response.status_code}", reset)
+
+                except requests.exceptions.Timeout:
+                    failed_count += 1
+                    print(f"{ERROR} Timeout | Channel:{red} {channel_name}", reset)
+                except Exception:
+                    failed_count += 1
+                    print(f"{ERROR} Error | Channel:{red} {channel_name}", reset)
 
                 time.sleep(delay)
 
-            except KeyboardInterrupt:
-                print(f"{INFO} Total messages sent:{red} {message_count}", reset)
-                Continue()
-                Reset()
+    except KeyboardInterrupt:
+        pass
 
-    print(f"{INFO} Total messages sent:{red} {message_count}", reset)
+    print(f"\n{SUCCESS} Completed!", reset)
 
     Continue()
     Reset()

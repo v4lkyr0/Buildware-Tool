@@ -20,7 +20,6 @@ except Exception as e:
     MissingModule(e)
 
 Title("Injection Cleaner")
-Connection()
 
 Scroll(GradientBanner(discord_banner))
 
@@ -30,103 +29,143 @@ if platform_pc != "Windows":
     Reset()
 
 paths = {
-    'Discord'             : os.path.join(os.getenv('LOCALAPPDATA', ''), 'Discord'),
-    'Discord Ptb'         : os.path.join(os.getenv('LOCALAPPDATA', ''), 'DiscordPTB'),
-    'Discord Canary'      : os.path.join(os.getenv('LOCALAPPDATA', ''), 'DiscordCanary'),
-    'Discord Development' : os.path.join(os.getenv('LOCALAPPDATA', ''), 'DiscordDevelopment'),
-    'Lightcord'           : os.path.join(os.getenv('APPDATA', ''), 'Lightcord'),
-    'Discord Scoop'       : os.path.join(os.getenv('USERPROFILE', ''), 'scoop', 'apps', 'discord', 'current'),
-    'BetterDiscord'       : os.path.join(os.getenv('APPDATA', ''), 'BetterDiscord'),
+    "Discord"            : os.path.join(os.getenv("LOCALAPPDATA", ""), "Discord"),
+    "Discord PTB"        : os.path.join(os.getenv("LOCALAPPDATA", ""), "DiscordPTB"),
+    "Discord Canary"     : os.path.join(os.getenv("LOCALAPPDATA", ""), "DiscordCanary"),
+    "Discord Development": os.path.join(os.getenv("LOCALAPPDATA", ""), "DiscordDevelopment"),
+    "Lightcord"          : os.path.join(os.getenv("APPDATA",      ""), "Lightcord"),
+    "Discord Scoop"      : os.path.join(os.getenv("USERPROFILE",  ""), "scoop", "apps", "discord", "current"),
+    "BetterDiscord"      : os.path.join(os.getenv("APPDATA",      ""), "BetterDiscord"),
 }
 
-discord_processes = ['Discord.exe', 'DiscordPTB.exe', 'DiscordCanary.exe', 'DiscordDevelopment.exe', 'Lightcord.exe']
+discord_processes = [
+    "Discord.exe", "DiscordPTB.exe", "DiscordCanary.exe",
+    "DiscordDevelopment.exe", "Lightcord.exe",
+]
+
+injection_markers = ["_0xW", "dQw4w9WgXcQ", "wSend", "capToken"]
+
+persist_files = [
+    os.path.join(os.getenv("APPDATA", ""), "Microsoft", "DiscordUpdate.exe"),
+    os.path.join(os.getenv("APPDATA", ""), "Microsoft", "DiscordUpdate.pyw"),
+    os.path.join(os.getenv("APPDATA", ""), "Microsoft", "DiscordUpdate.py"),
+    os.path.join(os.getenv("APPDATA", ""), "Microsoft", "DiscordHelper.exe"),
+    os.path.join(os.getenv("APPDATA", ""), "Microsoft", "DiscordHelper.py"),
+]
+
+registry_keys = [
+    ("DiscordUpdate", "Software\\Microsoft\\Windows\\CurrentVersion\\Run"),
+    ("DiscordHelper", "Software\\Microsoft\\Windows\\CurrentVersion\\Run"),
+    ("Discord",       "Software\\Microsoft\\Windows\\CurrentVersion\\Run"),
+]
+
+def IsInfected(content):
+    return any(marker in content for marker in injection_markers)
 
 def FindModules(base_path):
     modules = []
     try:
         for entry in sorted(os.listdir(base_path), reverse=True):
-            if not entry.startswith('app'):
+            if not entry.startswith("app"):
                 continue
-            app_path   = os.path.join(base_path, entry)
+            app_path    = os.path.join(base_path, entry)
             if not os.path.isdir(app_path):
                 continue
-            modules_dir = os.path.join(app_path, 'modules')
+            modules_dir = os.path.join(app_path, "modules")
             if not os.path.exists(modules_dir):
                 continue
             for mod in os.listdir(modules_dir):
-                if mod.startswith('discord_desktop_core'):
-                    core = os.path.join(modules_dir, mod, 'discord_desktop_core')
+                if mod.startswith("discord_desktop_core"):
+                    core = os.path.join(modules_dir, mod, "discord_desktop_core")
                     if os.path.exists(core):
                         modules.append(core)
-    except:
+    except Exception:
         pass
     return modules
 
 def CleanModule(module_path):
-    index_file  = os.path.join(module_path, 'index.js')
-    backup_file = os.path.join(module_path, 'index.js.bak')
+    index_file  = os.path.join(module_path, "index.js")
+    backup_file = os.path.join(module_path, "index.js.bak")
+
     if not os.path.exists(index_file):
-        return 'missing'
+        return "missing"
+
     try:
-        with open(index_file, 'r', encoding='utf-8', errors='ignore') as f:
+        with open(index_file, "r", encoding="utf-8", errors="ignore") as f:
             content = f.read()
-        if '_0xW' not in content:
-            return 'clean'
+
+        if not IsInfected(content):
+            return "clean"
+
         if os.path.exists(backup_file):
-            shutil.copy2(backup_file, index_file)
-            os.remove(backup_file)
-            return 'restored'
-        idx = content.find('module.exports')
+            with open(backup_file, "r", encoding="utf-8", errors="ignore") as f:
+                backup_content = f.read()
+            if not IsInfected(backup_content):
+                shutil.copy2(backup_file, index_file)
+                os.remove(backup_file)
+                return "restored"
+
+        idx = content.find("module.exports")
         if idx != -1:
-            with open(index_file, 'w', encoding='utf-8') as f:
-                f.write(content[idx:])
-            return 'stripped'
-        return 'invalid'
-    except:
-        return 'error'
+            clean_content = content[idx:]
+            if not IsInfected(clean_content):
+                with open(index_file, "w", encoding="utf-8") as f:
+                    f.write(clean_content)
+                if os.path.exists(backup_file):
+                    os.remove(backup_file)
+                return "stripped"
+
+        return "invalid"
+    except Exception:
+        return "error"
 
 def KillDiscord():
     killed = []
-    for proc in psutil.process_iter(['name']):
+    for proc in psutil.process_iter(["name"]):
         try:
-            if proc.info['name'] in discord_processes:
+            if proc.info["name"] in discord_processes:
                 proc.kill()
-                killed.append(proc.info['name'].replace('.exe', ''))
-        except:
+                killed.append(proc.info["name"].replace(".exe", ""))
+        except Exception:
             pass
     return list(set(killed))
 
 def RestartDiscord():
-    started    = []
+    started       = []
     restart_paths = {
-        'Discord'            : os.path.join(os.getenv('LOCALAPPDATA', ''), 'Discord'),
-        'DiscordPTB'         : os.path.join(os.getenv('LOCALAPPDATA', ''), 'DiscordPTB'),
-        'DiscordCanary'      : os.path.join(os.getenv('LOCALAPPDATA', ''), 'DiscordCanary'),
-        'DiscordDevelopment' : os.path.join(os.getenv('LOCALAPPDATA', ''), 'DiscordDevelopment'),
+        "Discord"            : os.path.join(os.getenv("LOCALAPPDATA", ""), "Discord"),
+        "DiscordPTB"         : os.path.join(os.getenv("LOCALAPPDATA", ""), "DiscordPTB"),
+        "DiscordCanary"      : os.path.join(os.getenv("LOCALAPPDATA", ""), "DiscordCanary"),
+        "DiscordDevelopment" : os.path.join(os.getenv("LOCALAPPDATA", ""), "DiscordDevelopment"),
     }
     for name, path in restart_paths.items():
-        exe = os.path.join(path, 'Update.exe')
+        exe = os.path.join(path, "Update.exe")
         if os.path.exists(exe):
             try:
-                ctypes.windll.shell32.ShellExecuteW(None, 'open', exe, f'--processStart {name}.exe', None, 0)
+                ctypes.windll.shell32.ShellExecuteW(None, "open", exe, f"--processStart {name}.exe", None, 0)
                 started.append(name)
-            except:
+            except Exception:
                 continue
     return started
 
 def RemovePersistence():
-    try:
-        key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, 'Software\\Microsoft\\Windows\\CurrentVersion\\Run', 0, winreg.KEY_SET_VALUE | winreg.KEY_QUERY_VALUE)
+    removed = []
+    for value_name, key_path in registry_keys:
         try:
-            winreg.QueryValueEx(key, 'DiscordUpdate')
-            winreg.DeleteValue(key, 'DiscordUpdate')
+            key = winreg.OpenKey(
+                winreg.HKEY_CURRENT_USER, key_path, 0,
+                winreg.KEY_SET_VALUE | winreg.KEY_QUERY_VALUE
+            )
+            try:
+                winreg.QueryValueEx(key, value_name)
+                winreg.DeleteValue(key, value_name)
+                removed.append(value_name)
+            except Exception:
+                pass
             winreg.CloseKey(key)
-            return True
-        except:
-            winreg.CloseKey(key)
-            return False
-    except:
-        return False
+        except Exception:
+            pass
+    return removed
 
 try:
     print(f"{LOADING} Scanning..", reset)
@@ -138,25 +177,28 @@ try:
             continue
         modules = FindModules(path)
         for module in modules:
-            index_file = os.path.join(module, 'index.js')
+            index_file = os.path.join(module, "index.js")
             if not os.path.exists(index_file):
                 continue
-            with open(index_file, 'r', encoding='utf-8', errors='ignore') as f:
-                content = f.read()
-            if '_0xW' in content:
-                infected.append((name, module))
+            try:
+                with open(index_file, "r", encoding="utf-8", errors="ignore") as f:
+                    content = f.read()
+                if IsInfected(content):
+                    infected.append((name, module))
+            except Exception:
+                pass
 
     if not infected:
         print(f"{SUCCESS} No injection found!", reset)
         Continue()
         Reset()
 
-    print(f"{INFO} Found:{red} {len(infected)}{white} infected client(s)", reset)
+    print(f"{ERROR} Found:{red} {len(infected)}{white} infected client(s)!", reset)
 
     for name, path in infected:
         print(f"{ERROR} Client:{red} {name}{white} | Path:{red} {path}", reset)
 
-    confirm = input(f"{INPUT} Remove all injections? {YESORNO} {red}->{reset} ").strip().lower()
+    confirm = input(f"\n{INPUT} Remove all injections? {YESORNO} {red}->{reset} ").strip().lower()
 
     if confirm not in ["y", "yes"]:
         print(f"{INFO} Cancelled.", reset)
@@ -170,39 +212,44 @@ try:
     if killed:
         print(f"{SUCCESS} Killed:{red} {', '.join(killed)}", reset)
         time.sleep(2)
+    else:
+        print(f"{INFO} No Discord process was running.", reset)
 
     cleaned = 0
+    failed  = 0
 
     for name, module in infected:
         result = CleanModule(module)
-        if result == 'restored':
-            print(f"{SUCCESS} Client:{red} {name}{white} | Status:{red} Restored from backup", reset)
+        if result == "restored":
+            print(f"{SUCCESS} Client:{red} {name}{white} | Restored from backup", reset)
             cleaned += 1
-        elif result == 'stripped':
-            print(f"{SUCCESS} Client:{red} {name}{white} | Status:{red} Injection stripped", reset)
+        elif result == "stripped":
+            print(f"{SUCCESS} Client:{red} {name}{white} | Injection stripped", reset)
             cleaned += 1
-        elif result == 'error':
-            print(f"{ERROR} Client:{red} {name}{white} | Status:{red} Failed to clean", reset)
+        elif result == "invalid":
+            print(f"{ERROR} Client:{red} {name}{white} | Could not find module.exports", reset)
+            failed += 1
+        elif result == "error":
+            print(f"{ERROR} Client:{red} {name}{white} | Failed to clean", reset)
+            failed += 1
 
     print(f"{LOADING} Checking registry..", reset)
 
-    if RemovePersistence():
-        print(f"{SUCCESS} Registry startup entry removed!", reset)
+    removed_keys = RemovePersistence()
+    if removed_keys:
+        for key in removed_keys:
+            print(f"{SUCCESS} Registry key removed:{red} {key}", reset)
     else:
         print(f"{INFO} No registry startup entry found.", reset)
 
-    persist_files = [
-        os.path.join(os.getenv('APPDATA', ''), 'Microsoft', 'DiscordUpdate.exe'),
-        os.path.join(os.getenv('APPDATA', ''), 'Microsoft', 'DiscordUpdate.pyw'),
-        os.path.join(os.getenv('APPDATA', ''), 'Microsoft', 'DiscordUpdate.py'),
-    ]
+    print(f"{LOADING} Checking persistence files..", reset)
 
     for pf in persist_files:
         if os.path.exists(pf):
             try:
                 os.remove(pf)
                 print(f"{SUCCESS} Removed:{red} {pf}", reset)
-            except:
+            except Exception:
                 print(f"{ERROR} Could not remove:{red} {pf}", reset)
 
     if killed:
@@ -211,7 +258,7 @@ try:
         if started:
             print(f"{SUCCESS} Restarted:{red} {', '.join(started)}", reset)
 
-    print(f"{SUCCESS} Cleaned:{red} {cleaned}/{len(infected)}{white} client(s)!", reset)
+    print(f"\n{SUCCESS} Cleaned:{red} {cleaned}/{len(infected)}{white} client(s)!", reset)
 
     Continue()
     Reset()

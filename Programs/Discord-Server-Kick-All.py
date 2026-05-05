@@ -16,7 +16,6 @@ except Exception as e:
     MissingModule(e)
 
 Title("Server Kick All")
-Connection()
 
 Scroll(GradientBanner(discord_banner))
 
@@ -24,7 +23,7 @@ try:
     token = ChoiceToken()
 
     server_id = input(f"{INPUT} Server Id {red}->{reset} ").strip()
-    if not server_id:
+    if not server_id or not server_id.isdigit():
         ErrorId()
 
     kick_reason = input(f"{INPUT} Reason {red}->{reset} ").strip()
@@ -38,25 +37,51 @@ try:
     except:
         delay = 0.5
 
-    headers = {"Authorization": token, "Content-Type": "application/json", "User-Agent": RandomUserAgents()}
+    headers = {
+        "Authorization": token,
+        "Content-Type" : "application/json",
+        "User-Agent"   : RandomUserAgents(),
+    }
+
+    def ApiGet(url):
+        while True:
+            try:
+                r = requests.get(url, headers=headers, timeout=10)
+                if r.status_code == 429:
+                    time.sleep(r.json().get("retry_after", 1))
+                    continue
+                return r
+            except Exception:
+                return None
+
+    def ApiDelete(url):
+        while True:
+            try:
+                r = requests.delete(url, headers=headers, timeout=10)
+                if r.status_code == 429:
+                    time.sleep(r.json().get("retry_after", 1))
+                    continue
+                return r
+            except Exception:
+                return None
 
     print(f"{LOADING} Fetching members..", reset)
 
     members = []
-    limit   = 1000
     after   = 0
 
     while True:
-        response = requests.get(f"https://discord.com/api/v9/guilds/{server_id}/members?limit={limit}&after={after}", headers=headers, timeout=10)
-        if response.status_code != 200:
+        r = ApiGet(f"https://discord.com/api/v9/guilds/{server_id}/members?limit=1000&after={after}")
+        if not r or r.status_code != 200:
             break
-        batch = response.json()
+        batch = r.json()
         if not batch:
             break
         members.extend(batch)
         after = int(batch[-1]["user"]["id"])
-        if len(batch) < limit:
+        if len(batch) < 1000:
             break
+        time.sleep(0.5)
 
     if not members:
         print(f"{ERROR} No members found!", reset)
@@ -67,25 +92,29 @@ try:
     print(f"{LOADING} Kicking..", reset)
 
     kicked_count = 0
+    failed_count = 0
 
     for member in members:
-        user_id  = member.get("user", {}).get("id")
-        username = member.get("user", {}).get("username", "Unknown")
+        user    = member.get("user", {})
+        user_id = user.get("id")
+        username = user.get("username", "None")
 
-        response = requests.delete(f"https://discord.com/api/v9/guilds/{server_id}/members/{user_id}", headers=headers, params={"reason": kick_reason}, timeout=10)
+        if not user_id or user.get("bot"):
+            continue
 
-        if response.status_code in [200, 204]:
+        resp = ApiDelete(f"https://discord.com/api/v9/guilds/{server_id}/members/{user_id}")
+
+        if resp and resp.status_code in [200, 204]:
             kicked_count += 1
             print(f"{SUCCESS} Kicked:{red} {kicked_count:<6}{white} | User:{red} {username}", reset)
-        elif response.status_code == 429:
-            print(f"{ERROR} Status:{red} Limited {white}| User:{red} {username}", reset)
-            time.sleep(2)
         else:
-            print(f"{ERROR} Status:{red} Failed  {white}| User:{red} {username}", reset)
+            failed_count += 1
+            code = resp.status_code if resp else "None"
+            print(f"{ERROR} Failed | User:{red} {username}{white} | Code:{red} {code}", reset)
 
         time.sleep(delay)
 
-    print(f"{INFO} Total kicked:{red} {kicked_count}/{len(members)}", reset)
+    print(f"\n{SUCCESS} Completed!", reset)
 
     Continue()
     Reset()

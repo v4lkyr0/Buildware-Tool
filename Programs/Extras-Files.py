@@ -35,18 +35,25 @@ try:
         print(f"{INFO} Contains webhooks, tokens, bots and settings.", reset)
     elif choice == "2":
         file_path = extras_path
-        file_name = "Extras"
+        file_name = "Extras Folder"
     else:
         ErrorChoice()
 
+    if not os.path.exists(file_path):
+        print(f"{ERROR} {file_name} not found!", reset)
+        Continue()
+        Reset()
+
     print(f"{LOADING} Opening..", reset)
 
-    if platform_pc == "Windows":
-        os.startfile(file_path)
-    else:
-        subprocess.Popen(['xdg-open', file_path])
-
-    print(f"{SUCCESS} {file_name} opened!", reset)
+    try:
+        if platform_pc == "Windows":
+            os.startfile(file_path)
+        else:
+            subprocess.Popen(["xdg-open", file_path])
+        print(f"{SUCCESS} {file_name} opened!", reset)
+    except Exception:
+        print(f"{ERROR} Could not open {file_name}!", reset)
 
     Continue()
     Reset()

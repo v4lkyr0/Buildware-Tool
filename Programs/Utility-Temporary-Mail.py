@@ -18,68 +18,70 @@ except Exception as e:
     MissingModule(e)
 
 Title("Temporary Mail")
-Connection()
 
 Scroll(GradientBanner(utilities_banner))
 
 api_base = "https://api.mail.tm"
 
 def GetDomain():
-    response = requests.get(f"{api_base}/domains", timeout=10)
-    domains  = response.json().get("hydra:member", [])
-    if not domains:
+    try:
+        response = requests.get(f"{api_base}/domains", timeout=10)
+        domains  = response.json().get("hydra:member", [])
+        return domains[0]["domain"] if domains else None
+    except Exception:
         return None
-    return domains[0]["domain"]
 
 def CreateAccount(domain):
-    user     = "".join(random.choices(string.ascii_lowercase + string.digits, k=10))
-    address  = f"{user}@{domain}"
-    password = "".join(random.choices(string.ascii_letters + string.digits, k=16))
-    response = requests.post(f"{api_base}/accounts", json={"address": address, "password": password}, timeout=10)
-    if response.status_code != 201:
+    try:
+        user     = "".join(random.choices(string.ascii_lowercase + string.digits, k=10))
+        address  = f"{user}@{domain}"
+        password = "".join(random.choices(string.ascii_letters + string.digits, k=16))
+        response = requests.post(f"{api_base}/accounts", json={"address": address, "password": password}, timeout=10)
+        if response.status_code != 201:
+            return None, None
+        return address, password
+    except Exception:
         return None, None
-    return address, password
 
 def GetToken(address, password):
-    response = requests.post(f"{api_base}/token", json={"address": address, "password": password}, timeout=10)
-    if response.status_code != 200:
+    try:
+        response = requests.post(f"{api_base}/token", json={"address": address, "password": password}, timeout=10)
+        if response.status_code != 200:
+            return None
+        return response.json().get("token")
+    except Exception:
         return None
-    return response.json().get("token")
 
 def GetMessages(token):
-    headers  = {"Authorization": f"Bearer {token}"}
-    response = requests.get(f"{api_base}/messages", headers=headers, timeout=10)
-    if response.status_code != 200:
+    try:
+        headers  = {"Authorization": f"Bearer {token}"}
+        response = requests.get(f"{api_base}/messages", headers=headers, timeout=10)
+        if response.status_code != 200:
+            return []
+        return response.json().get("hydra:member", [])
+    except Exception:
         return []
-    return response.json().get("hydra:member", [])
 
 def GetMessage(token, msg_id):
-    headers  = {"Authorization": f"Bearer {token}"}
-    response = requests.get(f"{api_base}/messages/{msg_id}", headers=headers, timeout=10)
-    if response.status_code != 200:
+    try:
+        headers  = {"Authorization": f"Bearer {token}"}
+        response = requests.get(f"{api_base}/messages/{msg_id}", headers=headers, timeout=10)
+        if response.status_code != 200:
+            return None
+        return response.json()
+    except Exception:
         return None
-    return response.json()
 
-def DisplayMessages(token):
-    messages = GetMessages(token)
-    if not messages:
-        return 0
-    for msg in messages:
-        detail = GetMessage(token, msg.get("id"))
-        if not detail:
-            continue
-        sender = detail.get("from", {})
-        sender = sender.get("address", "None") if isinstance(sender, dict) else str(sender)
-        body   = detail.get("text", detail.get("intro", "None")) or "None"
-        if len(body) > 500:
-            body = body[:500] + "..."
-        Scroll(f"""
- {SUCCESS} From    :{red} {sender}{white}
- {SUCCESS} Subject :{red} {detail.get('subject', 'None')}{white}
- {SUCCESS} Date    :{red} {detail.get('createdAt', 'None')[:19].replace('T', ' ')}{white}
- {SUCCESS} Body    :{red} {body}{white}
-""")
-    return len(messages)
+def FormatMessage(detail):
+    sender = detail.get("from", {})
+    sender = sender.get("address", "None") if isinstance(sender, dict) else str(sender)
+    body   = detail.get("text", detail.get("intro", "None")) or "None"
+    if len(body) > 500:
+        body = body[:500] + "..."
+    date = detail.get("createdAt", "None")
+    if date and date != "None":
+        date = date[:19].replace("T", " ")
+    return sender, detail.get("subject", "None"), date, body
 
 try:
     Scroll(f"""
@@ -105,45 +107,43 @@ try:
             Reset()
 
         token = GetToken(address, password)
+        if not token:
+            print(f"{ERROR} Could not authenticate!", reset)
+            Continue()
+            Reset()
 
         Scroll(f"""
  {SUCCESS} Email    :{red} {address}{white}
  {SUCCESS} Password :{red} {password}{white}
 """)
 
-        print(f"{INFO} Waiting for messages.. Press{red} Ctrl+C{white} to stop.", reset)
+        print(f"{INFO} Waiting for messages..", reset)
 
-        seen     = set()
-        interval = 10
+        seen = set()
 
         try:
             while True:
-                messages = GetMessages(token)
-                for msg in messages:
+                for msg in GetMessages(token):
                     msg_id = msg.get("id")
                     if msg_id not in seen:
                         seen.add(msg_id)
                         detail = GetMessage(token, msg_id)
                         if not detail:
                             continue
-                        sender = detail.get("from", {})
-                        sender = sender.get("address", "None") if isinstance(sender, dict) else str(sender)
-                        body   = detail.get("text", detail.get("intro", "None")) or "None"
-                        if len(body) > 500:
-                            body = body[:500] + "..."
+                        sender, subject, date, body = FormatMessage(detail)
                         print(f"\n{SUCCESS} New message!", reset)
                         Scroll(f"""
  {SUCCESS} From    :{red} {sender}{white}
- {SUCCESS} Subject :{red} {detail.get('subject', 'None')}{white}
- {SUCCESS} Date    :{red} {detail.get('createdAt', 'None')[:19].replace('T', ' ')}{white}
+ {SUCCESS} Subject :{red} {subject}{white}
+ {SUCCESS} Date    :{red} {date}{white}
  {SUCCESS} Body    :{red} {body}{white}
 """)
-                time.sleep(interval)
+                time.sleep(10)
         except KeyboardInterrupt:
             print(f"\n{INFO} Stopped.", reset)
 
     elif choice == "2":
-        address  = input(f"{INPUT} Email {red}->{reset} ").strip()
+        address = input(f"{INPUT} Email {red}->{reset} ").strip()
         if not address or "@" not in address:
             ErrorInput()
 
@@ -159,10 +159,9 @@ try:
             Continue()
             Reset()
 
-        print(f"{INFO} Checking messages.. {red}({white}Ctrl+C to Stop{red})", reset)
+        print(f"{INFO} Checking messages..", reset)
 
-        seen     = set()
-        interval = 10
+        seen = set()
 
         try:
             while True:
@@ -175,20 +174,16 @@ try:
                         detail = GetMessage(token, msg_id)
                         if not detail:
                             continue
-                        sender = detail.get("from", {})
-                        sender = sender.get("address", "None") if isinstance(sender, dict) else str(sender)
-                        body   = detail.get("text", detail.get("intro", "None")) or "None"
-                        if len(body) > 500:
-                            body = body[:500] + "..."
+                        sender, subject, date, body = FormatMessage(detail)
                         Scroll(f"""
  {SUCCESS} From    :{red} {sender}{white}
- {SUCCESS} Subject :{red} {detail.get('subject', 'None')}{white}
- {SUCCESS} Date    :{red} {detail.get('createdAt', 'None')[:19].replace('T', ' ')}{white}
+ {SUCCESS} Subject :{red} {subject}{white}
+ {SUCCESS} Date    :{red} {date}{white}
  {SUCCESS} Body    :{red} {body}{white}
 """)
                 elif not seen:
                     print(f"{INFO} No messages yet..", reset)
-                time.sleep(interval)
+                time.sleep(10)
         except KeyboardInterrupt:
             print(f"\n{INFO} Stopped.", reset)
 

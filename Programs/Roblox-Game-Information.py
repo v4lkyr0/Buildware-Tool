@@ -15,7 +15,6 @@ except Exception as e:
     MissingModule(e)
 
 Title("Game Information")
-Connection()
 
 Scroll(GradientBanner(roblox_banner))
 
@@ -31,25 +30,41 @@ try:
         universe_id = input(f"{INPUT} Universe Id {red}->{reset} ").strip()
         if not universe_id or not universe_id.isdigit():
             ErrorId()
+
     elif choice == "2":
         place_id = input(f"{INPUT} Place Id {red}->{reset} ").strip()
         if not place_id or not place_id.isdigit():
             ErrorId()
+
         print(f"{LOADING} Resolving..", reset)
-        r = requests.get(f"https://apis.roblox.com/universes/v1/places/{place_id}/universe", timeout=10)
+
+        try:
+            r = requests.get(f"https://apis.roblox.com/universes/v1/places/{place_id}/universe", timeout=10)
+        except Exception:
+            print(f"{ERROR} Could not connect!", reset)
+            Continue()
+            Reset()
+
         if r.status_code != 200:
             print(f"{ERROR} Could not resolve place id!", reset)
             Continue()
             Reset()
+
         universe_id = str(r.json().get("universeId", ""))
         if not universe_id:
             ErrorId()
+
     else:
         ErrorChoice()
 
     print(f"{LOADING} Fetching..", reset)
 
-    response = requests.get(f"https://games.roblox.com/v1/games?universeIds={universe_id}", timeout=10)
+    try:
+        response = requests.get(f"https://games.roblox.com/v1/games?universeIds={universe_id}", timeout=10)
+    except Exception:
+        print(f"{ERROR} Could not connect!", reset)
+        Continue()
+        Reset()
 
     if response.status_code != 200:
         print(f"{ERROR} Game not found!", reset)
@@ -63,20 +78,20 @@ try:
         Continue()
         Reset()
 
-    game         = games[0]
-    name         = game.get("name", "None")
-    description  = game.get("description", "") or "None"
-    creator_name = game.get("creator", {}).get("name", "None")
-    creator_type = game.get("creator", {}).get("type", "None")
-    playing      = game.get("playing", "None")
-    visits       = game.get("visits", "None")
-    max_players  = game.get("maxPlayers", "None")
-    created      = game.get("created", "None")
-    updated      = game.get("updated", "None")
-    favorited    = game.get("favoritedCount", "None")
-    genre        = game.get("genre", "None")
-    price        = game.get("price", "Free")
-    root_place_id = game.get("rootPlaceId", "None")
+    game          = games[0]
+    name          = game.get("name",         "None")
+    description   = (game.get("description") or "None")[:200]
+    creator_name  = game.get("creator", {}).get("name", "None")
+    creator_type  = game.get("creator", {}).get("type", "None")
+    playing       = game.get("playing",      "None")
+    visits        = game.get("visits",       "None")
+    max_players   = game.get("maxPlayers",   "None")
+    created       = game.get("created",      "None")
+    updated       = game.get("updated",      "None")
+    favorited     = game.get("favoritedCount", "None")
+    genre         = game.get("genre",        "None")
+    price         = game.get("price")
+    root_place_id = game.get("rootPlaceId",  "None")
 
     if created and created != "None":
         created = created[:10]
@@ -88,23 +103,23 @@ try:
     try:
         votes      = requests.get(f"https://games.roblox.com/v1/games/votes?universeIds={universe_id}", timeout=10).json()
         vote_data  = votes.get("data", [{}])[0]
-        votes_up   = vote_data.get("upVotes", "None")
+        votes_up   = vote_data.get("upVotes",   "None")
         votes_down = vote_data.get("downVotes", "None")
-    except:
+    except Exception:
         pass
 
     thumb_url = "None"
     try:
         th        = requests.get(f"https://thumbnails.roblox.com/v1/games/icons?universeIds={universe_id}&size=512x512&format=Png&isCircular=false", timeout=10).json()
         thumb_url = th.get("data", [{}])[0].get("imageUrl", "None")
-    except:
+    except Exception:
         pass
 
     Scroll(f"""
  {SUCCESS} Universe Id   :{red} {universe_id}{white}
  {SUCCESS} Root Place Id :{red} {root_place_id}{white}
  {SUCCESS} Name          :{red} {name}{white}
- {SUCCESS} Description   :{red} {description[:200]}{white}
+ {SUCCESS} Description   :{red} {description}{white}
  {SUCCESS} Creator       :{red} {creator_name} ({creator_type}){white}
  {SUCCESS} Genre         :{red} {genre}{white}
  {SUCCESS} Price         :{red} {price if price else 'Free'}{white}

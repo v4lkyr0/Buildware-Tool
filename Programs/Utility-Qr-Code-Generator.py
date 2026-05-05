@@ -17,7 +17,6 @@ except Exception as e:
     MissingModule(e)
 
 Title("Qr Code Generator")
-Connection()
 
 Scroll(GradientBanner(utilities_banner))
 
@@ -32,7 +31,12 @@ try:
     if not name:
         ErrorInput()
 
-    name = re.sub(r'[\\/*?:"<>|]', "", name)
+    name = re.sub(r'[\\/*?:"<>|]', "", name).strip()
+
+    if not name:
+        print(f"{ERROR} Invalid file name!", reset)
+        Continue()
+        Reset()
 
     print(f"{LOADING} Generating..", reset)
 
@@ -40,20 +44,27 @@ try:
         output_dir = os.path.join(tool_path, "Programs", "Output", "QrCodeGenerator")
         os.makedirs(output_dir, exist_ok=True)
 
-        qr  = qrcode.QRCode(version=1, error_correction=qrcode.constants.ERROR_CORRECT_H, box_size=10, border=4)
+        qr = qrcode.QRCode(
+            version         = 1,
+            error_correction= qrcode.constants.ERROR_CORRECT_H,
+            box_size        = 10,
+            border          = 4,
+        )
         qr.add_data(data)
         qr.make(fit=True)
-        img = qr.make_image(fill_color="black", back_color="white")
 
+        img  = qr.make_image(fill_color="black", back_color="white")
         path = os.path.join(output_dir, f"{name}.png")
         img.save(path)
 
         print(f"{SUCCESS} Saved:{red} {path}", reset)
+
         if platform_pc == "Windows":
             os.startfile(output_dir)
         else:
-            subprocess.Popen(['xdg-open', output_dir])
-    except:
+            subprocess.Popen(["xdg-open", output_dir])
+
+    except Exception:
         print(f"{ERROR} Could not generate Qr Code!", reset)
 
     Continue()

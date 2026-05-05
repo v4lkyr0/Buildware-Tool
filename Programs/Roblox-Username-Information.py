@@ -16,7 +16,6 @@ except Exception as e:
     MissingModule(e)
 
 Title("Username Information")
-Connection()
 
 Scroll(GradientBanner(roblox_banner))
 
@@ -27,11 +26,16 @@ try:
 
     print(f"{LOADING} Fetching..", reset)
 
-    response = requests.post(
-        "https://users.roblox.com/v1/usernames/users",
-        json={"usernames": [username], "excludeBannedUsers": False},
-        timeout=10
-    )
+    try:
+        response = requests.post(
+            "https://users.roblox.com/v1/usernames/users",
+            json={"usernames": [username], "excludeBannedUsers": False},
+            timeout=10
+        )
+    except Exception:
+        print(f"{ERROR} Could not connect!", reset)
+        Continue()
+        Reset()
 
     if response.status_code != 200:
         print(f"{ERROR} Could not fetch user!", reset)
@@ -46,51 +50,55 @@ try:
         Reset()
 
     user_id = users[0].get("id")
-    user    = requests.get(f"https://users.roblox.com/v1/users/{user_id}", timeout=10).json()
 
-    display_name = user.get("displayName", "None")
-    description  = user.get("description", "") or "None"
-    is_banned    = user.get("isBanned", False)
+    try:
+        user = requests.get(f"https://users.roblox.com/v1/users/{user_id}", timeout=10).json()
+    except Exception:
+        user = {}
+
+    display_name = user.get("displayName",      "None")
+    description  = (user.get("description") or "None")[:150]
+    is_banned    = user.get("isBanned",         False)
     has_badge    = user.get("hasVerifiedBadge", False)
-    created      = user.get("created", "None")
 
+    created = user.get("created", "None")
     if created and created != "None":
         try:
             dt      = datetime.fromisoformat(created.replace("Z", "+00:00"))
             created = dt.strftime("%Y-%m-%d %H:%M:%S UTC")
-        except:
+        except Exception:
             created = created[:10]
 
     friends = "None"
     try:
         friends = requests.get(f"https://friends.roblox.com/v1/users/{user_id}/friends/count", timeout=10).json().get("count", "None")
-    except:
+    except Exception:
         pass
 
     followers = "None"
     try:
         followers = requests.get(f"https://friends.roblox.com/v1/users/{user_id}/followers/count", timeout=10).json().get("count", "None")
-    except:
+    except Exception:
         pass
 
     following = "None"
     try:
         following = requests.get(f"https://friends.roblox.com/v1/users/{user_id}/followings/count", timeout=10).json().get("count", "None")
-    except:
+    except Exception:
         pass
 
     groups_count = "None"
     try:
         gr           = requests.get(f"https://groups.roblox.com/v1/users/{user_id}/groups/roles", timeout=10).json()
         groups_count = len(gr.get("data", []))
-    except:
+    except Exception:
         pass
 
     avatar_url = "None"
     try:
         th         = requests.get(f"https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds={user_id}&size=420x420&format=Png&isCircular=false", timeout=10).json()
         avatar_url = th.get("data", [{}])[0].get("imageUrl", "None")
-    except:
+    except Exception:
         pass
 
     presence = "None"
@@ -98,25 +106,25 @@ try:
         pr             = requests.post("https://presence.roblox.com/v1/presence/users", json={"userIds": [user_id]}, timeout=10).json()
         presence_data  = pr.get("userPresences", [{}])[0]
         presence_types = {0: "Offline", 1: "Online", 2: "In-Game", 3: "In Studio"}
-        presence       = presence_types.get(presence_data.get("userPresenceType", 0), "Unknown")
+        presence       = presence_types.get(presence_data.get("userPresenceType", 0), "None")
         last_location  = presence_data.get("lastLocation", "")
         if last_location:
             presence += f" ({last_location})"
-    except:
+    except Exception:
         pass
 
     prev_names = []
     try:
         pn         = requests.get(f"https://users.roblox.com/v1/users/{user_id}/username-history?limit=10&sortOrder=Desc", timeout=10).json()
         prev_names = [n.get("name", "") for n in pn.get("data", []) if n.get("name")]
-    except:
+    except Exception:
         pass
 
     Scroll(f"""
  {SUCCESS} User Id            :{red} {user_id}{white}
  {SUCCESS} Username           :{red} {user.get('name', username)}{white}
  {SUCCESS} Display Name       :{red} {display_name}{white}
- {SUCCESS} Bio                :{red} {description[:150]}{white}
+ {SUCCESS} Bio                :{red} {description}{white}
  {SUCCESS} Created            :{red} {created}{white}
  {SUCCESS} Banned             :{red} {is_banned}{white}
  {SUCCESS} Verified Badge     :{red} {has_badge}{white}

@@ -16,7 +16,6 @@ except Exception as e:
     MissingModule(e)
 
 Title("Server Unban All")
-Connection()
 
 Scroll(GradientBanner(discord_banner))
 
@@ -24,7 +23,7 @@ try:
     token = ChoiceToken()
 
     server_id = input(f"{INPUT} Server Id {red}->{reset} ").strip()
-    if not server_id:
+    if not server_id or not server_id.isdigit():
         ErrorId()
 
     try:
@@ -34,18 +33,54 @@ try:
     except:
         delay = 0.5
 
-    headers = {"Authorization": token, "Content-Type": "application/json", "User-Agent": RandomUserAgents()}
+    headers = {
+        "Authorization": token,
+        "Content-Type" : "application/json",
+        "User-Agent"   : RandomUserAgents(),
+    }
+
+    def ApiGet(url):
+        while True:
+            try:
+                r = requests.get(url, headers=headers, timeout=10)
+                if r.status_code == 429:
+                    time.sleep(r.json().get("retry_after", 1))
+                    continue
+                return r
+            except Exception:
+                return None
+
+    def ApiDelete(url):
+        while True:
+            try:
+                r = requests.delete(url, headers=headers, timeout=10)
+                if r.status_code == 429:
+                    time.sleep(r.json().get("retry_after", 1))
+                    continue
+                return r
+            except Exception:
+                return None
 
     print(f"{LOADING} Fetching bans..", reset)
 
-    bans_response = requests.get(f"https://discord.com/api/v9/guilds/{server_id}/bans", headers=headers)
+    bans  = []
+    after = None
 
-    if bans_response.status_code != 200:
-        print(f"{ERROR} Could not fetch bans!", reset)
-        Continue()
-        Reset()
-
-    bans = bans_response.json()
+    while True:
+        url = f"https://discord.com/api/v9/guilds/{server_id}/bans?limit=1000"
+        if after:
+            url += f"&after={after}"
+        r = ApiGet(url)
+        if not r or r.status_code != 200:
+            break
+        batch = r.json()
+        if not batch:
+            break
+        bans.extend(batch)
+        after = batch[-1]["user"]["id"]
+        if len(batch) < 1000:
+            break
+        time.sleep(0.5)
 
     if not bans:
         print(f"{INFO} No banned users found!", reset)
@@ -56,22 +91,29 @@ try:
     print(f"{LOADING} Unbanning..", reset)
 
     unbanned_count = 0
+    failed_count   = 0
 
     for ban in bans:
-        user_id  = ban.get("user", {}).get("id")
-        username = ban.get("user", {}).get("username", "Unknown")
+        user     = ban.get("user", {})
+        user_id  = user.get("id")
+        username = user.get("username", "None")
 
-        response = requests.delete(f"https://discord.com/api/v9/guilds/{server_id}/bans/{user_id}", headers=headers)
+        if not user_id:
+            continue
 
-        if response.status_code in [200, 204]:
+        resp = ApiDelete(f"https://discord.com/api/v9/guilds/{server_id}/bans/{user_id}")
+
+        if resp and resp.status_code in [200, 204]:
             unbanned_count += 1
             print(f"{SUCCESS} Unbanned:{red} {unbanned_count:<6}{white} | User:{red} {username}", reset)
         else:
-            print(f"{ERROR} Status:{red} Failed  {white}| User:{red} {username}", reset)
+            failed_count += 1
+            code = resp.status_code if resp else "None"
+            print(f"{ERROR} Failed | User:{red} {username}{white} | Code:{red} {code}", reset)
 
         time.sleep(delay)
 
-    print(f"{INFO} Total unbanned:{red} {unbanned_count}/{len(bans)}", reset)
+    print(f"\n{SUCCESS} Completed!", reset)
 
     Continue()
     Reset()

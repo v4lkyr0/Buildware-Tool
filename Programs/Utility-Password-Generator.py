@@ -12,11 +12,11 @@ from Plugins.Config import *
 try:
     import random
     import string
+    import secrets
 except Exception as e:
     MissingModule(e)
 
 Title("Password Generator")
-Connection()
 
 Scroll(GradientBanner(utilities_banner))
 
@@ -25,11 +25,13 @@ try:
         length = int(input(f"{INPUT} Length {red}->{reset} ").strip())
         if length < 1:
             ErrorNumber()
+        if length > 2048:
+            length = 2048
     except ValueError:
         ErrorNumber()
 
     Scroll(f"""
- {PREFIX}01{SUFFIX} Letters only
+ {PREFIX}01{SUFFIX} Letters Only
  {PREFIX}02{SUFFIX} Letters & Numbers
  {PREFIX}03{SUFFIX} Letters, Numbers & Symbols
 """)
@@ -45,7 +47,7 @@ try:
     else:
         ErrorChoice()
 
-    password = "".join(random.choices(chars, k=length))
+    password = "".join(secrets.choice(chars) for _ in range(length))
 
     print(f"{SUCCESS} Password:{red} {password}", reset)
 

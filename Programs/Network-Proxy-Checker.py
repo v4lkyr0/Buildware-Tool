@@ -16,7 +16,6 @@ except Exception as e:
     MissingModule(e)
 
 Title("Proxy Checker")
-Connection()
 
 Scroll(GradientBanner(network_banner))
 
@@ -52,16 +51,23 @@ try:
     try:
         proxies  = {protocol: f"{protocol}://{proxy}"}
         start    = time.time()
-        response = requests.get("https://api.ipify.org?format=json", proxies=proxies, timeout=10)
+        response = requests.get(
+            "https://api.ipify.org?format=json",
+            proxies=proxies,
+            timeout=10
+        )
         latency  = round((time.time() - start) * 1000)
 
         if response.status_code == 200:
-            ip       = response.json().get("ip", "None")
-
+            ip  = response.json().get("ip", "None")
             geo = {}
+
             try:
-                geo = requests.get(f"http://ip-api.com/json/{ip}", timeout=5).json()
-            except:
+                geo = requests.get(
+                    f"http://ip-api.com/json/{ip}",
+                    timeout=5
+                ).json()
+            except Exception:
                 pass
 
             Scroll(f"""
@@ -71,13 +77,18 @@ try:
  {SUCCESS} Ip       :{red} {ip}{white}
  {SUCCESS} Latency  :{red} {latency} ms{white}
  {SUCCESS} Country  :{red} {geo.get('country', 'None')}{white}
- {SUCCESS} City     :{red} {geo.get('city', 'None')}{white}
- {SUCCESS} Isp      :{red} {geo.get('isp', 'None')}{white}
+ {SUCCESS} City     :{red} {geo.get('city',    'None')}{white}
+ {SUCCESS} Isp      :{red} {geo.get('isp',     'None')}{white}
 """)
         else:
-            print(f"{ERROR} Proxy:{red} Invalid", reset)
-    except:
-        print(f"{ERROR} Proxy:{red} Invalid", reset)
+            print(f"{ERROR} Proxy Invalid!", reset)
+
+    except requests.exceptions.Timeout:
+        print(f"{ERROR} Proxy timed out!", reset)
+    except requests.exceptions.ConnectionError:
+        print(f"{ERROR} Proxy connection failed!", reset)
+    except Exception:
+        print(f"{ERROR} Proxy invalid!", reset)
 
     Continue()
     Reset()

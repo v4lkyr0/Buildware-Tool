@@ -7,10 +7,12 @@
 #     les crédits ou redistribuer sans autorisation écrite.
 
 name_tool    = "Buildware-Tools"
-version_tool = "2.5"
+version_tool = "2.8"
 author_tool  = "v4lkyr0"
 type_tool    = "Multitool"
 license      = "Proprietary License"
 license_url  = f"https://github.com/v4lkyr0/{name_tool}/blob/main/LICENSE"
 github_url   = f"https://github.com/v4lkyr0/{name_tool}"
+website_url  = "Soon"
+discord_url  = "Soon"
 gunslol_url  = "https://guns.lol/sg0r"

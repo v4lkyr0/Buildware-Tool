@@ -18,7 +18,6 @@ except Exception as e:
     MissingModule(e)
 
 Title("Server Scraper")
-Connection()
 
 Scroll(GradientBanner(discord_banner))
 
@@ -26,30 +25,31 @@ try:
     token     = ChoiceToken()
     server_id = input(f"{INPUT} Server Id {red}->{reset} ").strip()
 
-    if not server_id:
+    if not server_id or not server_id.isdigit():
         ErrorId()
 
     headers = {
         "Authorization": token,
         "Content-Type" : "application/json",
-        "User-Agent"   : RandomUserAgents()
+        "User-Agent"   : RandomUserAgents(),
     }
 
     def ApiGet(url):
         while True:
-            response = requests.get(url, headers=headers, timeout=10)
-            if response.status_code == 429:
-                retry_after = response.json().get("retry_after", 1)
-                print(f"{LOADING} Rate limited..", reset)
-                time.sleep(retry_after)
-                continue
-            return response
+            try:
+                r = requests.get(url, headers=headers, timeout=10)
+                if r.status_code == 429:
+                    time.sleep(r.json().get("retry_after", 1))
+                    continue
+                return r
+            except Exception:
+                return None
 
     print(f"{LOADING} Fetching server..", reset)
 
     guild_response = ApiGet(f"https://discord.com/api/v9/guilds/{server_id}?with_counts=true")
 
-    if guild_response.status_code != 200:
+    if not guild_response or guild_response.status_code != 200:
         print(f"{ERROR} Could not access server!", reset)
         Continue()
         Reset()
@@ -59,12 +59,12 @@ try:
     print(f"{LOADING} Fetching channels..", reset)
 
     channels_response = ApiGet(f"https://discord.com/api/v9/guilds/{server_id}/channels")
-    channels          = channels_response.json() if channels_response.status_code == 200 else []
+    channels          = channels_response.json() if channels_response and channels_response.status_code == 200 else []
 
     print(f"{LOADING} Fetching roles..", reset)
 
     roles_response = ApiGet(f"https://discord.com/api/v9/guilds/{server_id}/roles")
-    roles          = roles_response.json() if roles_response.status_code == 200 else []
+    roles          = roles_response.json() if roles_response and roles_response.status_code == 200 else []
 
     print(f"{LOADING} Fetching members..", reset)
 
@@ -72,24 +72,17 @@ try:
     after   = 0
 
     while True:
-        response = ApiGet(f"https://discord.com/api/v9/guilds/{server_id}/members?limit=1000&after={after}")
-
-        if response.status_code != 200:
+        r = ApiGet(f"https://discord.com/api/v9/guilds/{server_id}/members?limit=1000&after={after}")
+        if not r or r.status_code != 200:
             break
-
-        batch = response.json()
-
+        batch = r.json()
         if not batch:
             break
-
         members.extend(batch)
         after = int(batch[-1]["user"]["id"])
-
         print(f"{LOADING} Members:{red} {len(members)}", reset)
-
         if len(batch) < 1000:
             break
-
         time.sleep(0.5)
 
     scrape_data = {
@@ -134,7 +127,7 @@ try:
         json.dump(scrape_data, f, indent=4, ensure_ascii=False)
 
     Scroll(f"""
- {SUCCESS} Name     :{red} {guild_data.get('name')}{white}
+ {SUCCESS} Name     :{red} {guild_data.get('name', 'None')}{white}
  {SUCCESS} Members  :{red} {len(members)}{white}
  {SUCCESS} Channels :{red} {len(channels)}{white}
  {SUCCESS} Roles    :{red} {len(roles)}{white}
@@ -144,7 +137,7 @@ try:
     if platform_pc == "Windows":
         os.startfile(output_dir)
     else:
-        subprocess.Popen(['xdg-open', output_dir])
+        subprocess.Popen(["xdg-open", output_dir])
 
     Continue()
     Reset()

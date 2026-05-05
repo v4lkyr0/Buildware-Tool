@@ -18,7 +18,6 @@ except Exception as e:
     MissingModule(e)
 
 Title("Token Onliner")
-Connection()
 
 Scroll(GradientBanner(discord_banner))
 
@@ -44,10 +43,10 @@ try:
     if status_choice not in status_map:
         ErrorChoice()
 
-    status        = status_map[status_choice]
-    stop_event    = threading.Event()
+    status         = status_map[status_choice]
+    stop_event     = threading.Event()
     max_reconnects = 5
-    state         = {"ready": False, "reconnect_count": 0}
+    state          = {"ready": False, "reconnect_count": 0}
 
     def Connect():
         while state["reconnect_count"] <= max_reconnects and not stop_event.is_set():
@@ -68,38 +67,40 @@ try:
                 def SendHeartbeat():
                     while not stop_event.is_set():
                         try:
-                            ws.send(json.dumps({'op': 1, 'd': sequence}))
+                            ws.send(json.dumps({"op": 1, "d": sequence}))
                             time.sleep(heartbeat_interval / 1000)
-                        except:
+                        except Exception:
                             break
 
                 while not stop_event.is_set():
                     try:
                         result = ws.recv()
-                    except:
+                    except Exception:
                         break
 
                     if not result:
                         break
 
-                    data = json.loads(result)
-                    op   = data.get('op')
-                    t    = data.get('t')
+                    try:
+                        data = json.loads(result)
+                    except Exception:
+                        continue
 
-                    if data.get('s'):
-                        sequence = data['s']
+                    op = data.get("op")
+                    t  = data.get("t")
+
+                    if data.get("s"):
+                        sequence = data["s"]
 
                     if op == 10:
-                        heartbeat_interval = data['d']['heartbeat_interval']
-
+                        heartbeat_interval = data["d"]["heartbeat_interval"]
                         threading.Thread(target=SendHeartbeat, daemon=True).start()
-
                         ws.send(json.dumps({
-                            'op': 2,
-                            'd' : {
-                                'token'     : token,
-                                'properties': {'$os': platform_pc.lower(), '$browser': 'RTB', '$device': f'{platform_pc.lower()} Device'},
-                                'presence'  : {'activities': [], 'status': status, 'since': 0, 'afk': False},
+                            "op": 2,
+                            "d" : {
+                                "token"     : token,
+                                "properties": {"$os": platform_pc.lower(), "$browser": "discord.py", "$device": platform_pc.lower()},
+                                "presence"  : {"activities": [], "status": status, "since": 0, "afk": False},
                             }
                         }))
 
@@ -115,19 +116,21 @@ try:
                         print(f"{LOADING} Reconnecting (server request)..", reset)
                         break
 
-                    elif op == 0 and t == 'READY':
+                    elif op == 0 and t == "READY":
                         state["ready"]           = True
                         state["reconnect_count"] = 0
                         print(f"{SUCCESS} Token is now {status}!", reset)
                         print(f"{INFO} Keep the tool open to maintain the status.", reset)
-                        print(f"{INFO} Press{red} Ctrl+C{white} to stop.", reset)
 
-                ws.close()
+                try:
+                    ws.close()
+                except Exception:
+                    pass
 
             except KeyboardInterrupt:
                 stop_event.set()
                 break
-            except:
+            except Exception:
                 pass
 
             if not stop_event.is_set():

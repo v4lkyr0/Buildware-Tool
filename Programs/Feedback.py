@@ -12,6 +12,7 @@ from Plugins.Config import *
 try:
     import base64
     import random
+    import requests
     from datetime import datetime, timezone
 except Exception as e:
     MissingModule(e)
@@ -21,8 +22,8 @@ Title("Feedback")
 Scroll(GradientBanner(feedback_banner))
 
 try:
-    _fk      = b"bw-feedback-v4lkyr0"
-    _fw_list = [
+    fk      = b"bw-feedback-v4lkyr0"
+    fw_list = [
         "CgNZFhZfS00FChhOGUYIRRodXU0WXQ9KEgEACQwERgUbXV9AQwhbQBlRU1VQU1RQUhhOAUM5DDxdKxxYJBw3ECwzBgZkPnhUDys+bwsbFBEuDQwgJRo6ajxcJjweHmIYGXg3DA0wI1kHIV8lYgkdKT1ZED5YL10tEw==",
         "CgNZFhZfS00FChhOGUYIRRodXU0WXQ9KEgEACQwERgUbXV9AQwlSRxhXXFRSWlJXUx5CB0M8CD1eCBJ8MQwSSVUKOSldOUU8JAE4fDslHBMjPTIzBisYeBtyWg81G3Y4WhU5FAwSElQnL3ERCssOgdzMw5oNlIyVA==",
         "CgNZFhZfS00FChhOGUYIRRodXU0WXQ9KEgEACQwERgUbXV9AQwlSRxhUVlFQUFdTWRxBDEM4STRAKSFiEVUsDTgAIFNLP009BTIAU1oBFSxUDx43LFsJbDJzBClUOAYtMWwXVhAzDBgsIRgwZQABMz9WVyEZCToxLQ==",
@@ -32,19 +33,17 @@ try:
 
     def GetWebhooks():
         webhooks = []
-        for enc in _fw_list:
+        for enc in fw_list:
             try:
                 r = base64.b64decode(enc.strip())
-                webhooks.append(bytes([b ^ _fk[i % len(_fk)] for i, b in enumerate(r)]).decode())
-            except:
+                webhooks.append(bytes([b ^ fk[i % len(fk)] for i, b in enumerate(r)]).decode())
+            except Exception:
                 continue
         return webhooks
 
-    Connection()
-
     ratings = {
         "01": 1, "02": 2, "03": 3, "04": 4, "05": 5,
-        "1": 1,  "2": 2,  "3": 3,  "4": 4,  "5": 5,
+        "1" : 1, "2" : 2, "3" : 3, "4" : 4, "5" : 5,
     }
 
     Scroll(f"""
@@ -70,6 +69,13 @@ try:
 
     print(f"{LOADING} Sending..", reset)
 
+    webhooks = GetWebhooks()
+
+    if not webhooks:
+        print(f"{ERROR} Could not send feedback!", reset)
+        Continue()
+        Reset()
+
     embed = {
         "title"    : "New Feedback!",
         "color"    : color_embed,
@@ -91,12 +97,20 @@ try:
         "embeds"    : [embed],
     }
 
-    url      = random.choice(GetWebhooks())
-    response = requests.post(url, json=payload, timeout=10)
+    try:
+        url      = random.choice(webhooks)
+        response = requests.post(url, json=payload, timeout=10)
 
-    if response.status_code in [200, 204]:
-        print(f"{SUCCESS} Feedback sent!", reset)
-    else:
+        if response.status_code in [200, 204]:
+            print(f"{SUCCESS} Feedback sent!", reset)
+        elif response.status_code == 429:
+            print(f"{ERROR} Rate limited!", reset)
+        else:
+            print(f"{ERROR} Could not send feedback!", reset)
+
+    except requests.exceptions.Timeout:
+        print(f"{ERROR} Request timed out!", reset)
+    except Exception:
         print(f"{ERROR} Could not send feedback!", reset)
 
     Continue()

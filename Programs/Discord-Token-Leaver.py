@@ -11,40 +11,94 @@ from Plugins.Config import *
 
 try:
     import requests
+    import time
 except Exception as e:
     MissingModule(e)
 
 Title("Token Leaver")
-Connection()
 
 Scroll(GradientBanner(discord_banner))
 
 try:
     token   = ChoiceToken()
-    headers = {"Authorization": token, "Content-Type": "application/json", "User-Agent": RandomUserAgents()}
-    guilds  = requests.get("https://discord.com/api/v9/users/@me/guilds", headers=headers).json()
+    headers = {
+        "Authorization": token,
+        "Content-Type" : "application/json",
+        "User-Agent"   : RandomUserAgents(),
+    }
+
+    def ApiGet(url):
+        while True:
+            try:
+                r = requests.get(url, headers=headers, timeout=10)
+                if r.status_code == 429:
+                    time.sleep(r.json().get("retry_after", 1))
+                    continue
+                return r
+            except Exception:
+                return None
+
+    def ApiDelete(url):
+        while True:
+            try:
+                r = requests.delete(url, headers=headers, timeout=10)
+                if r.status_code == 429:
+                    time.sleep(r.json().get("retry_after", 1))
+                    continue
+                return r
+            except Exception:
+                return None
+
+    print(f"{LOADING} Fetching servers..", reset)
+
+    r = ApiGet("https://discord.com/api/v9/users/@me/guilds")
+
+    if not r or r.status_code != 200:
+        print(f"{ERROR} Could not fetch servers!", reset)
+        Continue()
+        Reset()
+
+    guilds = r.json()
 
     if not guilds:
         print(f"{ERROR} No servers found!", reset)
         Continue()
         Reset()
 
+    print(f"{SUCCESS} Found:{red} {len(guilds)}{white} server(s)", reset)
     print(f"{LOADING} Leaving..", reset)
 
-    for guild in guilds:
-        guild_name = guild['name']
-        response   = requests.delete(f"https://discord.com/api/v9/users/@me/guilds/{guild['id']}", headers=headers)
+    left_count   = 0
+    failed_count = 0
 
-        if response.status_code in [200, 204]:
-            print(f"{SUCCESS} Status:{red} Left    {white}| Server:{red} {guild_name}", reset)
-        elif response.status_code == 400:
-            response = requests.delete(f"https://discord.com/api/v9/guilds/{guild['id']}", headers=headers)
-            if response.status_code in [200, 204]:
-                print(f"{SUCCESS} Status:{red} Left    {white}| Server:{red} {guild_name}", reset)
+    for guild in guilds:
+        guild_id   = guild.get("id")
+        guild_name = guild.get("name", "None")
+
+        if not guild_id:
+            continue
+
+        resp = ApiDelete(f"https://discord.com/api/v9/users/@me/guilds/{guild_id}")
+
+        if resp and resp.status_code in [200, 204]:
+            left_count += 1
+            print(f"{SUCCESS} Left:{red} {guild_name}", reset)
+        elif resp and resp.status_code == 400:
+            resp2 = ApiDelete(f"https://discord.com/api/v9/guilds/{guild_id}")
+            if resp2 and resp2.status_code in [200, 204]:
+                left_count += 1
+                print(f"{SUCCESS} Left:{red} {guild_name}", reset)
             else:
-                print(f"{ERROR} Status:{red} Failed  {white}| Server:{red} {guild_name}", reset)
+                failed_count += 1
+                print(f"{ERROR} Failed:{red} {guild_name}", reset)
         else:
-            print(f"{ERROR} Status:{red} Failed  {white}| Server:{red} {guild_name}", reset)
+            failed_count += 1
+            code = resp.status_code if resp else "None"
+            print(f"{ERROR} Failed:{red} {guild_name}{white} | Code:{red} {code}", reset)
+
+        time.sleep(0.5)
+
+    print(f"\n{SUCCESS} Completed!", reset)
 
     Continue()
     Reset()

@@ -16,7 +16,6 @@ except Exception as e:
     MissingModule(e)
 
 Title("Ip Port Scanner")
-Connection()
 
 Scroll(GradientBanner(network_banner))
 
@@ -26,9 +25,11 @@ try:
     if not target:
         ErrorInput()
 
+    target = target.removeprefix("https://").removeprefix("http://").rstrip("/")
+
     try:
         resolved = socket.gethostbyname(target)
-    except:
+    except Exception:
         print(f"{ERROR} Could not resolve host!", reset)
         Continue()
         Reset()
@@ -41,7 +42,11 @@ try:
 
     choice = input(f"{INPUT} Choice {red}->{reset} ").strip().lstrip("0")
 
-    common_ports = [21, 22, 23, 25, 53, 80, 110, 135, 139, 143, 443, 445, 3306, 3389, 5900, 8080, 8443, 8888, 9090, 27017]
+    common_ports = [
+        21, 22, 23, 25, 53, 80, 110, 111, 135, 139,
+        143, 443, 445, 993, 995, 1723, 3306, 3389,
+        5900, 8080, 8443, 8888, 9090, 27017,
+    ]
 
     if choice == "1":
         ports = common_ports
@@ -54,7 +59,7 @@ try:
             if start < 1 or end > 65535 or start > end:
                 ErrorNumber()
             ports = range(start, end + 1)
-        except ValueError:
+        except Exception:
             ErrorNumber()
     else:
         ErrorChoice()
@@ -75,22 +80,21 @@ try:
                 if result == 0:
                     try:
                         service = socket.getservbyport(port)
-                    except:
-                        service = "Unknown"
+                    except Exception:
+                        service = "None"
                     with lock:
                         open_ports.append((port, service))
-                        print(f"{SUCCESS} Port:{red} {port}{white} | Service:{red} {service}", reset)
-            except:
+                        print(f"{SUCCESS} Port:{red} {port:<6}{white} | Service:{red} {service}", reset)
+            except Exception:
                 pass
 
-    threads = []
-    for port in ports:
-        t = threading.Thread(target=ScanPort, args=(port,))
-        threads.append(t)
+    threads = [threading.Thread(target=ScanPort, args=(port,), daemon=True) for port in ports]
+    for t in threads:
         t.start()
-
     for t in threads:
         t.join()
+
+    print(f"\n{SUCCESS} Open ports:{red} {len(open_ports)}", reset)
 
     Continue()
     Reset()

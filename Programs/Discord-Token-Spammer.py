@@ -12,11 +12,11 @@ from Plugins.Config import *
 try:
     import requests
     import threading
+    import time
 except Exception as e:
     MissingModule(e)
 
 Title("Token Spammer")
-Connection()
 
 Scroll(GradientBanner(discord_banner))
 
@@ -25,7 +25,10 @@ try:
     channel_id = input(f"{INPUT} Channel Id {red}->{reset} ").strip()
     message    = input(f"{INPUT} Message {red}->{reset} ").strip()
 
-    if not channel_id or not message:
+    if not channel_id or not channel_id.isdigit():
+        ErrorId()
+
+    if not message:
         ErrorInput()
 
     try:
@@ -39,44 +42,66 @@ try:
         threads_number = int(input(f"{INPUT} Threads {red}->{reset} ").strip())
         if threads_number <= 0:
             ErrorNumber()
+        if threads_number > 50:
+            threads_number = 50
     except:
         ErrorNumber()
 
-    print(f"{LOADING} Starting..", reset)
+    print(f"{LOADING} Starting.. Press{red} Ctrl+C{white} to stop.", reset)
 
-    message_count = 0
+    stats = {"sent": 0, "failed": 0}
+    lock  = threading.Lock()
 
     def Spammer():
-        global message_count
+        with lock:
+            if message_limit > 0 and stats["sent"] >= message_limit:
+                return
 
-        if message_limit > 0 and message_count >= message_limit:
-            return
+        try:
+            headers  = {
+                "Authorization": token,
+                "Content-Type" : "application/json",
+                "User-Agent"   : RandomUserAgents(),
+            }
+            response = requests.post(
+                f"https://discord.com/api/v9/channels/{channel_id}/messages",
+                headers=headers,
+                json={"content": message},
+                timeout=10
+            )
 
-        headers  = {"Authorization": token, "Content-Type": "application/json", "User-Agent": RandomUserAgents()}
-        response = requests.post(f"https://discord.com/api/v9/channels/{channel_id}/messages", headers=headers, json={"content": message})
+            if response.status_code == 429:
+                retry = response.json().get("retry_after", 1)
+                time.sleep(retry)
+                return
 
-        if response.status_code in [200, 201]:
-            message_count += 1
-            print(f"{SUCCESS} Status:{red} Sent    {white}| Messages:{red} {message_count:<6}{white} | Channel:{red} {channel_id}", reset)
-        else:
-            print(f"{ERROR} Status:{red} Failed  {white}| Channel:{red} {channel_id}", reset)
+            if response.status_code in [200, 201]:
+                with lock:
+                    stats["sent"] += 1
+                print(f"{SUCCESS} Sent | Messages:{red} {stats['sent']:<6}{white} | Channel:{red} {channel_id}", reset)
+            else:
+                with lock:
+                    stats["failed"] += 1
+                print(f"{ERROR} Failed | Channel:{red} {channel_id}{white} | Code:{red} {response.status_code}", reset)
 
-    def Request():
-        threads = []
-        for _ in range(threads_number):
-            if message_limit > 0 and message_count >= message_limit:
+        except Exception:
+            with lock:
+                stats["failed"] += 1
+            print(f"{ERROR} Error | Channel:{red} {channel_id}", reset)
+
+    try:
+        while True:
+            if message_limit > 0 and stats["sent"] >= message_limit:
                 break
-            t = threading.Thread(target=Spammer)
-            t.start()
-            threads.append(t)
-        for thread in threads:
-            thread.join()
+            threads = [threading.Thread(target=Spammer, daemon=True) for _ in range(threads_number)]
+            for t in threads:
+                t.start()
+            for t in threads:
+                t.join()
+    except KeyboardInterrupt:
+        pass
 
-    while True:
-        if message_limit > 0 and message_count >= message_limit:
-            print(f"{INFO} Total messages sent:{red} {message_count}", reset)
-            break
-        Request()
+    print(f"\n{SUCCESS} Completed!", reset)
 
     Continue()
     Reset()

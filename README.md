@@ -80,37 +80,37 @@ If you like **Buildware-Tools** and want to support the project, you can leave a
 │   ├── Traceroute                      : Traces the route packets take to a target host
 │   ├── Dns Lookup                      : Retrieves DNS records for a domain
 │   ├── Mac Lookup                      : Identifies the vendor of a Mac address
-│   ├── Ssl Checker                     : [⭐] Retrieves and displays SSL certificate information
+│   ├── Ssl Checker                     : Retrieves and displays SSL certificate information
 │   ├── Proxy Checker                   : Tests if a proxy is valid and retrieves its IP
 │   ├── Network Scanner                 : [⭐] Scans all active hosts on a local network
-│   ├── Bandwidth Tester                : Tests download speed and bandwidth
-│   └── Http Headers                    : [⭐] Retrieves and displays HTTP headers of a website
+│   ├── Proxy Scraper                   : [⭐] Scrapes thousands of proxies from public sources
+│   └── Http Headers                    : [⭐] Retrieves and analyzes HTTP headers of a website
 │
 ├── 🔍 Osint (10)
 │   │
 │   ├── Ip Lookup                       : Retrieves geolocation and ISP information for an IP
 │   ├── Whois Lookup                    : Retrieves Whois registration data for a domain
+│   ├── Ip Reputation Checker           : Checks if an IP is blacklisted across DNS blacklists
 │   ├── Subdomain Finder                : [⭐] Discovers subdomains of a target domain
-│   ├── Username Tracker                : [⭐] Searches for a username across 30+ platforms
-│   ├── Reverse Image Search            : [⭐] Searches for an image across Google, Yandex and TinEye
+│   ├── Username Tracker                : [⭐] Searches for a username across 40+ platforms
 │   ├── Email Breach Checker            : [⭐] Checks if an email has been found in data breaches
 │   ├── Phone Number Lookup             : [⭐] Retrieves carrier, country and timezone for a phone number
-│   ├── Ip Reputation Checker           : [⭐] Checks if an IP is blacklisted across 10 DNS blacklists
+│   ├── Exif Data Extractor             : [⭐] Extracts metadata and GPS coordinates from images
 │   ├── Google Dork Builder             : [⭐] Builds and executes advanced Google search queries
-│   └── Domain Age Checker              : Retrieves creation date, expiry and age of a domain
+│   └── Dox Creator                     : [⭐] Creates a complete profile document by compiling available information about a target
 │
 ├── 🧰 Utilities (10)
 │   │
 │   ├── Password Generator              : Generates a secure random password
-│   ├── Temporary Mail                  : Creates a temporary email and checks its inbox
-│   ├── System Information              : Displays detailed system and hardware information
 │   ├── Hash Identifier                 : Identifies the type of a hash based on its length
+│   ├── Hash Cracker                    : [⭐] Cracks hashes using a wordlist
+│   ├── Zip Cracker                     : [⭐] Cracks password-protected zip files using a wordlist
 │   ├── File Hasher                     : Computes MD5, SHA1, SHA256 and SHA512 hashes of a file
-│   ├── Text Encoder/Decoder            : Encodes and decodes text in Base64, Url, Html and Hex
-│   ├── Regex Tester                    : Tests a regex pattern against a text and displays matches
+│   ├── Text Encoder/Decoder            : Encodes and decodes text in Base64, Url, Html, Hex and Binary
 │   ├── Jwt Decoder                     : [⭐] Decodes and displays the header and payload of a JWT token
 │   ├── Qr Code Generator               : Generates a QR code image from any data
-│   └── Python Obfuscator               : [⭐] Obfuscates Python code to make it harder to read and reverse-engineer
+│   ├── Temporary Mail                  : Creates a temporary email and checks its inbox
+│   └── Advanced Python Obfuscator      : [⭐] Obfuscates Python code using multiple advanced techniques
 │
 ├── 🔐 Stealer (1)
 │   │
@@ -146,46 +146,46 @@ If you like **Buildware-Tools** and want to support the project, you can leave a
 │   └── Game Information                : Shows detailed information about a Roblox game
 │
 └── 👾 Discord (30)
-    │
-    ├── Server
-    │   ├── Server Information          : Shows detailed information about a server
-    │   ├── Server Editor               : [⭐] Edits server settings and configuration
-    │   ├── Server Scraper              : [⭐] Scrapes members from a server
-    │   ├── Server Cloner               : [⭐] Clones a server's structure, channels and roles
-    │   ├── Server Ban All              : Bans all members from a server
-    │   ├── Server Kick All             : Kicks all members from a server
-    │   ├── Server Unban All            : [⭐] Unbans all banned members from a server
-    │   └── Server Mute All             : [⭐] Mutes all members in a server
-    │
-    ├── Bot
-    │   ├── Bot Nuker                   : [⭐] Performs destructive actions on a server via a bot
-    │   └── Bot Raider                  : [⭐] Spams messages across all channels via a bot
-    │
-    ├── Token
-    │   ├── Token Information           : Displays sensitive information about a token
-    │   ├── Token Login                 : Log in to Discord using a token via browser
-    │   ├── Token Joiner                : Makes a token join a server
-    │   ├── Token Leaver                : Makes a token leave a server
-    │   ├── Token Mass Dm               : [⭐] Sends mass private messages to all DMs
-    │   ├── Token Spammer               : [⭐] Sends mass messages in a channel
-    │   ├── Token Ghost Pinger          : [⭐] Sends mentions and deletes them instantly
-    │   ├── Token Nuker                 : [⭐] Performs destructive actions on the account
-    │   ├── Token Disabler              : [⭐] Disables a token permanently
-    │   ├── Token Onliner               : Sets a token's status to online via gateway
-    │   ├── Token Image Changer         : Changes the account's profile picture or banner
-    │   ├── Token Bio Changer           : Changes the account's bio
-    │   ├── Token Status Changer        : Changes the custom status of the account
-    │   └── Token Generator             : Generates and checks random tokens
-    │
-    ├── Webhook
-    │   ├── Webhook Spammer             : [⭐] Spams a webhook with messages
-    │   └── Webhook Information         : Shows detailed information about a webhook
-    │
-    └── Other
-        ├── Embed Creator               : Creates and sends custom Discord embeds
-        ├── Injection Cleaner           : Detects and removes Discord client injections
-        ├── Vanity Url Sniper           : [⭐] Monitors and snipes custom vanity URLs
-        └── Snowflake Decoder           : Decodes any Discord snowflake ID
+│
+├── Server
+│   ├── Server Information          : Shows detailed information about a server
+│   ├── Server Scraper              : [⭐] Scrapes members, channels and roles from a server
+│   ├── Server Cloner               : [⭐] Clones a server's structure, channels and roles
+│   ├── Server Editor               : [⭐] Edits server settings and configuration
+│   ├── Server Ban All              : [⭐] Bans all members from a server
+│   ├── Server Kick All             : [⭐] Kicks all members from a server
+│   ├── Server Unban All            : Unbans all banned members from a server
+│   └── Server Mute All             : Mutes all members in a server
+│
+├── Bot
+│   ├── Bot Nuker                   : [⭐] Performs destructive actions on a server via a bot
+│   └── Bot Raider                  : [⭐] Spams messages across all channels via a bot
+│
+├── Token
+│   ├── Token Information           : Displays sensitive information about a token
+│   ├── Token Login                 : Log in to Discord using a token via browser
+│   ├── Token Joiner                : Makes a token join a server
+│   ├── Token Leaver                : Makes a token leave a server
+│   ├── Token Onliner               : Sets a token's status to online via gateway
+│   ├── Token Mass Dm               : [⭐] Sends mass private messages to all DMs
+│   ├── Token Spammer               : [⭐] Sends mass messages in a channel
+│   ├── Token Ghost Pinger          : [⭐] Sends mentions and deletes them instantly
+│   ├── Token Nuker                 : [⭐] Performs destructive actions on the account
+│   ├── Token Disabler              : [⭐] Disables a token permanently
+│   ├── Token Image Changer         : Changes the account's profile picture or banner
+│   ├── Token Bio Changer           : Changes the account's bio
+│   ├── Token Status Changer        : Changes the custom status of the account
+│   └── Token Generator             : Generates and checks random tokens
+│
+├── Webhook
+│   ├── Webhook Spammer             : [⭐] Spams a webhook with messages
+│   └── Webhook Information         : Shows detailed information about a webhook
+│
+└── Other
+    ├── Embed Creator               : Creates and sends custom Discord embeds
+    ├── Injection Cleaner           : Detects and removes Discord client injections
+    ├── Vanity Url Sniper           : [⭐] Monitors and snipes custom vanity URLs
+    └── Nitro Generator             : [⭐] Generates and checks random Nitro codes
 ```
 
 <br>

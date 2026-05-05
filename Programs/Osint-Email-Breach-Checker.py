@@ -11,12 +11,10 @@ from Plugins.Config import *
 
 try:
     import requests
-    import hashlib
 except Exception as e:
     MissingModule(e)
 
 Title("Email Breach Checker")
-Connection()
 
 Scroll(GradientBanner(osint_banner))
 
@@ -30,14 +28,13 @@ try:
 
     print(f"{LOADING} Checking..", reset)
 
-    found    = False
-    sources  = []
+    found   = False
+    sources = []
 
     try:
-        headers  = {"User-Agent": RandomUserAgents()}
         response = requests.get(
             f"https://leakcheck.io/api/public?check={email}",
-            headers=headers,
+            headers={"User-Agent": RandomUserAgents()},
             timeout=10
         )
         if response.status_code == 200:
@@ -47,17 +44,16 @@ try:
                 sources.append({
                     "source" : "LeakCheck.io",
                     "found"  : data.get("found", 0),
-                    "fields" : ", ".join(data.get("fields", [])) or "Unknown",
-                    "sources": ", ".join(data.get("sources", [])) or "Unknown",
+                    "fields" : ", ".join(data.get("fields",  [])) or "None",
+                    "sources": ", ".join(data.get("sources", [])) or "None",
                 })
-    except:
+    except Exception:
         pass
 
     try:
-        headers  = {"User-Agent": RandomUserAgents()}
         response = requests.get(
             f"https://intelx.io/phonebook/search?term={email}&k=&maxresults=1&media=0&terminate=[]&timeout=20",
-            headers=headers,
+            headers={"User-Agent": RandomUserAgents()},
             timeout=10
         )
         if response.status_code == 200:
@@ -70,17 +66,13 @@ try:
                     "fields" : "Email",
                     "sources": "IntelX Database",
                 })
-    except:
+    except Exception:
         pass
 
     try:
-        headers  = {
-            "User-Agent"   : RandomUserAgents(),
-            "X-RapidAPI-Host": "breachdirectory.p.rapidapi.com",
-        }
         response = requests.get(
             f"https://breachdirectory.org/api?func=auto&term={email}",
-            headers=headers,
+            headers={"User-Agent": RandomUserAgents()},
             timeout=10
         )
         if response.status_code == 200:
@@ -90,21 +82,22 @@ try:
                 sources.append({
                     "source" : "BreachDirectory",
                     "found"  : len(data["result"]),
-                    "fields" : "Password hash",
+                    "fields" : "Password Hash",
                     "sources": "BreachDirectory Database",
                 })
-    except:
+    except Exception:
         pass
 
     if found:
         total = sum(s["found"] for s in sources)
-        print(f"{ERROR} Found in{red} {total}{white} breach(es) across{red} {len(sources)}{white} source(s)!\n", reset)
+        print(f"{ERROR} Found in{red} {total}{white} breach(es)!\n", reset)
         for s in sources:
             Scroll(f"""
  {SUCCESS} Source  :{red} {s['source']}{white}
  {SUCCESS} Found   :{red} {s['found']}{white}
  {SUCCESS} Fields  :{red} {s['fields']}{white}
- {SUCCESS} Sources :{red} {s['sources']}{white}""")
+ {SUCCESS} Sources :{red} {s['sources']}{white}
+""")
     else:
         print(f"{SUCCESS} No breaches found!", reset)
 
