@@ -11,66 +11,43 @@ from Plugins.Config import *
 
 Title(f"{version_tool} Changelog")
 
-Scroll(GradientBanner(utilities_banner))
+Scroll(GradientBanner(utilities_banner)) 
 
 try:
     changelog = f"""
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
  {INFO} Creator Message
- {INFO}    - Hi {username_pc}, welcome to {name_tool} v{version_tool}!
- {INFO}    - I wanted to let you know that I read your comments, thank you for your messages
- {INFO}      it makes me very happy! <3
-
- {INFO} New Features
- {INFO}    - Added Dns Lookup
- {INFO}    - Added Network Scanner
- {INFO}    - Added Bandwidth Tester
- {INFO}    - Added Http Headers
- {INFO}    - Added Reverse Image Search
- {INFO}    - Added Phone Number Lookup
- {INFO}    - Added Ip Reputation Checker
- {INFO}    - Added Text Encoder/Decoder
- {INFO}    - Added Qr Code Generator
- {INFO}    - Added Uuid Generator
- {INFO}    - Added Google Dork Builder
- {INFO}    - Added Jwt Decoder
- {INFO}    - Added Regex Tester
- {INFO}    - Added First Run Configuration
- {INFO}    - Added Auto-Update
- {INFO}    - Added Paid Category - maybe soon!
-
- {INFO} Improvements
- {INFO}    - Updated text colors for better visual distinction
- {INFO}    - New icon created by me!
- {INFO}    - Improved performance and stability
- {INFO}    - Updated every feature for better user experience
-
- {INFO} Bug Fixes
  {INFO}    - 
 
+ {INFO} New Features
+ {INFO}    - Exif Data Extractor
+ {INFO}    - Proxy Scraper
+ {INFO}    - Zip Cracker
+ {INFO}    - Hash Cracker
+ {INFO}    - Nitro Generator
+ {INFO}    - Dox Creator
+
+ {INFO} Improvements
+ {INFO}    - All scripts have been fixed, improved and made more stable
+ {INFO}    - Add more sites for Username Tracker
+ {INFO}    - Added automatic installation dependencies for Stealer Builder
+ {INFO}    - Improved Advanced Python Obfuscator with new obfuscation techniques and better performance
+
+ {INFO} Bug Fixes
+ {INFO}    - All known bugs have been fixed
+
  {INFO} Renamed
- {INFO}    - Temp Mail {red}->{white} Temporary Mail
- {INFO}    - Username Lookup {red}->{white} Username Tracker
+ {INFO}    - The prefixes Discord and Roblox have been removed from all options that included them
+ {INFO}    - Python Obfuscator {red}->{white} Advanced Python Obfuscator
 
  {INFO} Removed
- {INFO}    - Removed Caesar Cipher
- {INFO}    - Removed Url Analyzer
- {INFO}    - Removed Email Checker
- {INFO}    - Removed Phone Lookup
- {INFO}    - Removed Interface Information
- {INFO}    - Removed Website Status
- {INFO}    - Removed Text Converter
- {INFO}    - Removed Hash Generator
- {INFO}    - Removed Base64 Converter
- {INFO}    - Removed Attacks Category
- {INFO}    - Removed Reverse Dns
- {INFO}    - Removed Wifi Passwords
- {INFO}    - Removed Header Analyzer
- {INFO}    - Removed Website Detector
- {INFO}    - Removed Password Hash Cracker
- {INFO}    - Removed Password Zip Cracker
- {INFO}    - Removed DataBase Folder
+ {INFO}    - Reverse Image Search
+ {INFO}    - Bandwidth Tester
+ {INFO}    - System Information
+ {INFO}    - Regex Tester
+ {INFO}    - Snowflake Decoder
+ {INFO}    - Domain Age Checker
 
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────"""
 
