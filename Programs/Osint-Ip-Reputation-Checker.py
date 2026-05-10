@@ -6,8 +6,8 @@
 # FR: Usage non-commercial uniquement. Ne pas vendre, supprimer
 #     les crédits ou redistribuer sans autorisation écrite.
 
-from Plugins.Utils import *
-from Plugins.Config import *
+from Core.Utils import *
+from Core.Config import *
 
 try:
     import requests
@@ -30,11 +30,12 @@ try:
 
     try:
         resolved = socket.gethostbyname(target)
-    except Exception:
+    except socket.gaierror:
         print(f"{ERROR} Could not resolve host!", reset)
         Continue()
         Reset()
 
+    print(f"{INFO} Resolved:{red} {resolved}", reset)
     print(f"{LOADING} Checking..", reset)
 
     reversed_ip = ".".join(resolved.split(".")[::-1])
@@ -66,6 +67,9 @@ try:
             socket.gethostbyname(host)
             with lock:
                 results[name] = True
+        except socket.gaierror:
+            with lock:
+                results[name] = False
         except Exception:
             with lock:
                 results[name] = False
@@ -83,12 +87,16 @@ try:
     try:
         r = requests.get(
             f"https://api.abuseipdb.com/api/v2/check?ipAddress={resolved}",
-            headers={"Key": "none", "Accept": "application/json"},
-            timeout=5
+            headers = {"Key": "none", "Accept": "application/json"},
+            timeout = 5
         )
         if r.status_code == 200:
             data      = r.json().get("data", {})
             abuseipdb = f"{data.get('abuseConfidenceScore', 0)}% confidence"
+    except requests.exceptions.Timeout:
+        pass
+    except requests.exceptions.ConnectionError:
+        pass
     except Exception:
         pass
 

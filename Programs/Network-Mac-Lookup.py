@@ -6,8 +6,8 @@
 # FR: Usage non-commercial uniquement. Ne pas vendre, supprimer
 #     les crédits ou redistribuer sans autorisation écrite.
 
-from Plugins.Utils import *
-from Plugins.Config import *
+from Core.Utils import *
+from Core.Config import *
 
 try:
     import requests
@@ -36,8 +36,8 @@ try:
     try:
         response = requests.get(
             f"https://api.macvendors.com/{mac}",
-            headers={"User-Agent": RandomUserAgents()},
-            timeout=10
+            headers = {"User-Agent": RandomUserAgents()},
+            timeout = 10
         )
 
         if response.status_code == 200:
@@ -49,11 +49,15 @@ try:
             print(f"{ERROR} Mac Address not found!", reset)
         elif response.status_code == 429:
             print(f"{ERROR} Rate limited!", reset)
+        elif response.status_code == 422:
+            print(f"{ERROR} Invalid Mac Address format!", reset)
         else:
-            print(f"{ERROR} Could not look up Mac Address!", reset)
+            print(f"{ERROR} Could not look up Mac Address! {red}({white}status: {response.status_code}{red})", reset)
 
     except requests.exceptions.Timeout:
         print(f"{ERROR} Request timed out!", reset)
+    except requests.exceptions.ConnectionError:
+        print(f"{ERROR} Could not connect to api!", reset)
     except Exception:
         print(f"{ERROR} Could not look up Mac Address!", reset)
 

@@ -6,8 +6,8 @@
 # FR: Usage non-commercial uniquement. Ne pas vendre, supprimer
 #     les crédits ou redistribuer sans autorisation écrite.
 
-from Plugins.Utils import *
-from Plugins.Config import *
+from Core.Utils import *
+from Core.Config import *
 
 try:
     import socket
@@ -34,6 +34,8 @@ try:
         Continue()
         Reset()
 
+    print(f"{INFO} Resolved:{red} {resolved}", reset)
+
     Scroll(f"""
  {PREFIX}01{SUFFIX} Common Ports
  {PREFIX}02{SUFFIX} Full Scan
@@ -59,7 +61,7 @@ try:
             if start < 1 or end > 65535 or start > end:
                 ErrorNumber()
             ports = range(start, end + 1)
-        except Exception:
+        except ValueError:
             ErrorNumber()
     else:
         ErrorChoice()
@@ -82,9 +84,21 @@ try:
                         service = socket.getservbyport(port)
                     except Exception:
                         service = "None"
+                    try:
+                        banner = ""
+                        b_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                        b_sock.settimeout(0.5)
+                        b_sock.connect((resolved, port))
+                        b_sock.send(b"HEAD / HTTP/1.0\r\n\r\n")
+                        raw = b_sock.recv(256).decode(errors="ignore").strip()
+                        banner = raw.splitlines()[0] if raw else ""
+                        b_sock.close()
+                    except Exception:
+                        banner = ""
                     with lock:
                         open_ports.append((port, service))
-                        print(f"{SUCCESS} Port:{red} {port:<6}{white} | Service:{red} {service}", reset)
+                        banner_str = f"{white} | Banner:{red} {banner[:40]}" if banner else ""
+                        print(f"{SUCCESS} Port:{red} {port:<6}{white} | Service:{red} {service:<16}{banner_str}", reset)
             except Exception:
                 pass
 
@@ -93,6 +107,9 @@ try:
         t.start()
     for t in threads:
         t.join()
+
+    if open_ports:
+        open_ports.sort(key=lambda x: x[0])
 
     print(f"\n{SUCCESS} Open ports:{red} {len(open_ports)}", reset)
 

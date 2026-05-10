@@ -6,8 +6,8 @@
 # FR: Usage non-commercial uniquement. Ne pas vendre, supprimer
 #     les crédits ou redistribuer sans autorisation écrite.
 
-from Plugins.Utils import *
-from Plugins.Config import *
+from Core.Utils import *
+from Core.Config import *
 
 try:
     from icmplib import ping
@@ -36,11 +36,25 @@ try:
         Continue()
         Reset()
 
+    print(f"{INFO} Subnet:{red} {base}.0/24", reset)
     print(f"{LOADING} Scanning..", reset)
 
     hosts     = []
     lock      = threading.Lock()
     semaphore = threading.Semaphore(50)
+
+    def GetOpenPort(ip):
+        for port in [80, 443, 22, 445]:
+            try:
+                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                sock.settimeout(0.3)
+                if sock.connect_ex((ip, port)) == 0:
+                    sock.close()
+                    return str(port)
+                sock.close()
+            except Exception:
+                pass
+        return "None"
 
     def ScanHost(ip):
         with semaphore:
@@ -51,9 +65,10 @@ try:
                         hostname = socket.gethostbyaddr(ip)[0]
                     except Exception:
                         hostname = "None"
+                    open_port = GetOpenPort(ip)
                     with lock:
                         hosts.append(ip)
-                        print(f"{SUCCESS} Host:{red} {ip:<16}{white} | Rtt:{red} {round(result.avg_rtt, 2)}ms{white} | Hostname:{red} {hostname}", reset)
+                        print(f"{SUCCESS} Host:{red} {ip:<16}{white} | Rtt:{red} {round(result.avg_rtt, 2)}ms{white} | Port:{red} {open_port:<5}{white} | Hostname:{red} {hostname}", reset)
             except Exception:
                 pass
 
@@ -63,7 +78,7 @@ try:
     for t in threads:
         t.join()
 
-    print(f"\n{SUCCESS} Found:{red} {len(hosts)}{white} host(s)", reset)
+    print(f"\n{SUCCESS} Found:{red} {len(hosts)} host(s)", reset)
 
     Continue()
     Reset()

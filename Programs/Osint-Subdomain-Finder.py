@@ -6,8 +6,8 @@
 # FR: Usage non-commercial uniquement. Ne pas vendre, supprimer
 #     les crédits ou redistribuer sans autorisation écrite.
 
-from Plugins.Utils import *
-from Plugins.Config import *
+from Core.Utils import *
+from Core.Config import *
 
 try:
     import requests
@@ -42,7 +42,7 @@ try:
 
     try:
         socket.gethostbyname(target)
-    except Exception:
+    except socket.gaierror:
         print(f"{ERROR} Could not resolve host!", reset)
         Continue()
         Reset()
@@ -59,11 +59,15 @@ try:
         if response.status_code == 200:
             wordlist = [w for w in response.text.splitlines() if w.strip()]
             print(f"{SUCCESS} Wordlist:{red} {len(wordlist)} entries", reset)
+    except requests.exceptions.Timeout:
+        pass
+    except requests.exceptions.ConnectionError:
+        pass
     except Exception:
         pass
 
     if not wordlist:
-        print(f"{LOADING} Using fallback wordlist..", reset)
+        print(f"{LOADING} Using fallback wordlist {red}({white}{len(fallback_wordlist)} entries{red}){white}..", reset)
         wordlist = fallback_wordlist
 
     print(f"{LOADING} Scanning..", reset)
@@ -80,6 +84,8 @@ try:
                 with lock:
                     found.append((subdomain, resolved))
                     print(f"{SUCCESS} Subdomain:{red} {subdomain:<45}{white} | Ip:{red} {resolved}", reset)
+            except socket.gaierror:
+                pass
             except Exception:
                 pass
 
@@ -89,7 +95,10 @@ try:
     for t in threads:
         t.join()
 
-    print(f"\n{SUCCESS} Found:{red} {len(found)}{white} subdomain(s)", reset)
+    if not found:
+        print(f"{ERROR} No subdomains found!", reset)
+    else:
+        print(f"\n{SUCCESS} Found:{red} {len(found)} subdomain(s)", reset)
 
     Continue()
     Reset()

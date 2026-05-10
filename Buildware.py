@@ -9,8 +9,15 @@
 import os, secrets
 os.environ["bkey"] = secrets.token_hex(32)
 
-from Programs.Plugins.Utils import *
-from Programs.Plugins.Config import *
+from Programs.Core.Utils import *
+from Programs.Core.Config import *
+
+try:
+    import re
+    import json as _json
+    import time
+except Exception as e:
+    MissingModule(e)
 
 def Configuration():
     data = LoadData()
@@ -19,9 +26,11 @@ def Configuration():
     
     Title("Configuration")
     Clear()
-    question = input(f"{INPUT} Do you want auto updates? {YESORNO} {red}->{reset} ").strip().lower()
-    data["configured"]  = True
-    data["auto_update"] = question in ["y", "yes"]
+    question_1 = input(f"{INPUT} Do you want auto updates? {YESORNO} {red}->{reset} ").strip().lower()
+    question_2 = input(f"{INPUT} Skip startup animaton? {YESORNO} {red}->{reset} ")
+    data["configured"]     = True
+    data["auto_update"]    = question_1 in ["y", "yes"]
+    data["skip_animation"] = question_2 in ["y", "yes"]
     SaveData(data)
 
 def Connection():
@@ -34,7 +43,7 @@ def Connection():
 
 def SavePage(page):
     try:
-        data        = LoadData()
+        data = LoadData()
         data["page"] = page
         SaveData(data)
     except Exception:
@@ -47,7 +56,108 @@ def LoadPage():
     except Exception:
         return 1
 
+def SaveLaunched():
+    try:
+        data = LoadData()
+        data["launched"] = True
+        SaveData(data)
+    except Exception:
+        pass
+
+def HasLaunched():
+    try:
+        data = LoadData()
+        return data.get("launched", False)
+    except Exception:
+        return False
+
 Configuration()
+
+def GetVisiblePlugins():
+    try:
+        data        = LoadData()
+        visible     = data.get("plugins_visible", [])
+        plugins_dir = os.path.join(tool_path, "Programs", "Plugins")
+ 
+        if not os.path.exists(plugins_dir):
+            return []
+ 
+        result = []
+        for folder in sorted(os.listdir(plugins_dir)):
+            if folder == "__pycache__":
+                continue
+            if folder not in visible:
+                continue
+            json_path = os.path.join(plugins_dir, folder, "plugin.json")
+            if not os.path.exists(json_path):
+                continue
+            try:
+                with open(json_path, "r", encoding="utf-8") as f:
+                    pdata = _json.load(f)
+                result.append((folder, pdata))
+            except Exception:
+                continue
+ 
+        return result[:10]
+    except Exception:
+        return []
+ 
+def BuildPluginLines():
+    plugins = GetVisiblePlugins()
+    lines   = []
+ 
+    for i, (folder, pdata) in enumerate(plugins):
+        num     = str(41 + i).zfill(2)
+        is_last = (i == len(plugins) - 1)
+        prefix  = "└─" if is_last else "├─"
+        name    = pdata.get("name", folder)
+        if VisibleLen(name) > 30:
+            name = name[:29] + ".."
+        lines.append(f" {prefix} {PREFIX1}{num}{SUFFIX1} {name}")
+ 
+    return lines
+ 
+def VisibleLen(s):
+    return len(re.sub(r'\033\[[0-9;]*m', '', s))
+ 
+def PadLine(s, width):
+    return s + " " * (width - VisibleLen(s))
+ 
+def BuildPage2():
+    stealer_lines = [
+        f" └─ {PREFIX1}31{SUFFIX1} {StarRequired('Stealer Builder')}",
+        f"      ├─ {white}System Information{reset}",
+        f"      ├─ {white}Wallets Sessions Files{reset}",
+        f"      ├─ {white}Games/Telegram Sessions Files{reset}",
+        f"      ├─ {white}Discord Tokens{reset}",
+        f"      ├─ {white}Discord Injection{reset}",
+        f"      ├─ {white}Browsers Data{reset}",
+        f"      ├─ {white}Interesting Files{reset}",
+        f"      ├─ {white}Camera Capture{reset}",
+        f"      └─ {white}Screenshots{reset}",
+    ]
+ 
+    plugin_lines = BuildPluginLines()
+ 
+    roblox_lines = [
+        f" ├─ {PREFIX1}51{SUFFIX1} {StarRequired('Cookie Login')}",
+        f" ├─ {PREFIX1}52{SUFFIX1} Cookie Information",
+        f" ├─ {PREFIX1}53{SUFFIX1} Id Information",
+        f" ├─ {PREFIX1}54{SUFFIX1} Username Information",
+        f" ├─ {PREFIX1}55{SUFFIX1} {StarRequired('Group Information')}",
+        f" └─ {PREFIX1}56{SUFFIX1} Game Information",
+    ]
+ 
+    max_lines = max(len(stealer_lines), len(plugin_lines), len(roblox_lines))
+    rows      = []
+ 
+    for i in range(max_lines):
+        c1 = stealer_lines[i] if i < len(stealer_lines) else ""
+        c2 = plugin_lines[i]  if i < len(plugin_lines)  else ""
+        c3 = roblox_lines[i]  if i < len(roblox_lines)  else ""
+        rows.append(f"{PadLine(c1, 40)}{PadLine(c2, 40)}{c3}")
+ 
+    return "\n".join(rows)
 
 def Menu(page=1):
     update = Update()
@@ -55,9 +165,9 @@ def Menu(page=1):
 
     if page == 1:
         content = f"""
-{red}> {PREFIX}?{SUFFIX} {version_tool} Changelog            ░                       ░                                                  {white}Feedback {PREFIX}F{SUFFIX} {red}
-{red}> {PREFIX}!{SUFFIX} Tool Information                                                                                Extras Files {PREFIX}E{SUFFIX} {red}
-                                                                                                         Next Page {PREFIX}N{SUFFIX} {red}
+{red}> {PREFIX}?{SUFFIX} {version_tool} Changelog            ░                       ░                                            {white}Plugin Manager {PREFIX}P{SUFFIX}{red} <
+{red}> {PREFIX}!{SUFFIX} Tool Information                                                                                Extras Files {PREFIX}E{SUFFIX}{red} <
+                                                                                                         Next Page {PREFIX}N{SUFFIX}{red} <
 
 ╓──────────────────────────────────────╖╓──────────────────────────────────────╖╓──────────────────────────────────────╖
                 Network                                  Osint                                 Utilities               
@@ -74,30 +184,22 @@ def Menu(page=1):
  └─ {PREFIX1}10{SUFFIX1} {StarRequired("Http Headers")}                    └─ {PREFIX1}20{SUFFIX1} {StarRequired("Dox Creator")}                     └─ {PREFIX1}30{SUFFIX1} {StarRequired("Advanced Python Obfuscator")}"""
 
     elif page == 2:
-        content = f"""
-{red}> {PREFIX}?{SUFFIX} {version_tool} Changelog            ░                       ░                                                  {white}Feedback {PREFIX}F{SUFFIX} {red}
-{red}> {PREFIX}!{SUFFIX} Tool Information                                                                                Extras Files {PREFIX}E{SUFFIX} {red}
-{red}> {PREFIX}B{SUFFIX} Back Page                                                                                          Next Page {PREFIX}N{SUFFIX} {red}
-
+        page2_rows = BuildPage2()
+        content    = f"""
+{red}> {PREFIX}?{SUFFIX} {version_tool} Changelog            ░                       ░                                            {white}Plugin Manager {PREFIX}P{SUFFIX}{red} <
+{red}> {PREFIX}!{SUFFIX} Tool Information                                                                                Extras Files {PREFIX}E{SUFFIX}{red} <
+{red}> {PREFIX}B{SUFFIX} Back Page                                                                                          Next Page {PREFIX}N{SUFFIX}{red} <
+ 
 ╓──────────────────────────────────────╖╓──────────────────────────────────────╖╓──────────────────────────────────────╖
-            Stealer Builder                               Paid                                  Roblox                
+            Stealer Builder                             Plugins                                  Roblox                
 ╙┬─────────────────────────────────────╜╙┬─────────────────────────────────────╜╙┬─────────────────────────────────────╜
- └─ {PREFIX1}31{SUFFIX1} {StarRequired("Stealer Builder")}                 └─ {PREFIX1}41{SUFFIX1} {Premium("Soon")}                            ├─ {PREFIX1}51{SUFFIX1} {StarRequired("Cookie Login")}
-      ├─ {white}System Information                                                      ├─ {PREFIX1}52{SUFFIX1} Cookie Information
-      ├─ {white}Wallets Sessions Files                                                  ├─ {PREFIX1}53{SUFFIX1} Id Information
-      ├─ {white}Games/Telegram Sessions Files                                           ├─ {PREFIX1}54{SUFFIX1} Username Information
-      ├─ {white}Discord Tokens                                                          ├─ {PREFIX1}55{SUFFIX1} {StarRequired("Group Information")}
-      ├─ {white}Discord Injection                                                       └─ {PREFIX1}56{SUFFIX1} Game Information
-      ├─ {white}Browsers Data
-      ├─ {white}Interesting Files                                                   
-      ├─ {white}Camera Capture
-      └─ {white}Screenshots"""
+{page2_rows}"""
 
     elif page == 3:
         content = f"""
-{red}> {PREFIX}?{SUFFIX} {version_tool} Changelog            ░                       ░                                                  {white}Feedback {PREFIX}F{SUFFIX} {red}
-{red}> {PREFIX}!{SUFFIX} Tool Information                                                                                Extras Files {PREFIX}E{SUFFIX} {red}
-{red}> {PREFIX}B{SUFFIX} Back Page                                                                                          Next Page {PREFIX}N{SUFFIX} {red}
+{red}> {PREFIX}?{SUFFIX} {version_tool} Changelog            ░                       ░                                            {white}Plugin Manager {PREFIX}P{SUFFIX}{red} <
+{red}> {PREFIX}!{SUFFIX} Tool Information                                                                                Extras Files {PREFIX}E{SUFFIX}{red} <
+{red}> {PREFIX}B{SUFFIX} Back Page
 
 ╓──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╖
                                                          Discord                                                        
@@ -127,7 +229,7 @@ options = {
     "09": "Network-Proxy-Scraper",               "19": "Osint-Google-Dork-Builder",                "29": "Utility-Temporary-Mail",
     "10": "Network-Http-Headers",                "20": "Osint-Dox-Creator",                        "30": "Utility-Advanced-Python-Obfuscator",
 
-    "31": "Stealer-Builder",                     "41": "Premium",                                  "51": "Roblox-Cookie-Login",
+    "31": "Stealer-Builder",                                                                       "51": "Roblox-Cookie-Login",
                                                                                                    "52": "Roblox-Cookie-Information",
                                                                                                    "53": "Roblox-Id-Information",
                                                                                                    "54": "Roblox-Username-Information",
@@ -146,20 +248,38 @@ options = {
     "70": "Discord-Bot-Raider",                  "80": "Discord-Injection-Cleaner",                "90": "Discord-Nitro-Generator",
 }
 
-star_required = {"09", "10", "14", "15", "16", "17", "18", "19", "20", "23", "24", "27", "30", "31", "51", "55", "62", "63", "64", "65", "66", "69", "70", "76", "77", "78", "79", "85", "86", "87", "90"}
+def LoadPluginOptions():
+    plugins = GetVisiblePlugins()
+    result  = {}
+    for i, (folder, pdata) in enumerate(plugins):
+        num         = str(41 + i).zfill(2)
+        result[num] = os.path.join("Plugins", folder, "main.py")
+    return result
+
+star_required       = {"09", "10", "14", "15", "16", "17", "18", "19", "20", "23", "24", "27", "30", "31", "51", "55", "62", "63", "64", "65", "66", "69", "70", "76", "77", "78", "79", "85", "86", "87", "90"}
 connection_required = {"01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "20", "23", "24", "29", "51", "52", "53", "54", "55", "56", "61", "62", "63", "64", "65", "66", "67", "68", "69", "70", "71", "72", "73", "74", "75", "76", "77", "78", "79", "80", "81", "82", "83", "84", "85", "86", "87", "88", "89", "90"}
 
 
 page = LoadPage()
+
+data = LoadData()
+if '--no-anim' not in sys.argv and not data.get("skip_animation", False):
+    Title("B̵̼͕̑ḽ̶́̔o̶̫͕̓o̸̦̗̓̐d̷̘̔̈́")
+    BloodAnimation()
 
 while True:
     try:
         Clear()
         Scroll(Gradient(Menu(page)))
 
+        plugin_options = LoadPluginOptions()
+        all_options    = {**options, **plugin_options}
+
         choice = input(f"{PREFIX}{username_pc}@Buildware{SUFFIX} {red}->{reset} ").strip().lower()
 
-        if choice in ['f', 'feedback']:
+        if choice in ['p', 'plugin']:
+            StartProgram('Plugin-Manager.py')
+        elif choice in ['f', 'feedback']:
             StartProgram('Feedback.py')
         elif choice in ['n', 'next']:
             page = 1 if page == 3 else page + 1
@@ -173,20 +293,28 @@ while True:
             StartProgram('Tool-Information.py')
         elif choice in ['e', 'extras']:
             StartProgram('Extras-Files.py')
-        elif choice in options:
+        elif choice in all_options:
             padded = choice.zfill(2)
             if padded in star_required and not CheckGithubStar():
                 continue
             if padded in connection_required:
                 Connection()
-            StartProgram(options[padded] + '.py')
-        elif choice.zfill(2) in options:
+            target = all_options[padded]
+            if target.startswith("Plugins"):
+                StartProgram(target)
+            else:
+                StartProgram(target + '.py')
+        elif choice.zfill(2) in all_options:
             padded = choice.zfill(2)
             if padded in star_required and not CheckGithubStar():
                 continue
             if padded in connection_required:
                 Connection()
-            StartProgram(options[padded] + '.py')
+            target = all_options[padded]
+            if target.startswith("Plugins"):
+                StartProgram(target)
+            else:
+                StartProgram(target + '.py')
         else:
             ErrorFeature()
 

@@ -6,8 +6,8 @@
 # FR: Usage non-commercial uniquement. Ne pas vendre, supprimer
 #     les crédits ou redistribuer sans autorisation écrite.
 
-from Plugins.Utils import *
-from Plugins.Config import *
+from Core.Utils import *
+from Core.Config import *
 
 try:
     import requests
@@ -38,6 +38,9 @@ try:
         "Reddit"      : f"https://www.reddit.com/user/{username}",
         "Tumblr"      : f"https://{username}.tumblr.com",
         "Twitch"      : f"https://www.twitch.tv/{username}",
+        "Kick"        : f"https://kick.com/{username}",
+        "Rumble"      : f"https://rumble.com/user/{username}",
+        "Odysee"      : f"https://odysee.com/@{username}",
         "Linkedin"    : f"https://www.linkedin.com/in/{username}",
         "Vimeo"       : f"https://vimeo.com/{username}",
         "Dailymotion" : f"https://www.dailymotion.com/{username}",
@@ -55,10 +58,6 @@ try:
         "Clubhouse"   : f"https://www.joinclubhouse.com/@{username}",
         "Mastodon"    : f"https://mastodon.social/@{username}",
         "Bluesky"     : f"https://bsky.app/profile/{username}",
-        "Twitch"      : f"https://www.twitch.tv/{username}",
-        "Kick"        : f"https://kick.com/{username}",
-        "Rumble"      : f"https://rumble.com/user/{username}",
-        "Odysee"      : f"https://odysee.com/@{username}",
         "Spotify"     : f"https://open.spotify.com/user/{username}",
         "Deezer"      : f"https://www.deezer.com/profile/{username}",
         "Lastfm"      : f"https://www.last.fm/user/{username}",
@@ -106,14 +105,18 @@ try:
             try:
                 response = requests.get(
                     url,
-                    headers={"User-Agent": RandomUserAgents()},
-                    timeout=5,
-                    allow_redirects=True
+                    headers       = {"User-Agent": RandomUserAgents()},
+                    timeout       = 5,
+                    allow_redirects = True
                 )
                 if response.status_code == 200:
                     with lock:
                         found.append(url)
                         print(f"{SUCCESS} {site:<16} :{red} {url}", reset)
+            except requests.exceptions.Timeout:
+                pass
+            except requests.exceptions.ConnectionError:
+                pass
             except Exception:
                 pass
 
@@ -125,6 +128,8 @@ try:
 
     if not found:
         print(f"{ERROR} No accounts found!", reset)
+    else:
+        print(f"\n{SUCCESS} Found:{red} {len(found)} account(s) across {len(sites)} sites", reset)
 
     Continue()
     Reset()

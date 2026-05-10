@@ -6,8 +6,8 @@
 # FR: Usage non-commercial uniquement. Ne pas vendre, supprimer
 #     les crédits ou redistribuer sans autorisation écrite.
 
-from Plugins.Utils import *
-from Plugins.Config import *
+from Core.Utils import *
+from Core.Config import *
 
 try:
     import webbrowser
@@ -28,7 +28,9 @@ try:
  {PREFIX}05{SUFFIX} Intext Search
  {PREFIX}06{SUFFIX} Cache Search
  {PREFIX}07{SUFFIX} Related Search
- {PREFIX}08{SUFFIX} Custom Dork
+ {PREFIX}08{SUFFIX} Login Pages
+ {PREFIX}09{SUFFIX} Exposed Files
+ {PREFIX}10{SUFFIX} Custom Dork
 """)
 
     choice = input(f"{INPUT} Choice {red}->{reset} ").strip().lstrip("0")
@@ -81,6 +83,19 @@ try:
         dork = f"related:{site}"
 
     elif choice == "8":
+        site = input(f"{INPUT} Site {red}->{reset} ").strip()
+        if not site:
+            ErrorInput()
+        dork = f"site:{site} inurl:login OR inurl:signin OR intitle:login OR intitle:\"sign in\""
+
+    elif choice == "9":
+        site     = input(f"{INPUT} Site {red}->{reset} ").strip()
+        filetype = input(f"{INPUT} File Type {red}({white}pdf, xls, sql, env, log{red}) ->{reset} ").strip()
+        if not site or not filetype:
+            ErrorInput()
+        dork = f"site:{site} filetype:{filetype}"
+
+    elif choice == "10":
         dork = input(f"{INPUT} Dork {red}->{reset} ").strip()
         if not dork:
             ErrorInput()

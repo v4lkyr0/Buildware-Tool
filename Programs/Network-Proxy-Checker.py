@@ -6,8 +6,8 @@
 # FR: Usage non-commercial uniquement. Ne pas vendre, supprimer
 #     les crédits ou redistribuer sans autorisation écrite.
 
-from Plugins.Utils import *
-from Plugins.Config import *
+from Core.Utils import *
+from Core.Config import *
 
 try:
     import requests
@@ -24,6 +24,9 @@ try:
 
     if not proxy:
         ErrorInput()
+
+    if "://" in proxy:
+        proxy = proxy.split("://", 1)[1]
 
     Scroll(f"""
  {PREFIX}01{SUFFIX} Http
@@ -53,20 +56,26 @@ try:
         start    = time.time()
         response = requests.get(
             "https://api.ipify.org?format=json",
-            proxies=proxies,
-            timeout=10
+            proxies = proxies,
+            timeout = 10
         )
-        latency  = round((time.time() - start) * 1000)
+        latency = round((time.time() - start) * 1000)
 
         if response.status_code == 200:
             ip  = response.json().get("ip", "None")
             geo = {}
 
             try:
-                geo = requests.get(
+                geo_response = requests.get(
                     f"http://ip-api.com/json/{ip}",
-                    timeout=5
-                ).json()
+                    timeout = 5
+                )
+                if geo_response.status_code == 200:
+                    geo = geo_response.json()
+            except requests.exceptions.Timeout:
+                pass
+            except requests.exceptions.ConnectionError:
+                pass
             except Exception:
                 pass
 
@@ -81,12 +90,14 @@ try:
  {SUCCESS} Isp      :{red} {geo.get('isp',     'None')}{white}
 """)
         else:
-            print(f"{ERROR} Proxy Invalid!", reset)
+            print(f"{ERROR} Proxy invalid! {red}({white}status: {response.status_code}{red})", reset)
 
     except requests.exceptions.Timeout:
         print(f"{ERROR} Proxy timed out!", reset)
-    except requests.exceptions.ConnectionError:
+    except requests.exceptions.ProxyError:
         print(f"{ERROR} Proxy connection failed!", reset)
+    except requests.exceptions.ConnectionError:
+        print(f"{ERROR} Proxy connection refused!", reset)
     except Exception:
         print(f"{ERROR} Proxy invalid!", reset)
 

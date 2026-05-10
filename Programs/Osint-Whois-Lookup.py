@@ -6,8 +6,8 @@
 # FR: Usage non-commercial uniquement. Ne pas vendre, supprimer
 #     les crédits ou redistribuer sans autorisation écrite.
 
-from Plugins.Utils import *
-from Plugins.Config import *
+from Core.Utils import *
+from Core.Config import *
 
 try:
     import whois
@@ -69,6 +69,10 @@ try:
  {SUCCESS} Whois Server :{red} {Clean(data.whois_server)}{white}
 """)
 
+    except whois.parser.PywhoisError as e:
+        print(f"{ERROR} Whois error:{red} {e}", reset)
+    except ConnectionResetError:
+        print(f"{ERROR} Connection reset by Whois server!", reset)
     except Exception:
         print(f"{ERROR} Could not fetch Whois information!", reset)
 

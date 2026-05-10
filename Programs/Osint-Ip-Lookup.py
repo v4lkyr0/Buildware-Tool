@@ -6,8 +6,8 @@
 # FR: Usage non-commercial uniquement. Ne pas vendre, supprimer
 #     les crédits ou redistribuer sans autorisation écrite.
 
-from Plugins.Utils import *
-from Plugins.Config import *
+from Core.Utils import *
+from Core.Config import *
 
 try:
     import requests
@@ -29,7 +29,7 @@ try:
 
     try:
         resolved = socket.gethostbyname(target)
-    except Exception:
+    except socket.gaierror:
         print(f"{ERROR} Could not resolve host!", reset)
         Continue()
         Reset()
@@ -39,8 +39,14 @@ try:
     try:
         response = requests.get(
             f"http://ip-api.com/json/{resolved}?fields=status,message,country,countryCode,region,regionName,city,zip,lat,lon,timezone,isp,org,as,asname,reverse,mobile,proxy,hosting,query",
-            timeout=10
+            timeout = 10
         )
+
+        if response.status_code == 429:
+            print(f"{ERROR} Rate limited!", reset)
+            Continue()
+            Reset()
+
         data = response.json()
 
         if data.get("status") == "success":
@@ -53,14 +59,19 @@ try:
                 proxy_type.append("Mobile")
             proxy_str = ", ".join(proxy_type) if proxy_type else "None"
 
+            lat = data.get("lat", "None")
+            lon = data.get("lon", "None")
+            maps_url = f"https://www.google.com/maps?q={lat},{lon}" if lat != "None" and lon != "None" else "None"
+
             Scroll(f"""
  {SUCCESS} Ip          :{red} {data.get('query',      'None')}{white}
  {SUCCESS} Country     :{red} {data.get('country',    'None')} ({data.get('countryCode', 'None')}){white}
  {SUCCESS} Region      :{red} {data.get('regionName', 'None')}{white}
  {SUCCESS} City        :{red} {data.get('city',       'None')}{white}
  {SUCCESS} Zip         :{red} {data.get('zip',        'None')}{white}
- {SUCCESS} Latitude    :{red} {data.get('lat',        'None')}{white}
- {SUCCESS} Longitude   :{red} {data.get('lon',        'None')}{white}
+ {SUCCESS} Latitude    :{red} {lat}{white}
+ {SUCCESS} Longitude   :{red} {lon}{white}
+ {SUCCESS} Google Maps :{red} {maps_url}{white}
  {SUCCESS} Timezone    :{red} {data.get('timezone',   'None')}{white}
  {SUCCESS} Isp         :{red} {data.get('isp',        'None')}{white}
  {SUCCESS} Org         :{red} {data.get('org',        'None')}{white}
@@ -71,10 +82,12 @@ try:
 """)
         else:
             msg = data.get("message", "None")
-            print(f"{ERROR} Ip not found!", reset)
+            print(f"{ERROR} Ip not found:{red} {msg}", reset)
 
     except requests.exceptions.Timeout:
         print(f"{ERROR} Request timed out!", reset)
+    except requests.exceptions.ConnectionError:
+        print(f"{ERROR} Could not connect to api!", reset)
     except Exception:
         print(f"{ERROR} Could not fetch Ip information!", reset)
 

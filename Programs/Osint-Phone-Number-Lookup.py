@@ -6,8 +6,8 @@
 # FR: Usage non-commercial uniquement. Ne pas vendre, supprimer
 #     les crédits ou redistribuer sans autorisation écrite.
 
-from Plugins.Utils import *
-from Plugins.Config import *
+from Core.Utils import *
+from Core.Config import *
 
 try:
     import phonenumbers
@@ -29,8 +29,8 @@ try:
 
     try:
         parsed = phonenumbers.parse(phone)
-    except Exception:
-        print(f"{ERROR} Invalid phone number format!", reset)
+    except phonenumbers.NumberParseException as e:
+        print(f"{ERROR} Invalid phone number format:{red} {e}", reset)
         Continue()
         Reset()
 
@@ -65,6 +65,22 @@ try:
         }
         number_type = number_type_map.get(phonenumbers.number_type(parsed), "None")
 
+        e164_clean   = format3.lstrip("+")
+        national_raw = format2.replace(" ", "").replace("-", "")
+
+        osint_links = {
+            "Truecaller"   : f"https://www.truecaller.com/search/us/{e164_clean}",
+            "Sync.me"      : f"https://sync.me/search/?number={format3}",
+            "SpyDialer"    : f"https://spydialer.com/default.aspx?phone={national_raw}",
+            "CallerID Test": f"https://calleridtest.com/lookup?phone={e164_clean}",
+            "Mr. Number"   : f"https://mrnumber.com/{e164_clean}",
+            "WhoCallsMe"   : f"https://www.whocalledme.com/PhoneNumber/{national_raw}",
+            "800notes"     : f"https://800notes.com/Phone.aspx/{national_raw}",
+            "Tellows"      : f"https://www.tellows.com/num/{e164_clean}",
+        }
+
+        osint_block = "\n".join(f" {SUCCESS} {name:<13} :{red} {url}{white}" for name, url in osint_links.items())
+
         Scroll(f"""
  {SUCCESS} Number   :{red} {format1}{white}
  {SUCCESS} National :{red} {format2}{white}
@@ -75,6 +91,8 @@ try:
  {SUCCESS} Type     :{red} {number_type}{white}
  {SUCCESS} Valid    :{red} {phonenumbers.is_valid_number(parsed)}{white}
  {SUCCESS} Possible :{red} {phonenumbers.is_possible_number(parsed)}{white}
+
+{osint_block}
 """)
 
     except Exception:

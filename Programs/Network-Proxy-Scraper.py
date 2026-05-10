@@ -6,8 +6,8 @@
 # FR: Usage non-commercial uniquement. Ne pas vendre, supprimer
 #     les crédits ou redistribuer sans autorisation écrite.
 
-from Plugins.Utils import *
-from Plugins.Config import *
+from Core.Utils import *
+from Core.Config import *
 
 try:
     import requests
@@ -35,10 +35,22 @@ try:
         ErrorChoice()
 
     try:
-        check = input(f"{INPUT} Check proxies? {YESORNO} {red}->{reset} ").strip().lower()
+        check    = input(f"{INPUT} Check proxies? {YESORNO} {red}->{reset} ").strip().lower()
         do_check = check in ["y", "yes"]
-    except:
+    except Exception:
         do_check = False
+
+    max_latency = 5000
+
+    if do_check:
+        try:
+            lat_input = input(f"{INPUT} Max latency ms {red}({white}Default=5000{red}) ->{reset} ").strip()
+            if lat_input:
+                max_latency = int(lat_input)
+                if max_latency < 1:
+                    ErrorNumber()
+        except ValueError:
+            ErrorNumber()
 
     sources = {
         "http": [
@@ -125,20 +137,31 @@ try:
 
     print(f"{LOADING} Scraping proxies..", reset)
 
-    proxies   = set()
+    proxies     = set()
+    seen_hosts  = set()
     lock_scrape = threading.Lock()
-    semaphore_scrape = threading.Semaphore(20)
+    sem_scrape  = threading.Semaphore(20)
 
     def ScrapeSource(url, protocol):
-        with semaphore_scrape:
+        with sem_scrape:
             try:
                 r = requests.get(url, timeout=10)
-                if r.status_code == 200:
-                    for line in r.text.splitlines():
-                        line = line.strip()
-                        if line and ":" in line:
-                            with lock_scrape:
-                                proxies.add(f"{protocol}://{line}")
+                if r.status_code != 200:
+                    return
+                for line in r.text.splitlines():
+                    line  = line.strip()
+                    parts = line.split(":")
+                    if not line or len(parts) != 2:
+                        continue
+                    host = f"{parts[0]}:{parts[1]}"
+                    with lock_scrape:
+                        if host not in seen_hosts:
+                            seen_hosts.add(host)
+                            proxies.add(f"{protocol}://{host}")
+            except requests.exceptions.Timeout:
+                pass
+            except requests.exceptions.ConnectionError:
+                pass
             except Exception:
                 pass
 
@@ -158,12 +181,12 @@ try:
         Reset()
 
     proxies = list(proxies)
-    print(f"{SUCCESS} Scraped:{red} {len(proxies)}{white} proxie(s)", reset)
+    print(f"{SUCCESS} Scraped:{red} {len(proxies)} unique proxies", reset)
 
     valid_proxies = []
 
     if do_check:
-        print(f"{LOADING} Checking proxies..", reset)
+        print(f"{LOADING} Checking proxies {red}({white}max latency: {max_latency}ms{red}){white}..", reset)
 
         lock      = threading.Lock()
         semaphore = threading.Semaphore(50)
@@ -175,15 +198,21 @@ try:
                     start    = time.time()
                     r        = requests.get(
                         "https://api.ipify.org?format=json",
-                        proxies={protocol: proxy},
-                        timeout=5
+                        proxies = {protocol: proxy},
+                        timeout = max_latency / 1000
                     )
                     latency = round((time.time() - start) * 1000)
-                    if r.status_code == 200:
+                    if r.status_code == 200 and latency <= max_latency:
                         ip = r.json().get("ip", "None")
                         with lock:
-                            valid_proxies.append(proxy)
-                            print(f"{SUCCESS} Valid | {proxy:<45} | Ip:{red} {ip}{white} | Latency:{red} {latency}ms", reset)
+                            valid_proxies.append((proxy, latency))
+                            print(f"{SUCCESS} Valid | {proxy:<52} | Ip:{red} {ip}{white} | Latency:{red} {latency}ms", reset)
+                except requests.exceptions.Timeout:
+                    pass
+                except requests.exceptions.ProxyError:
+                    pass
+                except requests.exceptions.ConnectionError:
+                    pass
                 except Exception:
                     pass
 
@@ -196,17 +225,46 @@ try:
         except KeyboardInterrupt:
             pass
 
-        print(f"\n{SUCCESS} Valid:{red} {len(valid_proxies)}/{len(proxies)}", reset)
-        proxies_to_save = valid_proxies
+        valid_proxies.sort(key=lambda x: x[1])
+
+        by_protocol = {}
+        for proxy, latency in valid_proxies:
+            proto = proxy.split("://")[0]
+            by_protocol.setdefault(proto, []).append((proxy, latency))
+
+        Scroll(f"\n{SUCCESS} Valid:{red} {len(valid_proxies)}", reset)
+
+        for proto, items in by_protocol.items():
+            print(f"{INFO} {proto.upper():<8}{red}:{white} {len(items)}", reset)
+
+        proxies_to_save = [proxy for proxy, _ in valid_proxies]
+
     else:
+        by_protocol = {}
+        for proxy in proxies:
+            proto = proxy.split("://")[0]
+            by_protocol.setdefault(proto, []).append(proxy)
+
         proxies_to_save = proxies
 
-    output_dir  = os.path.join(tool_path, "Programs", "Output", "ProxyScraper")
-    os.makedirs(output_dir, exist_ok=True)
-    output_path = os.path.join(output_dir, "proxies.txt")
+    if not proxies_to_save:
+        print(f"{ERROR} No proxies to save!", reset)
+        Continue()
+        Reset()
 
+    output_dir = os.path.join(tool_path, "Programs", "Output", "ProxyScraper")
+    os.makedirs(output_dir, exist_ok=True)
+
+    output_path = os.path.join(output_dir, "proxies.txt")
     with open(output_path, "w", encoding="utf-8") as f:
         f.write("\n".join(proxies_to_save))
+
+    if len(selected_protocols) > 1:
+        for proto, items in by_protocol.items():
+            proto_lines = [proxy for proxy, _ in items] if do_check else items
+            proto_path  = os.path.join(output_dir, f"{proto}.txt")
+            with open(proto_path, "w", encoding="utf-8") as f:
+                f.write("\n".join(proto_lines))
 
     print(f"{SUCCESS} Saved:{red} {output_path}", reset)
 

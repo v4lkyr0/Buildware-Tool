@@ -1,10 +1,8 @@
 <div align="center">
 
-# Buildware-Tools
-
-<p>
-  <strong>All-in-one multitool — Discord, OSINT, Network, Roblox & more</strong><br>
-</p>
+<h1 align="center">
+  <img src="Programs/Images/BuildwareLogo.png" alt="BuildwareLogo" width="23"> Buildware-Tools
+</h1>
 
 <p>
 <img src="https://img.shields.io/github/v/release/v4lkyr0/Buildware-Tool?label=Version&color=a80505">
@@ -67,9 +65,15 @@ If you like **Buildware-Tools** and want to support the project, you can leave a
 ├── 🗺️ Navigation (6)
 │   │
 │   ├── Changelog                       : Displays the change history
-│   ├── Feedback                        : Send feedback to the developer
+│   ├── Plugin Manager                  : Manage and install community-made plugins
+│   │   ├── Install Plugin              : Install a plugin from a GitHub repository url
+│   │   └── Manage Plugins              : Show/Hide, update or uninstall installed plugins
+│   │
 │   ├── Tool Information                : Displays information about the tool
 │   ├── Extras File                     : Opens Config file and Extras folder
+│   │   ├── Data File                   : Opens the tool's configuration JSON file
+│   │   └── Extras Folder               : Opens the Extras folder in your file explorer
+│   │
 │   ├── Next Page                       : Navigate to the next page of features
 │   └── Back Page                       : Navigate to the previous page of features
 │
@@ -132,9 +136,9 @@ If you like **Buildware-Tools** and want to support the project, you can leave a
 │           ├── Screenshot              : Full-screen screenshot
 │           └── Ping On Discord         : Ping @everyone in the webhook on report
 │
-├── 💸 Paid (1)
+├── 🧩 Plugins (1)
 │   │
-│   └── Soon..
+│   └── Example Plugin                  : Built-in plugin template and development guide for creating your own plugins
 │
 ├── 🎮 Roblox (6)
 │   │
@@ -146,46 +150,46 @@ If you like **Buildware-Tools** and want to support the project, you can leave a
 │   └── Game Information                : Shows detailed information about a Roblox game
 │
 └── 👾 Discord (30)
-│
-├── Server
-│   ├── Server Information          : Shows detailed information about a server
-│   ├── Server Scraper              : [⭐] Scrapes members, channels and roles from a server
-│   ├── Server Cloner               : [⭐] Clones a server's structure, channels and roles
-│   ├── Server Editor               : [⭐] Edits server settings and configuration
-│   ├── Server Ban All              : [⭐] Bans all members from a server
-│   ├── Server Kick All             : [⭐] Kicks all members from a server
-│   ├── Server Unban All            : Unbans all banned members from a server
-│   └── Server Mute All             : Mutes all members in a server
-│
-├── Bot
-│   ├── Bot Nuker                   : [⭐] Performs destructive actions on a server via a bot
-│   └── Bot Raider                  : [⭐] Spams messages across all channels via a bot
-│
-├── Token
-│   ├── Token Information           : Displays sensitive information about a token
-│   ├── Token Login                 : Log in to Discord using a token via browser
-│   ├── Token Joiner                : Makes a token join a server
-│   ├── Token Leaver                : Makes a token leave a server
-│   ├── Token Onliner               : Sets a token's status to online via gateway
-│   ├── Token Mass Dm               : [⭐] Sends mass private messages to all DMs
-│   ├── Token Spammer               : [⭐] Sends mass messages in a channel
-│   ├── Token Ghost Pinger          : [⭐] Sends mentions and deletes them instantly
-│   ├── Token Nuker                 : [⭐] Performs destructive actions on the account
-│   ├── Token Disabler              : [⭐] Disables a token permanently
-│   ├── Token Image Changer         : Changes the account's profile picture or banner
-│   ├── Token Bio Changer           : Changes the account's bio
-│   ├── Token Status Changer        : Changes the custom status of the account
-│   └── Token Generator             : Generates and checks random tokens
-│
-├── Webhook
-│   ├── Webhook Spammer             : [⭐] Spams a webhook with messages
-│   └── Webhook Information         : Shows detailed information about a webhook
-│
-└── Other
-    ├── Embed Creator               : Creates and sends custom Discord embeds
-    ├── Injection Cleaner           : Detects and removes Discord client injections
-    ├── Vanity Url Sniper           : [⭐] Monitors and snipes custom vanity URLs
-    └── Nitro Generator             : [⭐] Generates and checks random Nitro codes
+    │
+    ├── Server
+    │   ├── Server Information          : Shows detailed information about a server
+    │   ├── Server Scraper              : [⭐] Scrapes members, channels and roles from a server
+    │   ├── Server Cloner               : [⭐] Clones a server's structure, channels and roles
+    │   ├── Server Editor               : [⭐] Edits server settings and configuration
+    │   ├── Server Ban All              : [⭐] Bans all members from a server
+    │   ├── Server Kick All             : [⭐] Kicks all members from a server
+    │   ├── Server Unban All            : Unbans all banned members from a server
+    │   └── Server Mute All             : Mutes all members in a server
+    │
+    ├── Bot
+    │   ├── Bot Nuker                   : [⭐] Performs destructive actions on a server via a bot
+    │   └── Bot Raider                  : [⭐] Spams messages across all channels via a bot
+    │
+    ├── Token
+    │   ├── Token Information           : Displays sensitive information about a token
+    │   ├── Token Login                 : Log in to Discord using a token via browser
+    │   ├── Token Joiner                : Makes a token join a server
+    │   ├── Token Leaver                : Makes a token leave a server
+    │   ├── Token Onliner               : Sets a token's status to online via gateway
+    │   ├── Token Mass Dm               : [⭐] Sends mass private messages to all DMs
+    │   ├── Token Spammer               : [⭐] Sends mass messages in a channel
+    │   ├── Token Ghost Pinger          : [⭐] Sends mentions and deletes them instantly
+    │   ├── Token Nuker                 : [⭐] Performs destructive actions on the account
+    │   ├── Token Disabler              : [⭐] Disables a token permanently
+    │   ├── Token Image Changer         : Changes the account's profile picture or banner
+    │   ├── Token Bio Changer           : Changes the account's bio
+    │   ├── Token Status Changer        : Changes the custom status of the account
+    │   └── Token Generator             : Generates and checks random tokens
+    │
+    ├── Webhook
+    │   ├── Webhook Spammer             : [⭐] Spams a webhook with messages
+    │   └── Webhook Information         : Shows detailed information about a webhook
+    │
+    └── Other
+        ├── Embed Creator               : Creates and sends custom Discord embeds
+        ├── Injection Cleaner           : Detects and removes Discord client injections
+        ├── Vanity Url Sniper           : [⭐] Monitors and snipes custom vanity URLs
+        └── Nitro Generator             : [⭐] Generates and checks random Nitro codes
 ```
 
 <br>
@@ -218,7 +222,7 @@ python Setup.py
 ## 📋 Requirements
 
 - **Python 3.8 or higher.**
-- **Windows or Linux OS.**
+- **Windows, Linux & MacOS.**
 - **Internet connection.**
 
 <br>

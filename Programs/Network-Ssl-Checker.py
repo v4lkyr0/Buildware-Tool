@@ -6,8 +6,8 @@
 # FR: Usage non-commercial uniquement. Ne pas vendre, supprimer
 #     les crédits ou redistribuer sans autorisation écrite.
 
-from Plugins.Utils import *
-from Plugins.Config import *
+from Core.Utils import *
+from Core.Config import *
 
 try:
     import ssl
@@ -66,13 +66,12 @@ try:
             expiry_str  = f"{valid_to} ({days_left} days left)"
         except Exception:
             expiry_str = valid_to
-            days_left  = -1
 
         Scroll(f"""
- {SUCCESS} Common Name  :{red} {subject.get('commonName',    'None')}{white}
+ {SUCCESS} Common Name  :{red} {subject.get('commonName',       'None')}{white}
  {SUCCESS} Organization :{red} {subject.get('organizationName', 'None')}{white}
  {SUCCESS} Issuer       :{red} {issuer.get('organizationName',  'None')}{white}
- {SUCCESS} Issuer CN    :{red} {issuer.get('commonName',     'None')}{white}
+ {SUCCESS} Issuer CN    :{red} {issuer.get('commonName',        'None')}{white}
  {SUCCESS} Valid From   :{red} {valid_from}{white}
  {SUCCESS} Valid To     :{red} {expiry_str}{white}
  {SUCCESS} Version      :{red} {version}{white}
@@ -82,14 +81,16 @@ try:
  {SUCCESS} San          :{red} {san_list[:150]}{white}
 """)
 
-    except ssl.SSLCertVerificationError:
-        print(f"{ERROR} Certificate verification failed!", reset)
+    except ssl.SSLCertVerificationError as e:
+        print(f"{ERROR} Certificate verification failed:{red} {e}", reset)
     except ssl.SSLError as e:
-        print(f"{ERROR} SSL error:{red} {e}", reset)
+        print(f"{ERROR} Ssl error:{red} {e}", reset)
     except ConnectionRefusedError:
         print(f"{ERROR} Port 443 is closed!", reset)
+    except socket.timeout:
+        print(f"{ERROR} Connection timed out!", reset)
     except Exception:
-        print(f"{ERROR} Could not retrieve SSL certificate!", reset)
+        print(f"{ERROR} Could not retrieve Ssl certificate!", reset)
 
     Continue()
     Reset()

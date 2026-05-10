@@ -6,8 +6,8 @@
 # FR: Usage non-commercial uniquement. Ne pas vendre, supprimer
 #     les crédits ou redistribuer sans autorisation écrite.
 
-from Plugins.Utils import *
-from Plugins.Config import *
+from Core.Utils import *
+from Core.Config import *
 
 try:
     import requests
@@ -44,28 +44,36 @@ try:
     try:
         response = requests.get(
             target,
-            headers={"User-Agent": RandomUserAgents()},
-            timeout=10,
-            allow_redirects=True
+            headers       = {"User-Agent": RandomUserAgents()},
+            timeout       = 10,
+            allow_redirects = True
         )
         headers = response.headers
 
-        print(f"\n{INFO} All Headers:\n", reset)
+        print()
         for key, value in headers.items():
             print(f"{SUCCESS} {key:<40}{red}:{white} {value}", reset)
 
-        print(f"\n{INFO} Security Analysis:\n", reset)
+        present = 0
+        missing = 0
+
+        print()
         for header, label in security_headers.items():
             if header.lower() in [h.lower() for h in headers.keys()]:
-                value = headers.get(header, "")
                 print(f"{SUCCESS} {label:<20}{red}:{white} Present", reset)
+                present += 1
             else:
                 print(f"{ERROR} {label:<20}{red}:{white} Missing", reset)
+                missing += 1
+
+        print(f"\n{SUCCESS} Score:{red} {present}/{present + missing} security headers present", reset)
 
     except requests.exceptions.Timeout:
         print(f"{ERROR} Request timed out!", reset)
     except requests.exceptions.ConnectionError:
         print(f"{ERROR} Could not connect to host!", reset)
+    except requests.exceptions.TooManyRedirects:
+        print(f"{ERROR} Too many redirects!", reset)
     except Exception:
         print(f"{ERROR} Could not fetch headers!", reset)
 

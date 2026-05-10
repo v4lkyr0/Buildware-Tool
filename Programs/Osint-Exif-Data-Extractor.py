@@ -6,11 +6,11 @@
 # FR: Usage non-commercial uniquement. Ne pas vendre, supprimer
 #     les crédits ou redistribuer sans autorisation écrite.
 
-from Plugins.Utils import *
-from Plugins.Config import *
+from Core.Utils import *
+from Core.Config import *
 
 try:
-    from PIL import Image
+    from PIL import Image, UnidentifiedImageError
     from PIL.ExifTags import TAGS, GPSTAGS
     import os
 except Exception as e:
@@ -39,12 +39,14 @@ def GetGps(exif_raw):
         lat      = ToDegrees(gps_info["GPSLatitude"])
         lon      = ToDegrees(gps_info["GPSLongitude"])
         altitude = gps_info.get("GPSAltitude", None)
-        speed    = gps_info.get("GPSSpeed", None)
+        speed    = gps_info.get("GPSSpeed",    None)
 
         if gps_info.get("GPSLatitudeRef")  == "S": lat = -lat
         if gps_info.get("GPSLongitudeRef") == "W": lon = -lon
 
         return round(lat, 6), round(lon, 6), altitude, speed
+    except KeyError:
+        return None, None, None, None
     except Exception:
         return None, None, None, None
 
@@ -72,6 +74,10 @@ try:
     try:
         img      = Image.open(filepath)
         exif_raw = img._getexif()
+    except UnidentifiedImageError:
+        print(f"{ERROR} File is not a valid image!", reset)
+        Continue()
+        Reset()
     except Exception:
         print(f"{ERROR} Could not open image!", reset)
         Continue()
@@ -111,14 +117,16 @@ try:
     def Get(key, default="None"):
         return str(exif_data.get(key, default)) if exif_data.get(key) is not None else "None"
 
-    exposure = exif_data.get("ExposureTime")
+    exposure     = exif_data.get("ExposureTime")
     exposure_str = f"1/{round(1/float(exposure))}s" if exposure and float(exposure) < 1 else f"{exposure}s" if exposure else "None"
 
-    focal = exif_data.get("FocalLength")
+    focal     = exif_data.get("FocalLength")
     focal_str = f"{round(float(focal), 1)}mm" if focal else "None"
 
-    fnumber = exif_data.get("FNumber")
+    fnumber     = exif_data.get("FNumber")
     fnumber_str = f"f/{round(float(fnumber), 1)}" if fnumber else "None"
+
+    maps_url = f"https://www.google.com/maps?q={lat},{lon}" if lat and lon else "None"
 
     Scroll(f"""
  {SUCCESS} File Name       :{red} {os.path.basename(filepath)}{white}
@@ -170,7 +178,7 @@ try:
  {SUCCESS} Longitude       :{red} {lon if lon else 'None'}{white}
  {SUCCESS} Altitude        :{red} {round(float(altitude), 2) if altitude else 'None'}{white}
  {SUCCESS} Speed           :{red} {round(float(speed), 2) if speed else 'None'}{white}
- {SUCCESS} Google Maps     :{red} {'https://www.google.com/maps?q=' + str(lat) + ',' + str(lon) if lat and lon else 'None'}{white}
+ {SUCCESS} Google Maps     :{red} {maps_url}{white}
 """)
 
     Continue()
