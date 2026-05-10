@@ -1,7 +1,7 @@
 <div align="center">
 
 <h1 align="center">
-  <img src="Programs/Images/BuildwareLogo.png" alt="BuildwareLogo" width="23"> Buildware-Tools
+  <img src="Programs/Images/BuildwareLogo.png" alt="BuildwareLogo" width="27"> Buildware-Tools
 </h1>
 
 <p>
