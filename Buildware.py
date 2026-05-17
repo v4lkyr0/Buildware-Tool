@@ -179,9 +179,9 @@ def Menu(page=1):
  ├─ {PREFIX1}05{SUFFIX1} Mac Lookup                      ├─ {PREFIX1}15{SUFFIX1} {StarRequired("Username Tracker")}                ├─ {PREFIX1}25{SUFFIX1} File Hasher
  ├─ {PREFIX1}06{SUFFIX1} Ssl Checker                     ├─ {PREFIX1}16{SUFFIX1} {StarRequired("Email Breach Checker")}            ├─ {PREFIX1}26{SUFFIX1} Text Encoder/Decoder
  ├─ {PREFIX1}07{SUFFIX1} Proxy Checker                   ├─ {PREFIX1}17{SUFFIX1} {StarRequired("Phone Number Lookup")}             ├─ {PREFIX1}27{SUFFIX1} {StarRequired("Jwt Decoder")}
- ├─ {PREFIX1}08{SUFFIX1} Network Scanner                 ├─ {PREFIX1}18{SUFFIX1} {StarRequired("Exif Data Extractor")}             ├─ {PREFIX1}28{SUFFIX1} Qr Code Generator
- ├─ {PREFIX1}09{SUFFIX1} {StarRequired("Proxy Scraper")}                   ├─ {PREFIX1}19{SUFFIX1} {StarRequired("Google Dork Builder")}             ├─ {PREFIX1}29{SUFFIX1} Temporary Mail
- └─ {PREFIX1}10{SUFFIX1} {StarRequired("Http Headers")}                    └─ {PREFIX1}20{SUFFIX1} {StarRequired("Dox Creator")}                     └─ {PREFIX1}30{SUFFIX1} {StarRequired("Advanced Python Obfuscator")}"""
+ ├─ {PREFIX1}08{SUFFIX1} Network Scanner                 ├─ {PREFIX1}18{SUFFIX1} {StarRequired("File Metadata Scanner")}           ├─ {PREFIX1}28{SUFFIX1} Qr Code Generator
+ ├─ {PREFIX1}09{SUFFIX1} {StarRequired("Proxy Scraper")}                   ├─ {PREFIX1}19{SUFFIX1} {StarRequired("Dorking Query Engine")}            ├─ {PREFIX1}29{SUFFIX1} Temporary Mail
+ └─ {PREFIX1}10{SUFFIX1} {StarRequired("Website Vulnerability Scanner")}   └─ {PREFIX1}20{SUFFIX1} {StarRequired("Dox Creator")}                     └─ {PREFIX1}30{SUFFIX1} {StarRequired("Advanced Python Obfuscator")}"""
 
     elif page == 2:
         page2_rows = BuildPage2()
@@ -218,34 +218,34 @@ def Menu(page=1):
     return f"""{update}{buildware_banner}{content}"""
 
 options = {
-    "01": "Network-Ip-Port-Scanner",             "11": "Osint-Ip-Lookup",                          "21": "Utility-Password-Generator",
-    "02": "Network-Ip-Pinger",                   "12": "Osint-Whois-Lookup",                       "22": "Utility-Hash-Identifier",
-    "03": "Network-Traceroute",                  "13": "Osint-Ip-Reputation-Checker",              "23": "Utility-Hash-Cracker",
-    "04": "Network-Dns-Lookup",                  "14": "Osint-Subdomain-Finder",                   "24": "Utility-Zip-Cracker",
-    "05": "Network-Mac-Lookup",                  "15": "Osint-Username-Tracker",                   "25": "Utility-File-Hasher",
-    "06": "Network-Ssl-Checker",                 "16": "Osint-Email-Breach-Checker",               "26": "Utility-Text-Encoder-Decoder",
-    "07": "Network-Proxy-Checker",               "17": "Osint-Phone-Number-Lookup",                "27": "Utility-Jwt-Decoder",
-    "08": "Network-Network-Scanner",             "18": "Osint-Exif-Data-Extractor",                "28": "Utility-Qr-Code-Generator",
-    "09": "Network-Proxy-Scraper",               "19": "Osint-Google-Dork-Builder",                "29": "Utility-Temporary-Mail",
-    "10": "Network-Http-Headers",                "20": "Osint-Dox-Creator",                        "30": "Utility-Advanced-Python-Obfuscator",
+    "01": "Network-Ip-Port-Scanner",               "11": "Osint-Ip-Lookup",                          "21": "Utility-Password-Generator",
+    "02": "Network-Ip-Pinger",                     "12": "Osint-Whois-Lookup",                       "22": "Utility-Hash-Identifier",
+    "03": "Network-Traceroute",                    "13": "Osint-Ip-Reputation-Checker",              "23": "Utility-Hash-Cracker",
+    "04": "Network-Dns-Lookup",                    "14": "Osint-Subdomain-Finder",                   "24": "Utility-Zip-Cracker",
+    "05": "Network-Mac-Lookup",                    "15": "Osint-Username-Tracker",                   "25": "Utility-File-Hasher",
+    "06": "Network-Ssl-Checker",                   "16": "Osint-Email-Breach-Checker",               "26": "Utility-Text-Encoder-Decoder",
+    "07": "Network-Proxy-Checker",                 "17": "Osint-Phone-Number-Lookup",                "27": "Utility-Jwt-Decoder",
+    "08": "Network-Network-Scanner",               "18": "Osint-File-Metadata-Scanner",              "28": "Utility-Qr-Code-Generator",
+    "09": "Network-Proxy-Scraper",                 "19": "Osint-Dorking-Query-Engine",               "29": "Utility-Temporary-Mail",
+    "10": "Network-Website-Vulnerability-Scanner", "20": "Osint-Dox-Creator",                        "30": "Utility-Advanced-Python-Obfuscator",
 
-    "31": "Stealer-Builder",                                                                       "51": "Roblox-Cookie-Login",
-                                                                                                   "52": "Roblox-Cookie-Information",
-                                                                                                   "53": "Roblox-Id-Information",
-                                                                                                   "54": "Roblox-Username-Information",
-                                                                                                   "55": "Roblox-Group-Information",
-                                                                                                   "56": "Roblox-Game-Information",
+    "31": "Stealer-Builder",                                                                         "51": "Roblox-Cookie-Login",
+                                                                                                     "52": "Roblox-Cookie-Information",
+                                                                                                     "53": "Roblox-Id-Information",
+                                                                                                     "54": "Roblox-Username-Information",
+                                                                                                     "55": "Roblox-Group-Information",
+                                                                                                     "56": "Roblox-Game-Information",
 
-    "61": "Discord-Server-Information",          "71": "Discord-Token-Information",                "81": "Discord-Token-Image-Changer",
-    "62": "Discord-Server-Scraper",              "72": "Discord-Token-Login",                      "82": "Discord-Token-Bio-Changer",
-    "63": "Discord-Server-Cloner",               "73": "Discord-Token-Joiner",                     "83": "Discord-Token-Status-Changer",
-    "64": "Discord-Server-Editor",               "74": "Discord-Token-Leaver",                     "84": "Discord-Token-Generator",
-    "65": "Discord-Server-Ban-All",              "75": "Discord-Token-Onliner",                    "85": "Discord-Token-Nuker",
-    "66": "Discord-Server-Kick-All",             "76": "Discord-Token-Mass-Dm",                    "86": "Discord-Token-Disabler",
-    "67": "Discord-Server-Unban-All",            "77": "Discord-Token-Spammer",                    "87": "Discord-Token-Ghost-Pinger",
-    "68": "Discord-Server-Mute-All",             "78": "Discord-Webhook-Spammer",                  "88": "Discord-Webhook-Information",
-    "69": "Discord-Bot-Nuker",                   "79": "Discord-Vanity-Url-Sniper",                "89": "Discord-Embed-Creator",
-    "70": "Discord-Bot-Raider",                  "80": "Discord-Injection-Cleaner",                "90": "Discord-Nitro-Generator",
+    "61": "Discord-Server-Information",            "71": "Discord-Token-Information",                "81": "Discord-Token-Image-Changer",
+    "62": "Discord-Server-Scraper",                "72": "Discord-Token-Login",                      "82": "Discord-Token-Bio-Changer",
+    "63": "Discord-Server-Cloner",                 "73": "Discord-Token-Joiner",                     "83": "Discord-Token-Status-Changer",
+    "64": "Discord-Server-Editor",                 "74": "Discord-Token-Leaver",                     "84": "Discord-Token-Generator",
+    "65": "Discord-Server-Ban-All",                "75": "Discord-Token-Onliner",                    "85": "Discord-Token-Nuker",
+    "66": "Discord-Server-Kick-All",               "76": "Discord-Token-Mass-Dm",                    "86": "Discord-Token-Disabler",
+    "67": "Discord-Server-Unban-All",              "77": "Discord-Token-Spammer",                    "87": "Discord-Token-Ghost-Pinger",
+    "68": "Discord-Server-Mute-All",               "78": "Discord-Webhook-Spammer",                  "88": "Discord-Webhook-Information",
+    "69": "Discord-Bot-Nuker",                     "79": "Discord-Vanity-Url-Sniper",                "89": "Discord-Embed-Creator",
+    "70": "Discord-Bot-Raider",                    "80": "Discord-Injection-Cleaner",                "90": "Discord-Nitro-Generator",
 }
 
 def LoadPluginOptions():
@@ -257,7 +257,7 @@ def LoadPluginOptions():
     return result
 
 star_required       = {"09", "10", "14", "15", "16", "17", "18", "19", "20", "23", "24", "27", "30", "31", "51", "55", "62", "63", "64", "65", "66", "69", "70", "76", "77", "78", "79", "85", "86", "87", "90"}
-connection_required = {"01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "20", "23", "24", "29", "51", "52", "53", "54", "55", "56", "61", "62", "63", "64", "65", "66", "67", "68", "69", "70", "71", "72", "73", "74", "75", "76", "77", "78", "79", "80", "81", "82", "83", "84", "85", "86", "87", "88", "89", "90"}
+connection_required = {"01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "20", "23", "24", "29", "31", "51", "52", "53", "54", "55", "56", "61", "62", "63", "64", "65", "66", "67", "68", "69", "70", "71", "72", "73", "74", "75", "76", "77", "78", "79", "80", "81", "82", "83", "84", "85", "86", "87", "88", "89", "90"}
 
 
 page = LoadPage()

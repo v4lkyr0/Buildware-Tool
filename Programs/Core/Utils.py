@@ -66,7 +66,7 @@ def ColorText(r, g, b, char):
 tool_path = os.path.dirname(os.path.abspath(__file__)).split("Programs\\")[0].split("Programs/")[0].strip()
 
 try:
-    username_pc = "user"
+    username_pc = os.getlogin()
 except Exception:
     username_pc = "user"
 

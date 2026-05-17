@@ -1,4 +1,4 @@
-# Copyright (c) 2025-2026 v4lkyr0 — Buildware-Prenium
+# Copyright (c) 2025-2026 v4lkyr0 — Buildware-Tools
 # See the file 'LICENSE' for copying permission.
 # --------------------------------------------------------
 # EN: Non-commercial use only. Do not sell, remove credits
@@ -893,7 +893,7 @@ try:
     output_path = os.path.join(output_dir, os.path.basename(filepath))
 
     header = (
-        f"# Copyright (c) 2025-2026 v4lkyr0 — Buildware-Prenium\n"
+        f"# Copyright (c) 2025-2026 v4lkyr0 — Buildware-Tools\n"
         f"# Obfuscated with Advanced Python Obfuscator.\n\n"
     )
 

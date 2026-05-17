@@ -22,7 +22,6 @@ try:
  {INFO} License   :{red} {license} ({license_url}){white}
  {INFO} GitHub    :{red} {github_url}{white}
  {INFO} Discord   :{red} {discord_url}{white}
- {INFO} Website   :{red} {website_url}{white}
  {INFO} Guns.lol  :{red} {gunslol_url}{white}
 """)
 

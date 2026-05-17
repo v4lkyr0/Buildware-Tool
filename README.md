@@ -88,7 +88,7 @@ If you like **Buildware-Tools** and want to support the project, you can leave a
 │   ├── Proxy Checker                   : Tests if a proxy is valid and retrieves its IP
 │   ├── Network Scanner                 : [⭐] Scans all active hosts on a local network
 │   ├── Proxy Scraper                   : [⭐] Scrapes thousands of proxies from public sources
-│   └── Http Headers                    : [⭐] Retrieves and analyzes HTTP headers of a website
+│   └── Website Vulnerability Scanner   : [⭐] Scans a website for a wide range of vulnerabilities
 │
 ├── 🔍 Osint (10)
 │   │
@@ -99,8 +99,8 @@ If you like **Buildware-Tools** and want to support the project, you can leave a
 │   ├── Username Tracker                : [⭐] Searches for a username across 40+ platforms
 │   ├── Email Breach Checker            : [⭐] Checks if an email has been found in data breaches
 │   ├── Phone Number Lookup             : [⭐] Retrieves carrier, country and timezone for a phone number
-│   ├── Exif Data Extractor             : [⭐] Extracts metadata and GPS coordinates from images
-│   ├── Google Dork Builder             : [⭐] Builds and executes advanced Google search queries
+│   ├── File Metadata Scanner           : [⭐] Extracts metadata and GPS coordinates from images
+│   ├── Dorking Query Engine            : [⭐] Builds and executes advanced Google search queries
 │   └── Dox Creator                     : [⭐] Creates a complete profile document by compiling available information about a target
 │
 ├── 🧰 Utilities (10)
